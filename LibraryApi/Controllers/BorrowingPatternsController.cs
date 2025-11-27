@@ -45,7 +45,7 @@ public class BorrowingPatternsController : ControllerBase
             _logger.LogInformation("Starting borrowing patterns analysis");
 
             // Get all book IDs from database
-            var bookIds = (await _bookRepository.GetAllBookIdsAsync()).ToList();
+            var bookIds = (await _bookRepository.GetAllBooks()).Select(b => b.BookId).ToList();
 
             if (!bookIds.Any())
             {
@@ -124,8 +124,8 @@ public class BorrowingPatternsController : ControllerBase
     {
         try
         {
-            var bookIds = await _bookRepository.GetAllBookIdsAsync();
-            var oddIds = _bookService.GetOddNumberedBookIds(bookIds);
+            var books = await _bookRepository.GetAllBooks();
+            var oddIds = _bookService.GetOddNumberedBookIds(books.Select(b => b.BookId)).ToList();
 
             _logger.LogInformation("Retrieved {Count} odd-numbered book IDs", oddIds.Count());
             return Ok(oddIds);

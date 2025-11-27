@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using BusinessLogic;
 using DataStorage.Repositories;
 using DataStorage.Entities;
+using DataStorage.Exceptions;
 using LibraryApi.DTOs;
 
 namespace LibraryApi.Controllers;
@@ -38,7 +39,7 @@ public class BookController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<BookDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<BookDto>>> GetAllBooksAsync()
     {
-        var books = await _bookRepository.GetAllBooksAsync();
+        var books = await _bookRepository.GetAllBooks();
         var bookDtos = books.Select(MapToDto);
 
         _logger.LogInformation("Retrieved {Count} books", bookDtos.Count());
@@ -57,11 +58,20 @@ public class BookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<BookDto>> GetBookByIdAsync(int id)
     {
-        var book = await _bookRepository.GetBookByIdAsync(id);
-        if (book == null)
+        Book book;
+        try
         {
-            _logger.LogWarning("Book with ID {BookId} not found", id);
+            book = await _bookRepository.GetBookById(id);
+        }
+        catch (BookIdMissingException e)
+        {
+            _logger.LogWarning(e.Message, e.BookId);
             return NotFound($"Book with ID {id} not found");
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning(e.Message, e);
+            return NotFound($"Internal error");
         }
 
         return Ok(MapToDto(book));
@@ -137,7 +147,7 @@ public class BookController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<BookDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<BookDto>>> SearchBooksByTitleAsync([FromQuery] string titlePattern)
     {
-        var books = await _bookRepository.SearchBooksByTitleAsync(titlePattern);
+        var books = await _bookRepository.SearchBooksByTitleLikeQuery(titlePattern);
         var bookDtos = books.Select(MapToDto);
 
         _logger.LogInformation("Found {Count} books matching pattern '{Pattern}'", bookDtos.Count(), titlePattern);
@@ -204,14 +214,7 @@ public class BookController : ControllerBase
         try
         {
             var book = MapToEntity(bookDto);
-            var success = await _bookRepository.UpdateBookAsync(book);
-
-            if (!success)
-            {
-                _logger.LogWarning("Book with ID {BookId} not found for update", id);
-                return NotFound($"Book with ID {id} not found");
-            }
-
+            Book updatedBook = await _bookRepository.UpdateBookAsync(book);
             _logger.LogInformation("Updated book with ID {BookId}", id);
             return NoContent();
         }
