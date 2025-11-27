@@ -4,11 +4,7 @@ using DataStorage.Exceptions;
 
 namespace DataStorage.Repositories;
 
-/// <summary>
-/// Implementation of IBookRepository using Dapper for database operations
-/// Follows Repository pattern and Single Responsibility Principle
-/// Uses explicit SQL queries for full control and performance
-/// </summary>
+
 public class BookRepository : IBookRepository
 {
     private readonly IDbConnectionFactory _connectionFactory;
@@ -18,9 +14,7 @@ public class BookRepository : IBookRepository
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     }
 
-    /// <summary>
-    /// Gets all books from the database using explicit SQL
-    /// </summary>
+
     public async Task<IEnumerable<Book>> GetAllBooks()
     {
         const string sql = @"
@@ -48,7 +42,7 @@ public class BookRepository : IBookRepository
         return book;
     }
 
-    public async Task<Book> AddBookAsync(Book book)
+    public async Task<Book> AddBook(Book book)
     {
         if (book == null)
             throw new ArgumentNullException(nameof(book));
@@ -64,7 +58,7 @@ public class BookRepository : IBookRepository
     }
 
 
-    public async Task<Book> UpdateBookAsync(Book book)
+    public async Task<Book> UpdateBook(Book book)
     {
         const string sql = @"
             UPDATE Book
@@ -82,7 +76,7 @@ public class BookRepository : IBookRepository
     }
 
 
-    public async Task<bool> DeleteBookAsync(int bookId)
+    public async Task<bool> DeleteBook(int bookId)
     {
         const string sql = @"
             DELETE FROM Book

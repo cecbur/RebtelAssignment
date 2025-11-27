@@ -17,21 +17,21 @@ public interface IBookRepository
 
     /// Adds a new book to the database
     /// <returns>The added book with generated ID</returns>
-    Task<Book> AddBookAsync(Book book);
+    Task<Book> AddBook(Book book);
 
     /// <summary>
     /// Updates an existing book
     /// </summary>
     /// <param name="book">The book to update</param>
     /// <returns>True if update was successful, false otherwise</returns>
-    Task<Book> UpdateBookAsync(Book book);
+    Task<Book> UpdateBook(Book book);
 
     /// <summary>
     /// Deletes a book by its ID
     /// </summary>
     /// <param name="bookId">The ID of the book to delete</param>
     /// <returns>True if deletion was successful, false otherwise</returns>
-    Task<bool> DeleteBookAsync(int bookId);
+    Task<bool> DeleteBook(int bookId);
 
     /// <summary>
     /// Gets books by title pattern

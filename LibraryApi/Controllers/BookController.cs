@@ -174,7 +174,7 @@ public class BookController : ControllerBase
         try
         {
             var book = MapToEntity(bookDto);
-            var createdBook = await _bookRepository.AddBookAsync(book);
+            var createdBook = await _bookRepository.AddBook(book);
 
             _logger.LogInformation("Created new book with ID {BookId}: '{Title}'", createdBook.BookId, createdBook.Title);
             return CreatedAtAction(nameof(GetBookByIdAsync), new { id = createdBook.BookId }, MapToDto(createdBook));
@@ -214,7 +214,7 @@ public class BookController : ControllerBase
         try
         {
             var book = MapToEntity(bookDto);
-            Book updatedBook = await _bookRepository.UpdateBookAsync(book);
+            Book updatedBook = await _bookRepository.UpdateBook(book);
             _logger.LogInformation("Updated book with ID {BookId}", id);
             return NoContent();
         }
@@ -239,7 +239,7 @@ public class BookController : ControllerBase
     {
         try
         {
-            var success = await _bookRepository.DeleteBookAsync(id);
+            var success = await _bookRepository.DeleteBook(id);
 
             if (!success)
             {
