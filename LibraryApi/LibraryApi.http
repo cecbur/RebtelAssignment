@@ -146,86 +146,20 @@ Content-Type: application/json
 # User Activity Controller
 ###########################
 
-### Analyze borrowing patterns (all books)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/analyze
+### Get most active patrons (January 2024, top 10)
+GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
 Accept: application/json
 
 ###
 
-### Check if book ID is power of two (true - ID 1)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/1
+### Get most active patrons (Q1 2024, top 5)
+GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
 Accept: application/json
 
 ###
 
-### Check if book ID is power of two (true - ID 2)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/2
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (true - ID 4)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/4
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (true - ID 8)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/8
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (true - ID 16)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/16
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (false - ID 3)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/3
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (false - ID 5)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/5
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (false - ID 6)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/6
-Accept: application/json
-
-###
-
-### Check if book ID is power of two (error - invalid ID)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/is-power-of-two/0
-Accept: application/json
-
-###
-
-### Get all odd-numbered book IDs
-GET {{LibraryApi_HostAddress}}/api/UserActivity/odd-book-ids
-Accept: application/json
-
-###
-
-### Get most active patrons (January 2024)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31
-Accept: application/json
-
-###
-
-### Get most active patrons (Q1 2024)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31
-Accept: application/json
-
-###
-
-### Get most active patrons (All of 2024)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31
+### Get most active patrons (All of 2024, top 20)
+GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
 Accept: application/json
 
 ###

@@ -65,6 +65,39 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : BaseReposi
 
         return BookConverter.ToModel(bookEntity, authorEntity);
     }
+    
+    public async Task<IEnumerable<BusinessModels.Book>> GetBooksByIds(IEnumerable<int> bookIds)
+    {
+        var idList = bookIds.ToList();
+        if (!idList.Any())
+        {
+            return Enumerable.Empty<BusinessModels.Book>();
+        }
+
+        const string sql = @"
+            SELECT
+                b.Id, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.Id, a.GivenName, a.Surname
+            FROM Book b
+            LEFT JOIN Author a ON b.AuthorId = a.Id
+            WHERE b.Id IN @BookIds
+            ORDER BY b.Id";
+
+        using var connection = _connectionFactory.CreateConnection();
+        var bookDictionary = new Dictionary<int, (Entities.Book book, Entities.Author? author)>();
+
+        await connection.QueryAsync<Entities.Book, Entities.Author, (Entities.Book, Entities.Author?)>(
+            sql,
+            (book, author) =>
+            {
+                bookDictionary[book.Id] = (book, author);
+                return (book, author);
+            },
+            new { BookIds = idList },
+            splitOn: "Id");
+
+        return bookDictionary.Values.Select(tuple => BookConverter.ToModel(tuple.book, tuple.author));
+    }
 
     public async Task<BusinessModels.Book> AddBook(BusinessModels.Book book)
     {
@@ -162,4 +195,5 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : BaseReposi
 
         return bookDictionary.Values.Select(tuple => BookConverter.ToModel(tuple.book, tuple.author));
     }
+
 }
