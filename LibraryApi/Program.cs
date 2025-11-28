@@ -12,7 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? "Server=(localdb)\\mssqllocaldb;Database=Library;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
 // Register Dapper connection factory - Dependency Injection (SOLID: Dependency Inversion Principle)
-builder.Services.AddSingleton<IDbConnectionFactory>(sp => new SqlConnectionFactory(connectionString));
+builder.Services.AddSingleton<IDbConnectionFactory>(sp => new SqlServerConnectionFactory(connectionString));
 
 // Register application services - Dependency Injection (SOLID: Dependency Inversion Principle)
 builder.Services.AddScoped<IBookService, BookService>();
