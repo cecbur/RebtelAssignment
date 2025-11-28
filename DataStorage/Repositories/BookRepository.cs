@@ -13,29 +13,58 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     public async Task<IEnumerable<BusinessModels.Book>> GetAllBooks()
     {
         const string sql = @"
-            SELECT BookId, Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable
-            FROM Book
-            ORDER BY BookId";
+            SELECT
+                b.BookId, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.AuthorId, a.GivenName, a.Surname
+            FROM Book b
+            LEFT JOIN Author a ON b.AuthorId = a.AuthorId
+            ORDER BY b.BookId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var entities = await connection.QueryAsync<Entities.Book>(sql);
-        return entities.Select(BookConverter.ToModel);
+        var bookDictionary = new Dictionary<int, (Entities.Book book, Entities.Author? author)>();
+
+        await connection.QueryAsync<Entities.Book, Entities.Author, (Entities.Book, Entities.Author?)>(
+            sql,
+            (book, author) =>
+            {
+                bookDictionary[book.BookId] = (book, author);
+                return (book, author);
+            },
+            splitOn: "AuthorId");
+
+        return bookDictionary.Values.Select(tuple => BookConverter.ToModel(tuple.book, tuple.author));
     }
 
     public async Task<BusinessModels.Book> GetBookById(int bookId)
     {
         const string sql = @"
-            SELECT BookId, Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable
-            FROM Book
-            WHERE BookId = @BookId";
+            SELECT
+                b.BookId, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.AuthorId, a.GivenName, a.Surname
+            FROM Book b
+            LEFT JOIN Author a ON b.AuthorId = a.AuthorId
+            WHERE b.BookId = @BookId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var entity = await connection.QuerySingleOrDefaultAsync<Entities.Book>(sql, new { BookId = bookId });
 
-        if (entity == null)
+        Entities.Book? bookEntity = null;
+        Entities.Author? authorEntity = null;
+
+        await connection.QueryAsync<Entities.Book, Entities.Author, int>(
+            sql,
+            (book, author) =>
+            {
+                bookEntity = book;
+                authorEntity = author;
+                return 0;
+            },
+            new { BookId = bookId },
+            splitOn: "AuthorId");
+
+        if (bookEntity == null)
             throw new BookIdMissingException($"Book with id {bookId} not found", bookId);
 
-        return BookConverter.ToModel(entity);
+        return BookConverter.ToModel(bookEntity, authorEntity);
     }
 
     public async Task<BusinessModels.Book> AddBook(BusinessModels.Book book)
@@ -47,12 +76,13 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
 
         const string sql = @"
             INSERT INTO Book (Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable)
-            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorId, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
+            OUTPUT INSERTED.BookId
             VALUES (@Title, @AuthorId, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailableForLoan);";
 
         using var connection = _connectionFactory.CreateConnection();
-        var newEntity = await connection.QuerySingleAsync<Entities.Book>(sql, entity);
-        return BookConverter.ToModel(newEntity);
+        var newBookId = await connection.QuerySingleAsync<int>(sql, entity);
+
+        return await GetBookById(newBookId);
     }
 
 
@@ -68,24 +98,26 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
                 PublicationYear = @PublicationYear,
                 NumberOfPages = @NumberOfPages,
                 IsAvailable = @IsAvailableForLoan
-            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorId, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
             WHERE BookId = @BookId";
 
-        Entities.Book? updatedEntity;
         try
         {
             using var connection = _connectionFactory.CreateConnection();
-            updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Book>(sql, entity);
+            var rowsAffected = await connection.ExecuteAsync(sql, entity);
+
+            if (rowsAffected == 0)
+                throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId);
+        }
+        catch (BookIdMissingException)
+        {
+            throw;
         }
         catch (Exception e)
         {
             throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId, e);
         }
 
-        if (updatedEntity == null)
-            throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId);
-
-        return BookConverter.ToModel(updatedEntity);
+        return await GetBookById(book.BookId);
     }
 
 
@@ -108,13 +140,27 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         }
 
         const string sql = @"
-            SELECT BookId, Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable
-            FROM Book
-            WHERE Title LIKE '%' + @TitlePattern + '%'
-            ORDER BY Title";
+            SELECT
+                b.BookId, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.AuthorId, a.GivenName, a.Surname
+            FROM Book b
+            LEFT JOIN Author a ON b.AuthorId = a.AuthorId
+            WHERE b.Title LIKE '%' + @TitlePattern + '%'
+            ORDER BY b.Title";
 
         using var connection = _connectionFactory.CreateConnection();
-        var entities = await connection.QueryAsync<Entities.Book>(sql, new { TitlePattern = titlePattern });
-        return entities.Select(BookConverter.ToModel);
+        var bookDictionary = new Dictionary<int, (Entities.Book book, Entities.Author? author)>();
+
+        await connection.QueryAsync<Entities.Book, Entities.Author, (Entities.Book, Entities.Author?)>(
+            sql,
+            (book, author) =>
+            {
+                bookDictionary[book.BookId] = (book, author);
+                return (book, author);
+            },
+            new { TitlePattern = titlePattern },
+            splitOn: "AuthorId");
+
+        return bookDictionary.Values.Select(tuple => BookConverter.ToModel(tuple.book, tuple.author));
     }
 }

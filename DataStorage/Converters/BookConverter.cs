@@ -5,13 +5,13 @@ namespace DataStorage.Converters;
 
 internal static class BookConverter
 {
-    public static BusinessModels.Book ToModel(Entities.Book entity)
+    public static BusinessModels.Book ToModel(Entities.Book entity, Entities.Author? author)
     {
         return new BusinessModels.Book
         {
             BookId = entity.BookId,
             Title = entity.Title,
-            AuthorId = entity.AuthorId,
+            Author = author != null ? AuthorConverter.ToModel(author) : null,
             Isbn = entity.Isbn,
             PublicationYear = entity.PublicationYear,
             NumberOfPages = entity.NumberOfPages,
@@ -25,7 +25,7 @@ internal static class BookConverter
         {
             BookId = model.BookId,
             Title = model.Title,
-            AuthorId = model.AuthorId,
+            AuthorId = model.Author?.AuthorId,
             Isbn = model.Isbn,
             PublicationYear = model.PublicationYear,
             NumberOfPages = model.NumberOfPages,
