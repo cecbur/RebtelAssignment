@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryApi", "LibraryApi\Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessModels", "BusinessModels\BusinessModels.csproj", "{B0795764-B660-4C50-A0E6-05E10688BB39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageClient", "DataStorageClient\DataStorageClient.csproj", "{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{B0795764-B660-4C50-A0E6-05E10688BB39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0795764-B660-4C50-A0E6-05E10688BB39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0795764-B660-4C50-A0E6-05E10688BB39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
