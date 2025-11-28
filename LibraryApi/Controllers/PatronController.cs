@@ -22,8 +22,8 @@ public class PatronController : ControllerBase
     /// </summary>
     /// <param name="patronId">The ID of the patron</param>
     /// <returns>The patron's reading pace in pages per day</returns>
-    [HttpGet("{patronId}/reading-pace")]
-    public async Task<ActionResult<PatronReadingPaceResponse>> GetReadingPace(int patronId)
+    [HttpGet("{patronId}/reading-pace-pages-per-day")]
+    public async Task<ActionResult<PatronReadingPaceResponse>> GetReadingPacePagesPerDay(int patronId)
     {
         try
         {
