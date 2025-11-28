@@ -17,7 +17,7 @@ Accept: application/json
 ###
 
 ### Get book by ID
-GET {{LibraryApi_HostAddress}}/api/Book/1
+GET {{LibraryApi_HostAddress}}/api/Book/2
 Accept: application/json
 
 ###

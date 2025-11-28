@@ -265,9 +265,9 @@ public class BookController : ControllerBase
             BookId = book.BookId,
             Title = book.Title,
             Author = book.Author,
-            ISBN = book.ISBN,
+            ISBN = book.Isbn,
             PublicationYear = book.PublicationYear,
-            IsAvailable = book.IsAvailable
+            IsAvailable = book.IsAvailableForLoan
         };
     }
 
@@ -278,9 +278,9 @@ public class BookController : ControllerBase
             BookId = dto.BookId,
             Title = dto.Title,
             Author = dto.Author,
-            ISBN = dto.ISBN,
+            Isbn = dto.ISBN,
             PublicationYear = dto.PublicationYear,
-            IsAvailable = dto.IsAvailable
+            IsAvailableForLoan = dto.IsAvailable
         };
     }
 }

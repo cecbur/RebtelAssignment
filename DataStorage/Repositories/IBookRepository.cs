@@ -5,32 +5,18 @@ namespace DataStorage.Repositories;
 
 public interface IBookRepository
 {
-    /// Gets all books from the database
     Task<IEnumerable<Book>> GetAllBooks();
-
-    /// <summary>
-    /// Gets a book by its ID
-    /// </summary>
-    /// <param name="bookId">The ID of the book to retrieve</param>
-    /// <returns>The book if found, null otherwise</returns>
+    
     Task<Book> GetBookById(int bookId);
 
     /// Adds a new book to the database
-    /// <returns>The added book with generated ID</returns>
+    /// <returns>The book from the database</returns>
     Task<Book> AddBook(Book book);
 
-    /// <summary>
     /// Updates an existing book
-    /// </summary>
-    /// <param name="book">The book to update</param>
-    /// <returns>True if update was successful, false otherwise</returns>
+    /// <returns>The updated book from the database</returns>
     Task<Book> UpdateBook(Book book);
 
-    /// <summary>
-    /// Deletes a book by its ID
-    /// </summary>
-    /// <param name="bookId">The ID of the book to delete</param>
-    /// <returns>True if deletion was successful, false otherwise</returns>
     Task<bool> DeleteBook(int bookId);
 
     /// <summary>

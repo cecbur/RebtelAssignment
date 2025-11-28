@@ -5,16 +5,10 @@ using DataStorage.Exceptions;
 namespace DataStorage.Repositories;
 
 
-public class BookRepository : IBookRepository
+public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public BookRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-    }
-
-
+    private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
+    
     public async Task<IEnumerable<Book>> GetAllBooks()
     {
         const string sql = @"
@@ -70,8 +64,18 @@ public class BookRepository : IBookRepository
                 IsAvailable = @IsAvailable
             WHERE BookId = @BookId";
 
-        using var connection = _connectionFactory.CreateConnection();
-        var updatedBook = await connection.ExecuteScalarAsync<Book>(sql, book);
+        Book? updatedBook;
+        try
+        {
+            using var connection = _connectionFactory.CreateConnection();
+            updatedBook = await connection.ExecuteScalarAsync<Book>(sql, book);
+        }
+        catch (Exception e)
+        {
+            throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId, e);
+        }
+        
+        
         return updatedBook!;
     }
 
