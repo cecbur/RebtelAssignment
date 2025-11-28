@@ -3,7 +3,7 @@ using DataStorageContracts;
 
 namespace BusinessLogic;
 
-public class UserActivity(ILoanRepository loanRepository)
+public class PatronActivity(ILoanRepository loanRepository)
 {
     public async Task<PatronLoans[]> GetPatronLoansOrderedByFrequency(DateTime startDate, DateTime endDate)
     {
@@ -13,7 +13,7 @@ public class UserActivity(ILoanRepository loanRepository)
     }
 
     /// <summary>
-    /// Users estimated reading pace assuming continuous reading
+    /// Patron's estimated reading pace assuming continuous reading
     /// </summary>
     /// <param name="loanId">ID of the loan</param>
     /// <returns>Number of pages read per day. Null if the book is not yet returned</returns>

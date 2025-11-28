@@ -35,7 +35,7 @@ builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IPatronRepository, PatronRepository>();
 
 // Register business logic services
-builder.Services.AddScoped<UserActivity>();
+builder.Services.AddScoped<PatronActivity>();
 builder.Services.AddScoped<BorrowingPatterns>();
 builder.Services.AddScoped<BookPatterns>();
 

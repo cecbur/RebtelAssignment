@@ -11,13 +11,13 @@ namespace LibraryApi.Controllers;
 public class LoanController : ControllerBase
 {
     private readonly ILoanRepository _loanRepository;
-    private readonly UserActivity _userActivity;
+    private readonly PatronActivity _patronActivity;
     private readonly ILogger<LoanController> _logger;
 
-    public LoanController(ILoanRepository loanRepository, UserActivity userActivity, ILogger<LoanController> logger)
+    public LoanController(ILoanRepository loanRepository, PatronActivity patronActivity, ILogger<LoanController> logger)
     {
         _loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
-        _userActivity = userActivity ?? throw new ArgumentNullException(nameof(userActivity));
+        _patronActivity = patronActivity ?? throw new ArgumentNullException(nameof(patronActivity));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
     
@@ -102,7 +102,7 @@ public class LoanController : ControllerBase
     {
         try
         {
-            var pagesPerDay = await _userActivity.GetPagesPerDay(loanId);
+            var pagesPerDay = await _patronActivity.GetPagesPerDay(loanId);
 
             if (pagesPerDay == null)
             {

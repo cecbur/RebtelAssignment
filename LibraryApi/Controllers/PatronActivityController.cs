@@ -8,22 +8,22 @@ namespace LibraryApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class UserActivityController : ControllerBase
+public class PatronActivityController : ControllerBase
 {
-    private readonly UserActivity _userActivity;
-    private readonly ILogger<UserActivityController> _logger;
+    private readonly PatronActivity _patronActivity;
+    private readonly ILogger<PatronActivityController> _logger;
 
-    public UserActivityController(
-        UserActivity userActivity,
-        ILogger<UserActivityController> logger)
+    public PatronActivityController(
+        PatronActivity patronActivity,
+        ILogger<PatronActivityController> logger)
     {
-        _userActivity = userActivity ?? throw new ArgumentNullException(nameof(userActivity));
+        _patronActivity = patronActivity ?? throw new ArgumentNullException(nameof(patronActivity));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
     /// Gets patrons ordered by loan frequency within a given time frame
-    /// Answers the question: "Which users have borrowed the most books within a given time frame?"
+    /// Answers the question: "Which patrons have borrowed the most books within a given time frame?"
     /// </summary>
     /// <param name="startDate">Start date of the time frame</param>
     /// <param name="endDate">End date of the time frame</param>
@@ -41,7 +41,7 @@ public class UserActivityController : ControllerBase
         {
             _logger.LogInformation("Getting most active patrons from {StartDate} to {EndDate}", startDate, endDate);
 
-            var patronLoans = await _userActivity.GetPatronLoansOrderedByFrequency(startDate, endDate);
+            var patronLoans = await _patronActivity.GetPatronLoansOrderedByFrequency(startDate, endDate);
 
             if (patronLoans.Count() > maxPatrons)
                 patronLoans = patronLoans.Take(maxPatrons).ToArray();

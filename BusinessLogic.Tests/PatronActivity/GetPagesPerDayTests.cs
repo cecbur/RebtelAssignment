@@ -1,10 +1,8 @@
-using BusinessModels;
 using Moq;
-using Xunit;
 
-namespace BusinessLogic.Tests.InventoryInsights.UserActivity;
+namespace BusinessLogic.Tests.PatronActivity;
 
-public class GetPagesPerDayTests : UserActivityTestBase
+public class GetPagesPerDayTests : PatronActivityTestBase
 {
     [Fact]
     public async Task WithReturnedLoan_CalculatesPagesPerDay()
@@ -25,7 +23,7 @@ public class GetPagesPerDayTests : UserActivityTestBase
             .ReturnsAsync(loan);
 
         // Act
-        var result = await UserActivity.GetPagesPerDay(1);
+        var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
         Assert.NotNull(result);
@@ -50,7 +48,7 @@ public class GetPagesPerDayTests : UserActivityTestBase
             .ReturnsAsync(loan);
 
         // Act
-        var result = await UserActivity.GetPagesPerDay(1);
+        var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
         Assert.Null(result);
@@ -75,7 +73,7 @@ public class GetPagesPerDayTests : UserActivityTestBase
             .ReturnsAsync(loan);
 
         // Act
-        var result = await UserActivity.GetPagesPerDay(1);
+        var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
         Assert.NotNull(result);
@@ -102,7 +100,7 @@ public class GetPagesPerDayTests : UserActivityTestBase
             .ReturnsAsync(loan);
 
         // Act
-        var result = await UserActivity.GetPagesPerDay(1);
+        var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
         Assert.NotNull(result);
@@ -127,7 +125,7 @@ public class GetPagesPerDayTests : UserActivityTestBase
             .ReturnsAsync(loan);
 
         // Act
-        var result = await UserActivity.GetPagesPerDay(1);
+        var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
         Assert.Null(result);

@@ -142,24 +142,24 @@ Content-Type: application/json
 
 ###
 
-###########################
-# User Activity Controller
-###########################
+##############################
+# Patron Activity Controller
+##############################
 
 ### Get most active patrons (January 2024, top 10)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
+GET {{LibraryApi_HostAddress}}/api/PatronActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
 Accept: application/json
 
 ###
 
 ### Get most active patrons (Q1 2024, top 5)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
+GET {{LibraryApi_HostAddress}}/api/PatronActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
 Accept: application/json
 
 ###
 
 ### Get most active patrons (All of 2024, top 20)
-GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
+GET {{LibraryApi_HostAddress}}/api/PatronActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
 Accept: application/json
 
 ###
@@ -262,12 +262,20 @@ Accept: application/json
 
 ###
 
-#############################
-# Book Patterns Controller
-#############################
+### Get most loaned books sorted by loan count
+GET {{LibraryApi_HostAddress}}/api/Book/most-loaned
+Accept: application/json
 
-### Get most borrowed books sorted by loan count
-GET {{LibraryApi_HostAddress}}/api/BookPatterns/most-borrowed
+###
+
+### Get most loaned books sorted by loan count (top 5)
+GET {{LibraryApi_HostAddress}}/api/Book/most-loaned?maxBooks=5
+Accept: application/json
+
+###
+
+### Get most loaned books sorted by loan count (top 10)
+GET {{LibraryApi_HostAddress}}/api/Book/most-loaned?maxBooks=10
 Accept: application/json
 
 ###

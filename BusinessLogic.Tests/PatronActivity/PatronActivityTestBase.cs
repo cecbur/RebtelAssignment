@@ -2,20 +2,20 @@ using BusinessModels;
 using DataStorageContracts;
 using Moq;
 
-namespace BusinessLogic.Tests.InventoryInsights.UserActivity;
+namespace BusinessLogic.Tests.PatronActivity;
 
-public abstract class UserActivityTestBase
+public abstract class PatronActivityTestBase
 {
     protected readonly Mock<ILoanRepository> MockLoanRepository;
-    protected readonly BusinessLogic.UserActivity UserActivity;
+    protected readonly BusinessLogic.PatronActivity PatronActivity;
 
-    protected UserActivityTestBase()
+    protected PatronActivityTestBase()
     {
         MockLoanRepository = new Mock<ILoanRepository>();
-        UserActivity = new BusinessLogic.UserActivity(MockLoanRepository.Object);
+        PatronActivity = new BusinessLogic.PatronActivity(MockLoanRepository.Object);
     }
 
-    protected static Patron CreatePatron(int id, string firstName = "Test", string lastName = "User")
+    protected static Patron CreatePatron(int id, string firstName = "Test", string lastName = "Patron")
     {
         return new Patron
         {
