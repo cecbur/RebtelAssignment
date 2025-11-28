@@ -1,10 +1,10 @@
 
 using BusinessModels;
-using DataStorageClient;
+using DataStorageContracts;
 
 namespace BusinessLogic.InventoryInsights;
 
-public class UserActivity(LoanRepository loanRepository)
+public class UserActivity(ILoanRepository loanRepository)
 {
     public async Task<PatronLoans[]> GetPatronLoansOrderedByFrequency(DateTime startDate, DateTime endDate)
     {
@@ -20,14 +20,16 @@ public class UserActivity(LoanRepository loanRepository)
         var readingPace = new Dictionary<Patron, double?>();
         foreach (var patronLoan in patronLoans)
         {
-            var loanTimes = patronLoan.Loans
+            var returnedLoans = patronLoan.Loans
                 .Where(l => l.ReturnDate is not null && l.Book.NumberOfPages is not null)
+                .ToArray();
+            var loanTimes = returnedLoans
                 .Select(l => (l.LoanDate, (DateTime)l.ReturnDate!))
                 .ToArray();
             if (loanTimes.Length == 0)
                 continue;
             var time = GetTotalLoanTime(loanTimes);
-            var pages = patronLoan.Loans.Sum(l => l.Book.NumberOfPages!)!.Value;
+            var pages = returnedLoans.Sum(l => l.Book.NumberOfPages!)!.Value;
             var pagesPerDay = pages / time.TotalDays;
             readingPace.Add(patronLoan.Patron, pagesPerDay);
         }

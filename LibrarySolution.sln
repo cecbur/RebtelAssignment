@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageClient", "DataSt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageContracts", "DataStorageContracts\DataStorageContracts.csproj", "{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogic.Tests", "BusinessLogic.Tests\BusinessLogic.Tests.csproj", "{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
