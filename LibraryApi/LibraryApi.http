@@ -261,3 +261,13 @@ GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/4
 Accept: application/json
 
 ###
+
+#############################
+# Book Patterns Controller
+#############################
+
+### Get most borrowed books sorted by loan count
+GET {{LibraryApi_HostAddress}}/api/BookPatterns/most-borrowed
+Accept: application/json
+
+###

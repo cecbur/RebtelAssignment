@@ -37,6 +37,7 @@ builder.Services.AddScoped<IPatronRepository, PatronRepository>();
 // Register business logic services
 builder.Services.AddScoped<UserActivity>();
 builder.Services.AddScoped<BorrowingPatterns>();
+builder.Services.AddScoped<BookPatterns>();
 
 // Register DataStorage LoanRepository as concrete type for gRPC service to inject
 builder.Services.AddScoped<LoanRepository>();
