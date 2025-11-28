@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
     <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
+    <ProjectReference Include="..\DataStorageClient\DataStorageClient.csproj" />
     <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
   </ItemGroup>
 

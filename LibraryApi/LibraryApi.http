@@ -1,9 +1,11 @@
-@LibraryApi_HostAddress = http://localhost:5000
-@LibraryApi_Http = http://localhost:5000
+@LibraryApi_HostAddress = http://localhost:7000
+@LibraryApi_Http = http://localhost:7000
 
 ###############################################
 # Library API - HTTP Request Collection
 # Use these requests to test all endpoints
+# API runs on port 7000 (HTTP/1.1)
+# gRPC service runs on port 5001 (HTTP/2)
 ###############################################
 
 ###################
@@ -206,6 +208,40 @@ Accept: application/json
 
 ### Get all odd-numbered book IDs
 GET {{LibraryApi_HostAddress}}/api/BorrowingPatterns/odd-book-ids
+Accept: application/json
+
+###
+
+###################
+# Loan Controller (via gRPC)
+###################
+
+### Get all loans
+GET {{LibraryApi_HostAddress}}/api/Loan
+Accept: application/json
+
+###
+
+### Get loan by ID
+GET {{LibraryApi_HostAddress}}/api/Loan/1
+Accept: application/json
+
+###
+
+### Get loan by ID (example 2)
+GET {{LibraryApi_HostAddress}}/api/Loan/5
+Accept: application/json
+
+###
+
+### Get loan by ID (not found example)
+GET {{LibraryApi_HostAddress}}/api/Loan/999
+Accept: application/json
+
+###
+
+### Get active loans (not returned)
+GET {{LibraryApi_HostAddress}}/api/Loan/active
 Accept: application/json
 
 ###

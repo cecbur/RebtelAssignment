@@ -1,11 +1,25 @@
 using BusinessLogic;
 using DataStorage;
 using DataStorage.Repositories;
+using DataStorage.Services;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure Kestrel to listen on multiple ports
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // HTTP/1.1 endpoint for the web API
+    options.ListenLocalhost(7000, o => o.Protocols = HttpProtocols.Http1);
+    // HTTP/2 endpoint for gRPC
+    options.ListenLocalhost(5001, o => o.Protocols = HttpProtocols.Http2);
+});
+
 // Add services to the container
 builder.Services.AddControllers();
+
+// Add gRPC services
+builder.Services.AddGrpc();
 
 // Configure database connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -19,7 +33,16 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IPatronRepository, PatronRepository>();
-builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+
+// Register DataStorage LoanRepository as concrete type for gRPC service to inject
+builder.Services.AddScoped<LoanRepository>();
+
+// Register gRPC server address
+var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://localhost:5001";
+
+// Register DataStorageClient LoanRepository for controllers to use (via gRPC)
+builder.Services.AddScoped<DataStorageContracts.ILoanRepository>(sp =>
+    new DataStorageClient.LoanRepository(grpcServerAddress));
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -77,9 +100,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Map gRPC services
+app.MapGrpcService<LoanGrpcService>();
+
 // Log startup information
 app.Logger.LogInformation("Library API started successfully");
 app.Logger.LogInformation("Swagger UI available at: https://localhost:{Port}",
     app.Configuration["ASPNETCORE_HTTPS_PORT"] ?? "7000");
+app.Logger.LogInformation("gRPC service available at: http://localhost:5001");
 
 app.Run();

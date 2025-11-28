@@ -1,6 +1,7 @@
 using Dapper;
 using DataStorage.Entities;
 using DataStorage.Converters;
+using DataStorageContracts;
 
 namespace DataStorage.Repositories;
 

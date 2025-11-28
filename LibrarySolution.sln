@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessModels", "BusinessM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageClient", "DataStorageClient\DataStorageClient.csproj", "{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageContracts", "DataStorageContracts\DataStorageContracts.csproj", "{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05A2256D-45E6-49D3-AB51-BDA6F5B5C079}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
