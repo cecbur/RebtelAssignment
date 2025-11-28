@@ -1,6 +1,45 @@
+
+
 # Library Management System - .NET 8 Solution
 
 A well-encapsulated .NET 8 solution following **Clean Code**, **SOLID principles**, and industry best practices. This solution provides HTTP APIs for library management with no frontend interface.
+
+## Prerequisites
+
+Before starting the project a database is required. Follow these steps to create it.
+
+### 1. Docker
+
+Install Docker Desktop from https://www.docker.com/
+
+### 2. Database container
+
+Pull a Docker container with SQL Server. <br>
+(Adapted from https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver17&tabs=cli&pivots=cs1-bash)
+
+docker pull mcr.microsoft.com/mssql/server:2025-latest
+
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Byt1.Byt2.Byt3" -p 1433:1433 --name sql1 --hostname sql1 -d mcr.microsoft.com/mssql/server:2025-latest
+
+### 3. Database content
+
+Run Database/SetupDatabase.bat to create database with test data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Architecture Overview
 
