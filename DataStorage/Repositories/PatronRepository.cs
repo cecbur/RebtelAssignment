@@ -4,9 +4,8 @@ using DataStorage.Converters;
 
 namespace DataStorage.Repositories;
 
-public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronRepository
+public class PatronRepository(IDbConnectionFactory connectionFactory) : BaseRepository(connectionFactory), IPatronRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
 
     public async Task<IEnumerable<BusinessModels.Patron>> GetAllPatrons()
     {

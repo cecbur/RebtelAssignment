@@ -4,9 +4,8 @@ using DataStorage.Converters;
 
 namespace DataStorage.Repositories;
 
-public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepository
+public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseRepository(connectionFactory), ILoanRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
 
     public async Task<IEnumerable<BusinessModels.Loan>> GetAllLoans()
     {

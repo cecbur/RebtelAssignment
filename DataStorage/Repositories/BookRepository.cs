@@ -6,9 +6,8 @@ using DataStorage.Converters;
 namespace DataStorage.Repositories;
 
 
-public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepository
+public class BookRepository(IDbConnectionFactory connectionFactory) : BaseRepository(connectionFactory), IBookRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
 
     public async Task<IEnumerable<BusinessModels.Book>> GetAllBooks()
     {

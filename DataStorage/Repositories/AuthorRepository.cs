@@ -4,9 +4,8 @@ using DataStorage.Converters;
 
 namespace DataStorage.Repositories;
 
-public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorRepository
+public class AuthorRepository(IDbConnectionFactory connectionFactory) : BaseRepository(connectionFactory), IAuthorRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
 
     public async Task<IEnumerable<BusinessModels.Author>> GetAllAuthors()
     {
