@@ -7,4 +7,6 @@ public class Author
     public string? GivenName { get; set; }
 
     public string Surname { get; set; } = string.Empty;
+    
+    public string Name => $"{GivenName} {Surname}";
 }
