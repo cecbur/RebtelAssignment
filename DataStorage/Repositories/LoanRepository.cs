@@ -169,6 +169,39 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
         return loanDictionary.Values.Select(tuple => LoanConverter.ToModel(tuple.loan, tuple.book, tuple.author, tuple.patron));
     }
 
+    public async Task<IEnumerable<BusinessModels.Loan>> GetLoansByTime(DateTime startDate, DateTime endDate)
+    {
+        const string sql = @"
+            SELECT
+                l.Id, l.BookId, l.PatronId, l.LoanDate, l.DueDate, l.ReturnDate, l.IsReturned,
+                b.Id, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.Id, a.GivenName, a.Surname,
+                p.Id, p.FirstName, p.LastName, p.Email, p.PhoneNumber, p.MembershipDate, p.IsActive
+            FROM Loan l
+            LEFT JOIN Book b ON l.BookId = b.Id
+            LEFT JOIN Author a ON b.AuthorId = a.Id
+            LEFT JOIN Patron p ON l.PatronId = p.Id
+            WHERE (l.LoanDate BETWEEN @StartDate AND @EndDate)
+               OR (l.DueDate BETWEEN @StartDate AND @EndDate)
+               OR (l.ReturnDate IS NOT NULL AND l.ReturnDate BETWEEN @StartDate AND @EndDate)
+            ORDER BY l.LoanDate DESC";
+
+        using var connection = _connectionFactory.CreateConnection();
+        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)>();
+
+        await connection.QueryAsync<Entities.Loan, Entities.Book, Entities.Author, Entities.Patron, int>(
+            sql,
+            (loan, book, author, patron) =>
+            {
+                loanDictionary[loan.Id] = (loan, book, author, patron);
+                return 0;
+            },
+            new { StartDate = startDate, EndDate = endDate },
+            splitOn: "Id,Id,Id");
+
+        return loanDictionary.Values.Select(tuple => LoanConverter.ToModel(tuple.loan, tuple.book, tuple.author, tuple.patron));
+    }
+
     public async Task<BusinessModels.Loan> AddLoan(BusinessModels.Loan loan)
     {
         if (loan == null)

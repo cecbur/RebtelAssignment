@@ -64,4 +64,19 @@ public class LoanController : ControllerBase
             return StatusCode(500, "An error occurred while retrieving active loans");
         }
     }
+
+    [HttpGet("by-time")]
+    public async Task<ActionResult<IEnumerable<BusinessModels.Loan>>> GetLoansByTime([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        try
+        {
+            var loans = await _loanRepository.GetLoansByTime(startDate, endDate);
+            return Ok(loans);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting loans by time range {StartDate} to {EndDate} via gRPC", startDate, endDate);
+            return StatusCode(500, "An error occurred while retrieving loans by time");
+        }
+    }
 }

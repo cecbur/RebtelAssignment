@@ -245,3 +245,21 @@ GET {{LibraryApi_HostAddress}}/api/Loan/active
 Accept: application/json
 
 ###
+
+### Get loans by time range (January 2024)
+GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-01-01&endDate=2024-01-31
+Accept: application/json
+
+###
+
+### Get loans by time range (December 2024)
+GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-12-01&endDate=2024-12-31
+Accept: application/json
+
+###
+
+### Get loans by time range (all of 2024)
+GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-01-01&endDate=2024-12-31
+Accept: application/json
+
+###

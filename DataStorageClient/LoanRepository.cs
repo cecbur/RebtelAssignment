@@ -60,6 +60,17 @@ public class LoanRepository : ILoanRepository
         return response.Loans.Select(MapFromGrpcLoan);
     }
 
+    public async Task<IEnumerable<BusinessModels.Loan>> GetLoansByTime(DateTime startDate, DateTime endDate)
+    {
+        var request = new GetLoansByTimeRequest
+        {
+            StartDate = Timestamp.FromDateTime(DateTime.SpecifyKind(startDate, DateTimeKind.Utc)),
+            EndDate = Timestamp.FromDateTime(DateTime.SpecifyKind(endDate, DateTimeKind.Utc))
+        };
+        var response = await _client.GetLoansByTimeAsync(request);
+        return response.Loans.Select(MapFromGrpcLoan);
+    }
+
     public async Task<BusinessModels.Loan> AddLoan(BusinessModels.Loan loan)
     {
         var request = new AddLoanRequest

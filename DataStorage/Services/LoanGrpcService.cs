@@ -100,6 +100,24 @@ public class LoanGrpcService : LoanService.LoanServiceBase
         }
     }
 
+    public override async Task<GetLoansResponse> GetLoansByTime(GetLoansByTimeRequest request, ServerCallContext context)
+    {
+        try
+        {
+            var startDate = request.StartDate.ToDateTime();
+            var endDate = request.EndDate.ToDateTime();
+            var loans = await _loanRepository.GetLoansByTime(startDate, endDate);
+            var response = new GetLoansResponse();
+            response.Loans.AddRange(loans.Select(MapToGrpcLoan));
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting loans by time range {StartDate} to {EndDate}", request.StartDate, request.EndDate);
+            throw new RpcException(new Status(StatusCode.Internal, "Error getting loans by time"));
+        }
+    }
+
     public override async Task<LoanResponse> AddLoan(AddLoanRequest request, ServerCallContext context)
     {
         try
