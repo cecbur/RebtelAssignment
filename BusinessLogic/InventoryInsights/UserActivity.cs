@@ -1,18 +1,21 @@
-/* TODO
+
 using BusinessModels;
+using DataStorageClient;
 
 namespace BusinessLogic.InventoryInsights;
 
-public class UserActivity
+public class UserActivity(LoanRepository loanRepository)
 {
-    public UserActivity(LoanRepository loanRepository)
+    private readonly LoanRepository _loanRepository = loanRepository;
+
+    public async Task<PatronLoans[]> PatronLoansOrderedByFrequency(DateTime startDate, DateTime endDate)
     {
-        
-    }
-    
-    public PatronLoans[] PatronLoansOrderedByFrequency()
-    {
-        
+        var loans = await _loanRepository.GetAllLoans();
+        var patronLoans = loans
+            .GroupBy(l => l.Patron)
+            .Select(x => new PatronLoans(x.Key, x.ToArray()))
+            .ToArray();
+        return patronLoans;
     }
     
     public class PatronLoans
@@ -29,4 +32,3 @@ public class UserActivity
     }
     
 }
-*/

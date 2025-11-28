@@ -117,51 +117,47 @@ public class LoanRepository : ILoanRepository
 
     private static BusinessModels.Loan MapFromGrpcLoan(DataStorage.Grpc.Loan grpcLoan)
     {
+        var book = new BusinessModels.Book
+        {
+            Id = grpcLoan.Book.Id,
+            Title = grpcLoan.Book.Title,
+            Isbn = grpcLoan.Book.Isbn,
+            PublicationYear = grpcLoan.Book.PublicationYear,
+            NumberOfPages = grpcLoan.Book.NumberOfPages,
+            IsAvailableForLoan = grpcLoan.Book.IsAvailable
+        };
+
+        if (grpcLoan.Book.Author != null)
+        {
+            book.Author = new BusinessModels.Author
+            {
+                Id = grpcLoan.Book.Author.Id,
+                GivenName = grpcLoan.Book.Author.GivenName,
+                Surname = grpcLoan.Book.Author.Surname
+            };
+        }
+
+        var patron = new BusinessModels.Patron
+        {
+            Id = grpcLoan.Patron.Id,
+            FirstName = grpcLoan.Patron.FirstName,
+            LastName = grpcLoan.Patron.LastName,
+            Email = grpcLoan.Patron.Email,
+            PhoneNumber = grpcLoan.Patron.PhoneNumber,
+            MembershipDate = grpcLoan.Patron.MembershipDate.ToDateTime(),
+            IsActive = grpcLoan.Patron.IsActive
+        };
+
         var loan = new BusinessModels.Loan
         {
             Id = grpcLoan.Id,
+            Book = book,
+            Patron = patron,
             LoanDate = grpcLoan.LoanDate.ToDateTime(),
             DueDate = grpcLoan.DueDate.ToDateTime(),
             ReturnDate = grpcLoan.ReturnDate?.ToDateTime(),
             IsReturned = grpcLoan.IsReturned
         };
-
-        if (grpcLoan.Book != null)
-        {
-            loan.Book = new BusinessModels.Book
-            {
-                Id = grpcLoan.Book.Id,
-                Title = grpcLoan.Book.Title,
-                Isbn = grpcLoan.Book.Isbn,
-                PublicationYear = grpcLoan.Book.PublicationYear,
-                NumberOfPages = grpcLoan.Book.NumberOfPages,
-                IsAvailableForLoan = grpcLoan.Book.IsAvailable
-            };
-
-            if (grpcLoan.Book.Author != null)
-            {
-                loan.Book.Author = new BusinessModels.Author
-                {
-                    Id = grpcLoan.Book.Author.Id,
-                    GivenName = grpcLoan.Book.Author.GivenName,
-                    Surname = grpcLoan.Book.Author.Surname
-                };
-            }
-        }
-
-        if (grpcLoan.Patron != null)
-        {
-            loan.Patron = new BusinessModels.Patron
-            {
-                Id = grpcLoan.Patron.Id,
-                FirstName = grpcLoan.Patron.FirstName,
-                LastName = grpcLoan.Patron.LastName,
-                Email = grpcLoan.Patron.Email,
-                PhoneNumber = grpcLoan.Patron.PhoneNumber,
-                MembershipDate = grpcLoan.Patron.MembershipDate.ToDateTime(),
-                IsActive = grpcLoan.Patron.IsActive
-            };
-        }
 
         return loan;
     }

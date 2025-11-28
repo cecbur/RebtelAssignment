@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
+    <ProjectReference Include="..\DataStorageClient\DataStorageClient.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

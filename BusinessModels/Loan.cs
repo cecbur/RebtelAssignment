@@ -4,9 +4,9 @@ public class Loan
 {
     public int Id { get; set; }
 
-    public Book? Book { get; set; }
+    public required Book Book { get; set; } 
 
-    public Patron? Patron { get; set; }
+    public required Patron Patron { get; set; }
 
     public DateTime LoanDate { get; set; }
 
