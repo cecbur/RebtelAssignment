@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
-    <ProjectReference Include="..\DataStorageClient\DataStorageClient.csproj" />
     <ProjectReference Include="..\DataStorageContracts\DataStorageContracts.csproj" />
   </ItemGroup>
 

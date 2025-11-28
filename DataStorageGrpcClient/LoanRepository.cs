@@ -5,7 +5,7 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
 
-namespace DataStorageClient;
+namespace DataStorageGrpcClient;
 
 public class LoanRepository : ILoanRepository
 {

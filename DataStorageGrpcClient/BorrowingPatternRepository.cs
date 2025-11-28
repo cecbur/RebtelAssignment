@@ -1,8 +1,10 @@
 using BusinessModels;
+using DataStorage.Grpc;
+using DataStorageContracts;
 using Grpc.Core;
 using Grpc.Net.Client;
 
-namespace DataStorageClient;
+namespace DataStorageGrpcClient;
 
 public class BorrowingPatternRepository : DataStorageContracts.IBorrowingPatternRepository
 {

@@ -50,11 +50,11 @@ var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://l
 
 // Register DataStorageClient LoanRepository for controllers to use (via gRPC)
 builder.Services.AddScoped<DataStorageContracts.ILoanRepository>(sp =>
-    new DataStorageClient.LoanRepository(grpcServerAddress));
+    new DataStorageGrpcClient.LoanRepository(grpcServerAddress));
 
 // Register DataStorageClient BorrowingPatternRepository for controllers to use (via gRPC)
 builder.Services.AddScoped<DataStorageContracts.IBorrowingPatternRepository>(sp =>
-    new DataStorageClient.BorrowingPatternRepository(grpcServerAddress));
+    new DataStorageGrpcClient.BorrowingPatternRepository(grpcServerAddress));
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
