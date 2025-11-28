@@ -2,6 +2,7 @@ using BusinessLogic;
 using BusinessLogic.InventoryInsights;
 using DataStorage;
 using DataStorage.Repositories;
+using DataStorage.RepositoriesMultipleTables;
 using DataStorage.Services;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
@@ -41,12 +42,19 @@ builder.Services.AddScoped<UserActivity>();
 // Register DataStorage LoanRepository as concrete type for gRPC service to inject
 builder.Services.AddScoped<LoanRepository>();
 
+// Register DataStorage BorrowingPatternRepository as concrete type for gRPC service to inject
+builder.Services.AddScoped<BorrowingPatternRepository>();
+
 // Register gRPC server address
 var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://localhost:5001";
 
 // Register DataStorageClient LoanRepository for controllers to use (via gRPC)
 builder.Services.AddScoped<DataStorageContracts.ILoanRepository>(sp =>
     new DataStorageClient.LoanRepository(grpcServerAddress));
+
+// Register DataStorageClient BorrowingPatternRepository for controllers to use (via gRPC)
+builder.Services.AddScoped<DataStorageContracts.IBorrowingPatternRepository>(sp =>
+    new DataStorageClient.BorrowingPatternRepository(grpcServerAddress));
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -106,6 +114,7 @@ app.MapControllers();
 
 // Map gRPC services
 app.MapGrpcService<LoanGrpcService>();
+app.MapGrpcService<BorrowingPatternGrpcService>();
 
 // Log startup information
 app.Logger.LogInformation("Library API started successfully");

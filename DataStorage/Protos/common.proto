@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataStorage.Grpc";
+
+import "google/protobuf/wrappers.proto";
+
+package common;
+
+// Common message definitions shared across services
+message Author {
+  int32 id = 1;
+  google.protobuf.StringValue given_name = 2;
+  string surname = 3;
+  string name = 4;
+}
+
+message Book {
+  int32 id = 1;
+  string title = 2;
+  Author author = 3;
+  string isbn = 4;
+  google.protobuf.Int32Value publication_year = 5;
+  google.protobuf.Int32Value number_of_pages = 6;
+  bool is_available = 7;
+}

@@ -4,6 +4,7 @@ option csharp_namespace = "DataStorage.Grpc";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "common.proto";
 
 package loan;
 
@@ -21,23 +22,6 @@ service LoanService {
 }
 
 // Messages
-message Author {
-  int32 id = 1;
-  google.protobuf.StringValue given_name = 2;
-  string surname = 3;
-  string name = 4;
-}
-
-message Book {
-  int32 id = 1;
-  string title = 2;
-  Author author = 3;
-  string isbn = 4;
-  google.protobuf.Int32Value publication_year = 5;
-  google.protobuf.Int32Value number_of_pages = 6;
-  bool is_available = 7;
-}
-
 message Patron {
   int32 id = 1;
   string first_name = 2;
@@ -50,7 +34,7 @@ message Patron {
 
 message Loan {
   int32 id = 1;
-  Book book = 2;
+  common.Book book = 2;
   Patron patron = 3;
   google.protobuf.Timestamp loan_date = 4;
   google.protobuf.Timestamp due_date = 5;

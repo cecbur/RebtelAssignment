@@ -5,13 +5,13 @@ namespace DataStorage.Converters;
 
 internal static class LoanConverter
 {
-    public static BusinessModels.Loan ToModel(Entities.Loan entity, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)
+    public static BusinessModels.Loan ToModel(Entities.Loan entity, Entities.Book book, Entities.Author? author, Entities.Patron patron)
     {
         return new BusinessModels.Loan
         {
             Id = entity.Id,
-            Book = book != null ? BookConverter.ToModel(book, author) : null,
-            Patron = patron != null ? PatronConverter.ToModel(patron) : null,
+            Book = BookConverter.ToModel(book, author),
+            Patron = PatronConverter.ToModel(patron),
             LoanDate = entity.LoanDate,
             DueDate = entity.DueDate,
             ReturnDate = entity.ReturnDate,

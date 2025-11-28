@@ -1,5 +1,6 @@
 using Dapper;
 using DataStorage.Repositories;
+using DataStorageContracts;
 using DataStorageContracts.Dto;
 
 namespace DataStorage.RepositoriesMultipleTables;
@@ -13,7 +14,7 @@ public class BorrowingPatternRepository(IDbConnectionFactory connectionFactory, 
     /// </summary>
     /// <param name="bookId"></param>
     /// <returns>Books and frequencies</returns>
-    public async Task<IEnumerable<AssociatedBooks>> GetOtherBooksBorrowed(int bookId)
+    public async Task<AssociatedBooks> GetOtherBooksBorrowed(int bookId)
     {
         // Query to get associated book IDs with their borrow counts
         const string associatedSql = @"
@@ -60,13 +61,10 @@ public class BorrowingPatternRepository(IDbConnectionFactory connectionFactory, 
             }
         }
 
-        return new[]
-        {
-            new AssociatedBooks
+        return new AssociatedBooks
             {
                 Book = mainBook,
                 Associated = associatedBooksList.ToArray()
-            }
-        };
+            };
     }
 }

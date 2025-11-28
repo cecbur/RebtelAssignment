@@ -16,7 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\DataStorage\Protos\loan.proto" GrpcServices="Client" />
+        <Protobuf Include="..\DataStorage\Protos\common.proto" GrpcServices="None" ProtoRoot="..\DataStorage\Protos" />
+        <Protobuf Include="..\DataStorage\Protos\loan.proto" GrpcServices="Client" ProtoRoot="..\DataStorage\Protos" />
+        <Protobuf Include="..\DataStorage\Protos\borrowing_pattern.proto" GrpcServices="Client" ProtoRoot="..\DataStorage\Protos" />
     </ItemGroup>
 
     <ItemGroup>

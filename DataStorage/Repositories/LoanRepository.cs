@@ -23,7 +23,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
             ORDER BY l.LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)>();
+        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book book, Entities.Author? author, Entities.Patron patron)>();
 
         await connection.QueryAsync<Entities.Loan, Entities.Book, Entities.Author, Entities.Patron, int>(
             sql,
@@ -74,7 +74,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
         if (loanEntity == null)
             throw new InvalidOperationException($"Loan with id {loanId} not found");
 
-        return LoanConverter.ToModel(loanEntity, bookEntity, authorEntity, patronEntity);
+        return LoanConverter.ToModel(loanEntity, bookEntity!, authorEntity, patronEntity!);
     }
 
     public async Task<IEnumerable<BusinessModels.Loan>> GetLoansByPatronId(int patronId)
@@ -93,7 +93,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
             ORDER BY l.LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)>();
+        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book book, Entities.Author? author, Entities.Patron patron)>();
 
         await connection.QueryAsync<Entities.Loan, Entities.Book, Entities.Author, Entities.Patron, int>(
             sql,
@@ -124,7 +124,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
             ORDER BY l.LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)>();
+        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book book, Entities.Author? author, Entities.Patron patron)>();
 
         await connection.QueryAsync<Entities.Loan, Entities.Book, Entities.Author, Entities.Patron, int>(
             sql,
@@ -155,7 +155,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
             ORDER BY l.DueDate ASC";
 
         using var connection = _connectionFactory.CreateConnection();
-        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)>();
+        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book book, Entities.Author? author, Entities.Patron patron)>();
 
         await connection.QueryAsync<Entities.Loan, Entities.Book, Entities.Author, Entities.Patron, int>(
             sql,
@@ -187,7 +187,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
             ORDER BY l.LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book? book, Entities.Author? author, Entities.Patron? patron)>();
+        var loanDictionary = new Dictionary<int, (Entities.Loan loan, Entities.Book book, Entities.Author? author, Entities.Patron patron)>();
 
         await connection.QueryAsync<Entities.Loan, Entities.Book, Entities.Author, Entities.Patron, int>(
             sql,

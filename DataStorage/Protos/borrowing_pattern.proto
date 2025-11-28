@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataStorage.Grpc";
+
+import "common.proto";
+
+package borrowing_pattern;
+
+// Borrowing Pattern service definition
+service BorrowingPatternService {
+  rpc GetOtherBooksBorrowed (GetOtherBooksBorrowedRequest) returns (GetOtherBooksBorrowedResponse);
+}
+
+// Messages
+message BookCount {
+  common.Book book = 1;
+  int32 count = 2;
+}
+
+message AssociatedBooks {
+  common.Book book = 1;
+  repeated BookCount associated = 2;
+}
+
+// Request/Response messages
+message GetOtherBooksBorrowedRequest {
+  int32 book_id = 1;
+}
+
+message GetOtherBooksBorrowedResponse {
+  AssociatedBooks associated_books = 1;
+}
