@@ -2,6 +2,7 @@ using BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 using DataStorageContracts;
 using LibraryApi.DTOs;
+using LibraryApi.Converters;
 
 namespace LibraryApi.Controllers;
 
@@ -24,12 +25,13 @@ public class LoanController : ControllerBase
     
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<BusinessModels.Loan>>> GetAllLoans()
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetAllLoans()
     {
         try
         {
             var loans = await _loanRepository.GetAllLoans();
-            return Ok(loans);
+            var loanDtos = LoanDtoConverter.ToDto(loans);
+            return Ok(loanDtos);
         }
         catch (Exception ex)
         {
@@ -39,12 +41,13 @@ public class LoanController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<BusinessModels.Loan>> GetLoanById(int id)
+    public async Task<ActionResult<LoanDto>> GetLoanById(int id)
     {
         try
         {
             var loan = await _loanRepository.GetLoanById(id);
-            return Ok(loan);
+            var loanDto = LoanDtoConverter.ToDto(loan);
+            return Ok(loanDto);
         }
         catch (InvalidOperationException)
         {
@@ -58,12 +61,13 @@ public class LoanController : ControllerBase
     }
 
     [HttpGet("active")]
-    public async Task<ActionResult<IEnumerable<BusinessModels.Loan>>> GetActiveLoans()
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetActiveLoans()
     {
         try
         {
             var loans = await _loanRepository.GetActiveLoans();
-            return Ok(loans);
+            var loanDtos = LoanDtoConverter.ToDto(loans);
+            return Ok(loanDtos);
         }
         catch (Exception ex)
         {
@@ -73,12 +77,13 @@ public class LoanController : ControllerBase
     }
 
     [HttpGet("by-time")]
-    public async Task<ActionResult<IEnumerable<BusinessModels.Loan>>> GetLoansByTime([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetLoansByTime([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         try
         {
             var loans = await _loanRepository.GetLoansByTime(startDate, endDate);
-            return Ok(loans);
+            var loanDtos = LoanDtoConverter.ToDto(loans);
+            return Ok(loanDtos);
         }
         catch (Exception ex)
         {
