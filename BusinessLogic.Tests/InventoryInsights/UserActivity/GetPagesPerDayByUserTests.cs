@@ -30,7 +30,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -65,7 +65,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Single(result);
@@ -101,7 +101,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Single(result);
@@ -136,7 +136,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Single(result);
@@ -169,7 +169,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Single(result);
@@ -203,7 +203,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Single(result);
@@ -220,7 +220,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(new List<Loan>());
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Empty(result);
@@ -254,7 +254,7 @@ public class GetPagesPerDayByUserTests : UserActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await UserActivity.GetPagesPerDayByUser();
+        var result = await UserActivity.GetPagesPerDayByPatron();
 
         // Assert
         Assert.Equal(3, result.Count);

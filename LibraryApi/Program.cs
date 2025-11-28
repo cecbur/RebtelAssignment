@@ -1,4 +1,5 @@
 using BusinessLogic;
+using BusinessLogic.InventoryInsights;
 using DataStorage;
 using DataStorage.Repositories;
 using DataStorage.Services;
@@ -33,6 +34,9 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IPatronRepository, PatronRepository>();
+
+// Register business logic services
+builder.Services.AddScoped<UserActivity>();
 
 // Register DataStorage LoanRepository as concrete type for gRPC service to inject
 builder.Services.AddScoped<LoanRepository>();

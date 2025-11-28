@@ -263,3 +263,31 @@ GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-01-01&endDate=202
 Accept: application/json
 
 ###
+
+#####################
+# Patron Controller
+#####################
+
+### Get reading pace for patron 1
+GET {{LibraryApi_HostAddress}}/api/Patron/1/reading-pace
+Accept: application/json
+
+###
+
+### Get reading pace for patron 2
+GET {{LibraryApi_HostAddress}}/api/Patron/2/reading-pace
+Accept: application/json
+
+###
+
+### Get reading pace for patron 3
+GET {{LibraryApi_HostAddress}}/api/Patron/3/reading-pace
+Accept: application/json
+
+###
+
+### Get reading pace for non-existent patron
+GET {{LibraryApi_HostAddress}}/api/Patron/999/reading-pace
+Accept: application/json
+
+###
