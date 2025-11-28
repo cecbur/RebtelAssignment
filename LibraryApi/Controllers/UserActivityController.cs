@@ -12,16 +12,16 @@ namespace LibraryApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class BorrowingPatternsController : ControllerBase
+public class UserActivityController : ControllerBase
 {
     private readonly IBookService _bookService;
     private readonly IBookRepository _bookRepository;
-    private readonly ILogger<BorrowingPatternsController> _logger;
+    private readonly ILogger<UserActivityController> _logger;
 
-    public BorrowingPatternsController(
+    public UserActivityController(
         IBookService bookService,
         IBookRepository bookRepository,
-        ILogger<BorrowingPatternsController> logger)
+        ILogger<UserActivityController> logger)
     {
         _bookService = bookService ?? throw new ArgumentNullException(nameof(bookService));
         _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
