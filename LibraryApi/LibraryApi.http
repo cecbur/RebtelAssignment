@@ -212,6 +212,24 @@ Accept: application/json
 
 ###
 
+### Get most active patrons (January 2024)
+GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31
+Accept: application/json
+
+###
+
+### Get most active patrons (Q1 2024)
+GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31
+Accept: application/json
+
+###
+
+### Get most active patrons (All of 2024)
+GET {{LibraryApi_HostAddress}}/api/UserActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31
+Accept: application/json
+
+###
+
 ###################
 # Loan Controller (via gRPC)
 ###################
