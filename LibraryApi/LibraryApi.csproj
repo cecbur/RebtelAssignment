@@ -20,4 +20,8 @@
     <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Converters\" />
+  </ItemGroup>
+
 </Project>

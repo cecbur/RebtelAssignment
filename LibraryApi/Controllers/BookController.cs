@@ -3,6 +3,7 @@ using BusinessLogic;
 using DataStorage.Repositories;
 using BusinessModels;
 using DataStorage.Exceptions;
+using LibraryApi.Converters;
 using LibraryApi.DTOs;
 
 namespace LibraryApi.Controllers;
@@ -40,7 +41,7 @@ public class BookController : ControllerBase
     public async Task<ActionResult<IEnumerable<BookDto>>> GetAllBooksAsync()
     {
         var books = await _bookRepository.GetAllBooks();
-        var bookDtos = books.Select(MapToDto);
+        var bookDtos = books.Select(BookDtoConverter.ToDto);
 
         _logger.LogInformation("Retrieved {Count} books", bookDtos.Count());
         return Ok(bookDtos);
@@ -74,7 +75,7 @@ public class BookController : ControllerBase
             return NotFound($"Internal error");
         }
 
-        return Ok(MapToDto(book));
+        return Ok(BookDtoConverter.ToDto(book));
     }
 
     /// <summary>
@@ -148,7 +149,7 @@ public class BookController : ControllerBase
     public async Task<ActionResult<IEnumerable<BookDto>>> SearchBooksByTitleAsync([FromQuery] string titlePattern)
     {
         var books = await _bookRepository.SearchBooksByTitleLikeQuery(titlePattern);
-        var bookDtos = books.Select(MapToDto);
+        var bookDtos = books.Select(BookDtoConverter.ToDto);
 
         _logger.LogInformation("Found {Count} books matching pattern '{Pattern}'", bookDtos.Count(), titlePattern);
         return Ok(bookDtos);
@@ -173,11 +174,11 @@ public class BookController : ControllerBase
 
         try
         {
-            var book = MapToModel(bookDto);
+            var book = BookDtoConverter.FromDto(bookDto);
             var createdBook = await _bookRepository.AddBook(book);
 
             _logger.LogInformation("Created new book with ID {BookId}: '{Title}'", createdBook.Id, createdBook.Title);
-            return CreatedAtAction(nameof(GetBookByIdAsync), new { id = createdBook.Id }, MapToDto(createdBook));
+            return CreatedAtAction(nameof(GetBookByIdAsync), new { id = createdBook.Id }, BookDtoConverter.ToDto(createdBook));
         }
         catch (Exception ex)
         {
@@ -213,7 +214,7 @@ public class BookController : ControllerBase
 
         try
         {
-            var book = MapToModel(bookDto);
+            var book = BookDtoConverter.FromDto(bookDto);
             Book updatedBook = await _bookRepository.UpdateBook(book);
             _logger.LogInformation("Updated book with ID {BookId}", id);
             return NoContent();
@@ -255,44 +256,5 @@ public class BookController : ControllerBase
             _logger.LogError(ex, "Error deleting book with ID {BookId}", id);
             return StatusCode(500, "An error occurred while deleting the book");
         }
-    }
-
-    // Helper methods for mapping between Model and DTO
-    private static BookDto MapToDto(Book book)
-    {
-        return new BookDto
-        {
-            Id = book.Id,
-            Title = book.Title,
-            Author = book.Author != null ? new AuthorDto
-            {
-                Id = book.Author.Id,
-                GivenName = book.Author.GivenName,
-                Surname = book.Author.Surname
-            } : null,
-            ISBN = book.Isbn,
-            PublicationYear = book.PublicationYear,
-            NumberOfPages = book.NumberOfPages,
-            IsAvailable = book.IsAvailableForLoan
-        };
-    }
-
-    private static Book MapToModel(BookDto dto)
-    {
-        return new Book
-        {
-            Id = dto.Id,
-            Title = dto.Title,
-            Author = dto.Author != null ? new BusinessModels.Author
-            {
-                Id = dto.Author.Id,
-                GivenName = dto.Author.GivenName,
-                Surname = dto.Author.Surname
-            } : null,
-            Isbn = dto.ISBN,
-            PublicationYear = dto.PublicationYear,
-            NumberOfPages = dto.NumberOfPages,
-            IsAvailableForLoan = dto.IsAvailable
-        };
     }
 }

@@ -162,18 +162,45 @@ VALUES
 GO
 
 -- Insert sample loan data
+-- Creating borrowing patterns: Multiple patrons borrowing similar books
+-- Pattern 1: Classic literature fans (Books 1, 2, 3 - Moby Dick, 1984, Pride & Prejudice)
+-- Pattern 2: Harry Potter series fans (Books 4, 5 - Harry Potter books)
+-- Pattern 3: Science fiction fans (Books 6, 7, 8)
 INSERT INTO [dbo].[Loan] ([BookId], [PatronId], [LoanDate], [DueDate], [ReturnDate], [IsReturned])
 VALUES
+    -- Original loans
     (1, 1, '2024-01-05', '2024-01-19', '2024-01-18', 1),
     (2, 2, '2024-01-10', '2024-01-24', '2024-01-22', 1),
-    (3, 3, '2024-01-15', '2024-01-29', NULL, 0),
+    (3, 3, '2024-01-15', '2024-01-29', '2024-01-28', 1),
     (4, 1, '2024-02-01', '2024-02-15', '2024-02-14', 1),
-    (5, 4, '2024-02-05', '2024-02-19', NULL, 0),
+    (5, 4, '2024-02-05', '2024-02-19', '2024-02-18', 1),
     (6, 5, '2024-02-10', '2024-02-24', '2024-02-20', 1),
-    (7, 6, '2024-02-15', '2024-02-29', NULL, 0),
+    (7, 6, '2024-02-15', '2024-02-29', '2024-02-28', 1),
     (8, 2, '2024-03-01', '2024-03-15', '2024-03-10', 1),
-    (9, 7, '2024-03-05', '2024-03-19', NULL, 0),
-    (10, 3, '2024-03-10', '2024-03-24', NULL, 0);
+    (9, 7, '2024-03-05', '2024-03-19', '2024-03-18', 1),
+    (10, 3, '2024-03-10', '2024-03-24', '2024-03-22', 1),
+
+    -- Classic literature pattern: Patrons 1, 2, 3 all borrow books 1, 2, 3
+    (2, 1, '2024-03-20', '2024-04-03', '2024-04-01', 1),  -- Patron 1 borrows book 2
+    (3, 1, '2024-04-05', '2024-04-19', '2024-04-18', 1),  -- Patron 1 borrows book 3
+    (1, 2, '2024-03-25', '2024-04-08', '2024-04-07', 1),  -- Patron 2 borrows book 1
+    (3, 2, '2024-04-10', '2024-04-24', '2024-04-23', 1),  -- Patron 2 borrows book 3
+    (1, 3, '2024-04-01', '2024-04-15', '2024-04-14', 1),  -- Patron 3 borrows book 1
+    (2, 3, '2024-04-15', '2024-04-29', '2024-04-28', 1),  -- Patron 3 borrows book 3
+
+    -- Harry Potter fans: Patrons 1, 4, 8 all borrow books 4 and 5
+    (5, 1, '2024-04-20', '2024-05-04', '2024-05-03', 1),  -- Patron 1 borrows book 5
+    (4, 4, '2024-04-22', '2024-05-06', '2024-05-05', 1),  -- Patron 4 borrows book 4
+    (5, 4, '2024-04-22', '2024-05-06', '2024-05-05', 1),  -- Patron 4 borrows book 5
+    (4, 8, '2024-04-25', '2024-05-09', '2024-05-08', 1),  -- Patron 8 borrows book 4
+    (5, 8, '2024-05-10', '2024-05-24', '2024-05-23', 1),  -- Patron 8 borrows book 5
+
+    -- Science fiction pattern: Patrons 2, 5, 6 all borrow books 6, 7, 8
+    (7, 2, '2024-05-01', '2024-05-15', '2024-05-14', 1),  -- Patron 2 borrows book 7
+    (8, 5, '2024-05-05', '2024-05-19', '2024-05-18', 1),  -- Patron 5 borrows book 8
+    (7, 5, '2024-05-20', '2024-06-03', '2024-06-02', 1),  -- Patron 5 borrows book 7
+    (6, 6, '2024-05-10', '2024-05-24', '2024-05-23', 1),  -- Patron 6 borrows book 6
+    (8, 6, '2024-05-25', '2024-06-08', '2024-06-07', 1);  -- Patron 6 borrows book 8
 GO
 
 -- Display created data

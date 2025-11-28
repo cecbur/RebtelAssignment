@@ -239,3 +239,25 @@ GET {{LibraryApi_HostAddress}}/api/Loan/999/reading-pace-pages-per-day
 Accept: application/json
 
 ###
+
+#################################
+# Borrowing Pattern Controller
+#################################
+
+### Get other books borrowed by individuals who borrowed book 1
+GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/1
+Accept: application/json
+
+###
+
+### Get other books borrowed by individuals who borrowed book 2
+GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/2
+Accept: application/json
+
+###
+
+### Get other books borrowed by individuals who borrowed book 4
+GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/4
+Accept: application/json
+
+###
