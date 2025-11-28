@@ -20,18 +20,32 @@ GO
 USE [Library];
 GO
 
+-- Create Author table
+CREATE TABLE [dbo].[Author] (
+    [AuthorId] INT IDENTITY(1,1) NOT NULL,
+    [GivenName] NVARCHAR(100) NULL,
+    [Surname] NVARCHAR(100) NOT NULL,
+    CONSTRAINT [PK_Author] PRIMARY KEY CLUSTERED ([AuthorId] ASC)
+);
+GO
+
+-- Create index on Surname for better search performance
+CREATE NONCLUSTERED INDEX [IX_Author_Surname]
+ON [dbo].[Author] ([Surname] ASC);
+GO
+
 -- Create Book table
 CREATE TABLE [dbo].[Book] (
     [BookId] INT IDENTITY(1,1) NOT NULL,
     [Title] NVARCHAR(200) NOT NULL,
-    [AuthorGivenName] NVARCHAR(100) NULL,
-    [AuthorSurname] NVARCHAR(100) NULL,
+    [AuthorId] INT NULL,
     [ISBN] NVARCHAR(20) NULL,
     [PublicationYear] INT NULL,
     [NumberOfPages] INT NULL,
     [IsAvailable] BIT NOT NULL DEFAULT 1,
     CONSTRAINT [PK_Book] PRIMARY KEY CLUSTERED ([BookId] ASC),
-    CONSTRAINT [UQ_Book_ISBN] UNIQUE NONCLUSTERED ([ISBN] ASC)
+    CONSTRAINT [UQ_Book_ISBN] UNIQUE NONCLUSTERED ([ISBN] ASC),
+    CONSTRAINT [FK_Book_Author] FOREIGN KEY ([AuthorId]) REFERENCES [dbo].[Author]([AuthorId])
 );
 GO
 
@@ -40,9 +54,9 @@ CREATE NONCLUSTERED INDEX [IX_Book_Title]
 ON [dbo].[Book] ([Title] ASC);
 GO
 
--- Create index on Author Surname for better search performance
-CREATE NONCLUSTERED INDEX [IX_Book_AuthorSurname]
-ON [dbo].[Book] ([AuthorSurname] ASC);
+-- Create index on AuthorId for better join performance
+CREATE NONCLUSTERED INDEX [IX_Book_AuthorId]
+ON [dbo].[Book] ([AuthorId] ASC);
 GO
 
 -- Create Patron table
@@ -92,25 +106,44 @@ CREATE NONCLUSTERED INDEX [IX_Loan_IsReturned]
 ON [dbo].[Loan] ([IsReturned] ASC);
 GO
 
--- Insert sample book data
-INSERT INTO [dbo].[Book] ([Title], [AuthorGivenName], [AuthorSurname], [ISBN], [PublicationYear], [NumberOfPages], [IsAvailable])
+-- Insert sample author data
+INSERT INTO [dbo].[Author] ([GivenName], [Surname])
 VALUES
-    ('Moby Dick', 'Herman', 'Melville', '978-0142437247', 1851, 635, 1),
-    ('1984', 'George', 'Orwell', '978-0451524935', 1949, 328, 1),
-    ('Pride and Prejudice', 'Jane', 'Austen', '978-0141439518', 1813, 432, 1),
-    ('The Great Gatsby', 'F. Scott', 'Fitzgerald', '978-0743273565', 1925, 180, 1),
-    ('To Kill a Mockingbird', 'Harper', 'Lee', '978-0061120084', 1960, 324, 1),
-    ('The Catcher in the Rye', 'J.D.', 'Salinger', '978-0316769174', 1951, 277, 1),
-    ('The Hobbit', 'J.R.R.', 'Tolkien', '978-0547928227', 1937, 310, 1),
-    ('Harry Potter and the Philosopher''s Stone', 'J.K.', 'Rowling', '978-0439708180', 1997, 223, 1),
-    ('Animal Farm', 'George', 'Orwell', '978-0451526342', 1945, 112, 1),
-    ('The Lord of the Rings', 'J.R.R.', 'Tolkien', '978-0544003415', 1954, 1178, 1),
-    ('Brave New World', 'Aldous', 'Huxley', '978-0060850524', 1932, 268, 1),
-    ('The Chronicles of Narnia', 'C.S.', 'Lewis', '978-0066238500', 1950, 767, 1),
-    ('Jane Eyre', 'Charlotte', 'Bronte', '978-0141441146', 1847, 532, 1),
-    ('Wuthering Heights', 'Emily', 'Bronte', '978-0141439556', 1847, 416, 1),
-    ('The Odyssey', NULL, 'Homer', '978-0140268867', -800, 541, 1),
-    ('Hamlet', 'William', 'Shakespeare', '978-0743477123', 1603, 289, 1);
+    ('Herman', 'Melville'),
+    ('George', 'Orwell'),
+    ('Jane', 'Austen'),
+    ('F. Scott', 'Fitzgerald'),
+    ('Harper', 'Lee'),
+    ('J.D.', 'Salinger'),
+    ('J.R.R.', 'Tolkien'),
+    ('J.K.', 'Rowling'),
+    ('Aldous', 'Huxley'),
+    ('C.S.', 'Lewis'),
+    ('Charlotte', 'Bronte'),
+    ('Emily', 'Bronte'),
+    (NULL, 'Homer'),
+    ('William', 'Shakespeare');
+GO
+
+-- Insert sample book data
+INSERT INTO [dbo].[Book] ([Title], [AuthorId], [ISBN], [PublicationYear], [NumberOfPages], [IsAvailable])
+VALUES
+    ('Moby Dick', 1, '978-0142437247', 1851, 635, 1),
+    ('1984', 2, '978-0451524935', 1949, 328, 1),
+    ('Pride and Prejudice', 3, '978-0141439518', 1813, 432, 1),
+    ('The Great Gatsby', 4, '978-0743273565', 1925, 180, 1),
+    ('To Kill a Mockingbird', 5, '978-0061120084', 1960, 324, 1),
+    ('The Catcher in the Rye', 6, '978-0316769174', 1951, 277, 1),
+    ('The Hobbit', 7, '978-0547928227', 1937, 310, 1),
+    ('Harry Potter and the Philosopher''s Stone', 8, '978-0439708180', 1997, 223, 1),
+    ('Animal Farm', 2, '978-0451526342', 1945, 112, 1),
+    ('The Lord of the Rings', 7, '978-0544003415', 1954, 1178, 1),
+    ('Brave New World', 9, '978-0060850524', 1932, 268, 1),
+    ('The Chronicles of Narnia', 10, '978-0066238500', 1950, 767, 1),
+    ('Jane Eyre', 11, '978-0141441146', 1847, 532, 1),
+    ('Wuthering Heights', 12, '978-0141439556', 1847, 416, 1),
+    ('The Odyssey', 13, '978-0140268867', -800, 541, 1),
+    ('Hamlet', 14, '978-0743477123', 1603, 289, 1);
 GO
 
 -- Insert sample patron data
@@ -144,6 +177,10 @@ VALUES
 GO
 
 -- Display created data
+PRINT 'Authors:';
+SELECT * FROM [dbo].[Author];
+GO
+
 PRINT 'Books:';
 SELECT * FROM [dbo].[Book];
 GO
@@ -156,5 +193,5 @@ PRINT 'Loans:';
 SELECT * FROM [dbo].[Loan];
 GO
 
-PRINT 'Database [Library] created successfully with Book, Patron, and Loan tables with sample data!';
+PRINT 'Database [Library] created successfully with Author, Book, Patron, and Loan tables with sample data!';
 GO

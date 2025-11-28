@@ -6,9 +6,7 @@ internal class Book
 
     public string Title { get; set; } = string.Empty;
 
-    public string? AuthorGivenName { get; set; }
-
-    public string? AuthorSurname { get; set; }
+    public int? AuthorId { get; set; }
 
     public string? Isbn { get; set; }
 

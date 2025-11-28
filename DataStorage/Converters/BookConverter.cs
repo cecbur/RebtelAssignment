@@ -11,8 +11,7 @@ internal static class BookConverter
         {
             BookId = entity.BookId,
             Title = entity.Title,
-            AuthorGivenName = entity.AuthorGivenName,
-            AuthorSurname = entity.AuthorSurname,
+            AuthorId = entity.AuthorId,
             Isbn = entity.Isbn,
             PublicationYear = entity.PublicationYear,
             NumberOfPages = entity.NumberOfPages,
@@ -26,8 +25,7 @@ internal static class BookConverter
         {
             BookId = model.BookId,
             Title = model.Title,
-            AuthorGivenName = model.AuthorGivenName,
-            AuthorSurname = model.AuthorSurname,
+            AuthorId = model.AuthorId,
             Isbn = model.Isbn,
             PublicationYear = model.PublicationYear,
             NumberOfPages = model.NumberOfPages,

@@ -13,7 +13,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     public async Task<IEnumerable<BusinessModels.Book>> GetAllBooks()
     {
         const string sql = @"
-            SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
+            SELECT BookId, Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable
             FROM Book
             ORDER BY BookId";
 
@@ -25,7 +25,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     public async Task<BusinessModels.Book> GetBookById(int bookId)
     {
         const string sql = @"
-            SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
+            SELECT BookId, Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable
             FROM Book
             WHERE BookId = @BookId";
 
@@ -46,9 +46,9 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         var entity = BookConverter.ToEntity(book);
 
         const string sql = @"
-            INSERT INTO Book (Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable)
-            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorGivenName, INSERTED.AuthorSurname, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
-            VALUES (@Title, @AuthorGivenName, @AuthorSurname, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailableForLoan);";
+            INSERT INTO Book (Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable)
+            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorId, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
+            VALUES (@Title, @AuthorId, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailableForLoan);";
 
         using var connection = _connectionFactory.CreateConnection();
         var newEntity = await connection.QuerySingleAsync<Entities.Book>(sql, entity);
@@ -63,13 +63,12 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         const string sql = @"
             UPDATE Book
             SET Title = @Title,
-                AuthorGivenName = @AuthorGivenName,
-                AuthorSurname = @AuthorSurname,
+                AuthorId = @AuthorId,
                 ISBN = @ISBN,
                 PublicationYear = @PublicationYear,
                 NumberOfPages = @NumberOfPages,
                 IsAvailable = @IsAvailableForLoan
-            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorGivenName, INSERTED.AuthorSurname, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
+            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorId, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
             WHERE BookId = @BookId";
 
         Entities.Book? updatedEntity;
@@ -109,7 +108,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         }
 
         const string sql = @"
-            SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
+            SELECT BookId, Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable
             FROM Book
             WHERE Title LIKE '%' + @TitlePattern + '%'
             ORDER BY Title";
