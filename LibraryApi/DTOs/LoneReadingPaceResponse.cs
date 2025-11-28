@@ -1,8 +1,8 @@
 namespace LibraryApi.DTOs;
 
-public class PatronReadingPaceResponse
+public class LoneReadingPaceResponse
 {
-    public int PatronId { get; set; }
+    public int LoneId { get; set; }
     public double? PagesPerDay { get; set; }
     public string? Message { get; set; }
 }

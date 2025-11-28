@@ -18,37 +18,37 @@ public class PatronController : ControllerBase
     }
 
     /// <summary>
-    /// Get the average reading pace (pages per day) for a specific patron
+    /// Get the average reading pace (pages per day) for a specific lone
     /// </summary>
-    /// <param name="patronId">The ID of the patron</param>
-    /// <returns>The patron's reading pace in pages per day</returns>
-    [HttpGet("{patronId}/reading-pace-pages-per-day")]
-    public async Task<ActionResult<PatronReadingPaceResponse>> GetReadingPacePagesPerDay(int patronId)
+    /// <param name="loneId">The ID of the lone</param>
+    /// <returns>The patron's reading pace in pages per day. Null if the book is not yet returned</returns>
+    [HttpGet("{loneId}/reading-pace-pages-per-day")]
+    public async Task<ActionResult<LoneReadingPaceResponse>> GetReadingPacePagesPerDay(int loneId)
     {
         try
         {
-            var pagesPerDay = await _userActivity.GetPagesPerDayByPatron(patronId);
+            var pagesPerDay = await _userActivity.GetPagesPerDay(loneId);
 
             if (pagesPerDay == null)
             {
-                return Ok(new PatronReadingPaceResponse
+                return Ok(new LoneReadingPaceResponse
                 {
-                    PatronId = patronId,
+                    LoneId = loneId,
                     PagesPerDay = null,
-                    Message = "No completed loans with page count information found for this patron"
+                    Message = "This loan has not been returned"
                 });
             }
 
-            return Ok(new PatronReadingPaceResponse
+            return Ok(new LoneReadingPaceResponse
             {
-                PatronId = patronId,
+                LoneId = loneId,
                 PagesPerDay = pagesPerDay.Value,
                 Message = null
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting reading pace for patron {PatronId}", patronId);
+            _logger.LogError(ex, "Error getting reading pace for lone ID {loneId}", loneId);
             return StatusCode(500, "An error occurred while calculating reading pace");
         }
     }

@@ -13,49 +13,21 @@ public class UserActivity(ILoanRepository loanRepository)
         return patronLoans.OrderByDescending(x => x.LoanCount).ToArray();
     }
 
-    public async Task<Dictionary<Patron, double?>> GetPagesPerDayByPatron()
+    /// <summary>
+    /// Users estimated reading pace assuming continuous reading
+    /// </summary>
+    /// <param name="loanId">ID of the loan</param>
+    /// <returns>Number of pages read per day. Null if the book is not yet returned</returns>
+    public async Task<double?> GetPagesPerDay(int loanId)
     {
-        var loans = await loanRepository.GetAllLoans();
-        var patronLoans = GetPatronLoans(loans);
-        var readingPace = new Dictionary<Patron, double?>();
-        foreach (var patronLoan in patronLoans)
-        {
-            var pagesPerDay = CalculatePagesPerDay(patronLoan.Loans);
-            if (pagesPerDay.HasValue)
-            {
-                readingPace.Add(patronLoan.Patron, pagesPerDay.Value);
-            }
-        }
-
-        return readingPace;
-    }
-
-    public async Task<double?> GetPagesPerDayByPatron(int patronId)
-    {
-        var loans = await loanRepository.GetLoansByPatronId(patronId);
-        return CalculatePagesPerDay(loans);
-    }
-
-    private double? CalculatePagesPerDay(IEnumerable<Loan> loans)
-    {
-        var returnedLoans = loans
-            .Where(l => l.ReturnDate is not null && l.Book.NumberOfPages is not null)
-            .ToArray();
-
-        if (returnedLoans.Length == 0)
+        var loan = await loanRepository.GetLoanById(loanId);
+        if (loan.ReturnDate is null)
             return null;
-
-        var loanTimes = returnedLoans
-            .Select(l => (l.LoanDate, (DateTime)l.ReturnDate!))
-            .ToArray();
-        var time = GetTotalLoanTime(loanTimes);
-        
-        var pages = returnedLoans.Sum(l => l.Book.NumberOfPages!)!.Value;
-        var pagesPerDay = pages / time.TotalDays;
-
-        return pagesPerDay;
+        var time = (loan.ReturnDate - loan.LoanDate).Value.TotalDays;
+        var pace = loan.Book.NumberOfPages / time;
+        return pace;
     }
-
+    
     private PatronLoans[] GetPatronLoans(IEnumerable<Loan> loans)
     {
         var patronLoans = loans
@@ -65,45 +37,6 @@ public class UserActivity(ILoanRepository loanRepository)
         return patronLoans;
     }
 
-    private TimeSpan GetTotalLoanTime(IEnumerable<(DateTime Start, DateTime End)> loanTimes)
-    {
-        var ordered = loanTimes
-            .Where(i => i.Start < i.End)
-            .OrderBy(i => i.Start)
-            .ToList();
-
-        if (ordered.Count == 0)
-            return TimeSpan.Zero;
-
-        // Merge
-        var merged = new List<(DateTime Start, DateTime End)>();
-        var currentStart = ordered[0].Start;
-        var currentEnd = ordered[0].End;
-
-        for (int i = 1; i < ordered.Count; i++)
-        {
-            var (s, e) = ordered[i];
-            if (s <= currentEnd) // overlap or touch
-            {
-                if (e > currentEnd)
-                    currentEnd = e;
-            }
-            else
-            {
-                merged.Add((currentStart, currentEnd));
-                currentStart = s;
-                currentEnd = e;
-            }
-        }
-
-        merged.Add((currentStart, currentEnd));
-
-        // Sum lengths
-        return merged
-            .Select(m => m.End - m.Start)
-            .Aggregate(TimeSpan.Zero, (acc, t) => acc + t);
-    }
-    
     
     public class PatronLoans
     {

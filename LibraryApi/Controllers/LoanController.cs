@@ -15,6 +15,9 @@ public class LoanController : ControllerBase
         _loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+    
+    
+    
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BusinessModels.Loan>>> GetAllLoans()
