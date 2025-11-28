@@ -17,6 +17,8 @@ builder.Services.AddSingleton<IDbConnectionFactory>(sp => new SqlServerConnectio
 // Register application services - Dependency Injection (SOLID: Dependency Inversion Principle)
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IPatronRepository, PatronRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();

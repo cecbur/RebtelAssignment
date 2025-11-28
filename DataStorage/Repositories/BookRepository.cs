@@ -12,7 +12,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     public async Task<IEnumerable<Book>> GetAllBooks()
     {
         const string sql = @"
-            SELECT BookId, Title, Author, ISBN, PublicationYear, IsAvailable
+            SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
             FROM Book
             ORDER BY BookId";
 
@@ -23,7 +23,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     public async Task<Book> GetBookById(int bookId)
     {
         const string sql = @"
-            SELECT BookId, Title, Author, ISBN, PublicationYear, IsAvailable
+            SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
             FROM Book
             WHERE BookId = @BookId";
 
@@ -32,7 +32,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
 
         if (book == null)
             throw new BookIdMissingException($"Book with id {bookId} not found", bookId);
-        
+
         return book;
     }
 
@@ -42,13 +42,13 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             throw new ArgumentNullException(nameof(book));
 
         const string sql = @"
-            INSERT INTO Book (Title, Author, ISBN, PublicationYear, IsAvailable)
-            OUTPUT INSERTED
-            VALUES (@Title, @Author, @ISBN, @PublicationYear, @IsAvailable);;";
+            INSERT INTO Book (Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable)
+            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorGivenName, INSERTED.AuthorSurname, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
+            VALUES (@Title, @AuthorGivenName, @AuthorSurname, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailable);";
 
         using var connection = _connectionFactory.CreateConnection();
-        var newBook = await connection.ExecuteScalarAsync<Book>(sql, book);
-        return newBook!;
+        var newBook = await connection.QuerySingleAsync<Book>(sql, book);
+        return newBook;
     }
 
 
@@ -56,27 +56,31 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     {
         const string sql = @"
             UPDATE Book
-            OUTPUT INSERTED
             SET Title = @Title,
-                Author = @Author,
+                AuthorGivenName = @AuthorGivenName,
+                AuthorSurname = @AuthorSurname,
                 ISBN = @ISBN,
                 PublicationYear = @PublicationYear,
+                NumberOfPages = @NumberOfPages,
                 IsAvailable = @IsAvailable
+            OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorGivenName, INSERTED.AuthorSurname, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
             WHERE BookId = @BookId";
 
         Book? updatedBook;
         try
         {
             using var connection = _connectionFactory.CreateConnection();
-            updatedBook = await connection.ExecuteScalarAsync<Book>(sql, book);
+            updatedBook = await connection.QuerySingleOrDefaultAsync<Book>(sql, book);
         }
         catch (Exception e)
         {
             throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId, e);
         }
-        
-        
-        return updatedBook!;
+
+        if (updatedBook == null)
+            throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId);
+
+        return updatedBook;
     }
 
 
@@ -99,7 +103,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         }
 
         const string sql = @"
-            SELECT BookId, Title, Author, ISBN, PublicationYear, IsAvailable
+            SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
             FROM Book
             WHERE Title LIKE '%' + @TitlePattern + '%'
             ORDER BY Title";
