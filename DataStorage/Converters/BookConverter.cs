@@ -9,7 +9,7 @@ internal static class BookConverter
     {
         return new BusinessModels.Book
         {
-            BookId = entity.BookId,
+            Id = entity.Id,
             Title = entity.Title,
             Author = author != null ? AuthorConverter.ToModel(author) : null,
             Isbn = entity.Isbn,
@@ -23,9 +23,9 @@ internal static class BookConverter
     {
         return new Entities.Book
         {
-            BookId = model.BookId,
+            Id = model.Id,
             Title = model.Title,
-            AuthorId = model.Author?.AuthorId,
+            AuthorId = model.Author?.Id,
             Isbn = model.Isbn,
             PublicationYear = model.PublicationYear,
             NumberOfPages = model.NumberOfPages,

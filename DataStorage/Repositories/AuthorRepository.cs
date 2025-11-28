@@ -11,7 +11,7 @@ public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorR
     public async Task<IEnumerable<BusinessModels.Author>> GetAllAuthors()
     {
         const string sql = @"
-            SELECT AuthorId, GivenName, Surname
+            SELECT Id, GivenName, Surname
             FROM Author
             ORDER BY Surname, GivenName";
 
@@ -23,9 +23,9 @@ public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorR
     public async Task<BusinessModels.Author> GetAuthorById(int authorId)
     {
         const string sql = @"
-            SELECT AuthorId, GivenName, Surname
+            SELECT Id, GivenName, Surname
             FROM Author
-            WHERE AuthorId = @AuthorId";
+            WHERE Id = @AuthorId";
 
         using var connection = _connectionFactory.CreateConnection();
         var entity = await connection.QuerySingleOrDefaultAsync<Entities.Author>(sql, new { AuthorId = authorId });
@@ -39,7 +39,7 @@ public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorR
     public async Task<BusinessModels.Author?> GetAuthorBySurname(string surname)
     {
         const string sql = @"
-            SELECT AuthorId, GivenName, Surname
+            SELECT Id, GivenName, Surname
             FROM Author
             WHERE Surname = @Surname";
 
@@ -57,7 +57,7 @@ public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorR
 
         const string sql = @"
             INSERT INTO Author (GivenName, Surname)
-            OUTPUT INSERTED.AuthorId, INSERTED.GivenName, INSERTED.Surname
+            OUTPUT INSERTED.Id, INSERTED.GivenName, INSERTED.Surname
             VALUES (@GivenName, @Surname);";
 
         using var connection = _connectionFactory.CreateConnection();
@@ -73,14 +73,14 @@ public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorR
             UPDATE Author
             SET GivenName = @GivenName,
                 Surname = @Surname
-            OUTPUT INSERTED.AuthorId, INSERTED.GivenName, INSERTED.Surname
-            WHERE AuthorId = @AuthorId";
+            OUTPUT INSERTED.Id, INSERTED.GivenName, INSERTED.Surname
+            WHERE Id = @Id";
 
         using var connection = _connectionFactory.CreateConnection();
         var updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Author>(sql, entity);
 
         if (updatedEntity == null)
-            throw new InvalidOperationException($"Author with id {author.AuthorId} not found");
+            throw new InvalidOperationException($"Author with id {author.Id} not found");
 
         return AuthorConverter.ToModel(updatedEntity);
     }
@@ -89,7 +89,7 @@ public class AuthorRepository(IDbConnectionFactory connectionFactory) : IAuthorR
     {
         const string sql = @"
             DELETE FROM Author
-            WHERE AuthorId = @AuthorId";
+            WHERE Id = @AuthorId";
 
         using var connection = _connectionFactory.CreateConnection();
         var rowsAffected = await connection.ExecuteAsync(sql, new { AuthorId = authorId });

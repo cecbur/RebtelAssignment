@@ -111,7 +111,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
         var updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Loan>(sql, entity);
 
         if (updatedEntity == null)
-            throw new InvalidOperationException($"Loan with id {loan.LoanId} not found");
+            throw new InvalidOperationException($"Loan with id {loan.Id} not found");
 
         return LoanConverter.ToModel(updatedEntity);
     }

@@ -2,7 +2,7 @@ namespace BusinessModels;
 
 public class Book
 {
-    public int BookId { get; set; }
+    public int Id { get; set; }
 
     public string Title { get; set; } = string.Empty;
 

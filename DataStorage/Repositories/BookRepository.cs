@@ -14,11 +14,11 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     {
         const string sql = @"
             SELECT
-                b.BookId, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
-                a.AuthorId, a.GivenName, a.Surname
+                b.Id, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.Id, a.GivenName, a.Surname
             FROM Book b
-            LEFT JOIN Author a ON b.AuthorId = a.AuthorId
-            ORDER BY b.BookId";
+            LEFT JOIN Author a ON b.AuthorId = a.Id
+            ORDER BY b.Id";
 
         using var connection = _connectionFactory.CreateConnection();
         var bookDictionary = new Dictionary<int, (Entities.Book book, Entities.Author? author)>();
@@ -27,10 +27,10 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             sql,
             (book, author) =>
             {
-                bookDictionary[book.BookId] = (book, author);
+                bookDictionary[book.Id] = (book, author);
                 return (book, author);
             },
-            splitOn: "AuthorId");
+            splitOn: "Id");
 
         return bookDictionary.Values.Select(tuple => BookConverter.ToModel(tuple.book, tuple.author));
     }
@@ -39,11 +39,11 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     {
         const string sql = @"
             SELECT
-                b.BookId, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
-                a.AuthorId, a.GivenName, a.Surname
+                b.Id, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.Id, a.GivenName, a.Surname
             FROM Book b
-            LEFT JOIN Author a ON b.AuthorId = a.AuthorId
-            WHERE b.BookId = @BookId";
+            LEFT JOIN Author a ON b.AuthorId = a.Id
+            WHERE b.Id = @BookId";
 
         using var connection = _connectionFactory.CreateConnection();
 
@@ -59,7 +59,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
                 return 0;
             },
             new { BookId = bookId },
-            splitOn: "AuthorId");
+            splitOn: "Id");
 
         if (bookEntity == null)
             throw new BookIdMissingException($"Book with id {bookId} not found", bookId);
@@ -76,7 +76,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
 
         const string sql = @"
             INSERT INTO Book (Title, AuthorId, ISBN, PublicationYear, NumberOfPages, IsAvailable)
-            OUTPUT INSERTED.BookId
+            OUTPUT INSERTED.Id
             VALUES (@Title, @AuthorId, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailableForLoan);";
 
         using var connection = _connectionFactory.CreateConnection();
@@ -98,7 +98,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
                 PublicationYear = @PublicationYear,
                 NumberOfPages = @NumberOfPages,
                 IsAvailable = @IsAvailableForLoan
-            WHERE BookId = @BookId";
+            WHERE Id = @Id";
 
         try
         {
@@ -106,7 +106,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             var rowsAffected = await connection.ExecuteAsync(sql, entity);
 
             if (rowsAffected == 0)
-                throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId);
+                throw new BookIdMissingException($"Book with id {book.Id} not found", book.Id);
         }
         catch (BookIdMissingException)
         {
@@ -114,10 +114,10 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         }
         catch (Exception e)
         {
-            throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId, e);
+            throw new BookIdMissingException($"Book with id {book.Id} not found", book.Id, e);
         }
 
-        return await GetBookById(book.BookId);
+        return await GetBookById(book.Id);
     }
 
 
@@ -125,7 +125,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
     {
         const string sql = @"
             DELETE FROM Book
-            WHERE BookId = @BookId";
+            WHERE Id = @BookId";
 
         using var connection = _connectionFactory.CreateConnection();
         var rowsAffected = await connection.ExecuteAsync(sql, new { BookId = bookId });
@@ -141,10 +141,10 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
 
         const string sql = @"
             SELECT
-                b.BookId, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
-                a.AuthorId, a.GivenName, a.Surname
+                b.Id, b.Title, b.AuthorId, b.ISBN, b.PublicationYear, b.NumberOfPages, b.IsAvailable,
+                a.Id, a.GivenName, a.Surname
             FROM Book b
-            LEFT JOIN Author a ON b.AuthorId = a.AuthorId
+            LEFT JOIN Author a ON b.AuthorId = a.Id
             WHERE b.Title LIKE '%' + @TitlePattern + '%'
             ORDER BY b.Title";
 
@@ -155,11 +155,11 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             sql,
             (book, author) =>
             {
-                bookDictionary[book.BookId] = (book, author);
+                bookDictionary[book.Id] = (book, author);
                 return (book, author);
             },
             new { TitlePattern = titlePattern },
-            splitOn: "AuthorId");
+            splitOn: "Id");
 
         return bookDictionary.Values.Select(tuple => BookConverter.ToModel(tuple.book, tuple.author));
     }

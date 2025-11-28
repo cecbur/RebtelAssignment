@@ -2,7 +2,7 @@ namespace BusinessModels;
 
 public class Loan
 {
-    public int LoanId { get; set; }
+    public int Id { get; set; }
 
     public int BookId { get; set; }
 

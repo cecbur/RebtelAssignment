@@ -84,7 +84,7 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
         var updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Patron>(sql, entity);
 
         if (updatedEntity == null)
-            throw new InvalidOperationException($"Patron with id {patron.PatronId} not found");
+            throw new InvalidOperationException($"Patron with id {patron.Id} not found");
 
         return PatronConverter.ToModel(updatedEntity);
     }

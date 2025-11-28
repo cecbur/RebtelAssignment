@@ -6,10 +6,11 @@ namespace LibraryApi.DTOs;
 /// </summary>
 public class BookDto
 {
-    public int BookId { get; set; }
+    public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string? Author { get; set; }
+    public AuthorDto? Author { get; set; }
     public string? ISBN { get; set; }
     public int? PublicationYear { get; set; }
+    public int? NumberOfPages { get; set; }
     public bool IsAvailable { get; set; }
 }

@@ -22,10 +22,10 @@ GO
 
 -- Create Author table
 CREATE TABLE [dbo].[Author] (
-    [AuthorId] INT IDENTITY(1,1) NOT NULL,
+    [Id] INT IDENTITY(1,1) NOT NULL,
     [GivenName] NVARCHAR(100) NULL,
     [Surname] NVARCHAR(100) NOT NULL,
-    CONSTRAINT [PK_Author] PRIMARY KEY CLUSTERED ([AuthorId] ASC)
+    CONSTRAINT [PK_Author] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 GO
 
@@ -36,16 +36,16 @@ GO
 
 -- Create Book table
 CREATE TABLE [dbo].[Book] (
-    [BookId] INT IDENTITY(1,1) NOT NULL,
+    [Id] INT IDENTITY(1,1) NOT NULL,
     [Title] NVARCHAR(200) NOT NULL,
     [AuthorId] INT NULL,
     [ISBN] NVARCHAR(20) NULL,
     [PublicationYear] INT NULL,
     [NumberOfPages] INT NULL,
     [IsAvailable] BIT NOT NULL DEFAULT 1,
-    CONSTRAINT [PK_Book] PRIMARY KEY CLUSTERED ([BookId] ASC),
+    CONSTRAINT [PK_Book] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [UQ_Book_ISBN] UNIQUE NONCLUSTERED ([ISBN] ASC),
-    CONSTRAINT [FK_Book_Author] FOREIGN KEY ([AuthorId]) REFERENCES [dbo].[Author]([AuthorId])
+    CONSTRAINT [FK_Book_Author] FOREIGN KEY ([AuthorId]) REFERENCES [dbo].[Author]([Id])
 );
 GO
 
@@ -61,14 +61,14 @@ GO
 
 -- Create Patron table
 CREATE TABLE [dbo].[Patron] (
-    [PatronId] INT IDENTITY(1,1) NOT NULL,
+    [Id] INT IDENTITY(1,1) NOT NULL,
     [FirstName] NVARCHAR(100) NOT NULL,
     [LastName] NVARCHAR(100) NOT NULL,
     [Email] NVARCHAR(200) NOT NULL,
     [PhoneNumber] NVARCHAR(20) NULL,
     [MembershipDate] DATETIME2 NOT NULL DEFAULT GETDATE(),
     [IsActive] BIT NOT NULL DEFAULT 1,
-    CONSTRAINT [PK_Patron] PRIMARY KEY CLUSTERED ([PatronId] ASC),
+    CONSTRAINT [PK_Patron] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [UQ_Patron_Email] UNIQUE NONCLUSTERED ([Email] ASC)
 );
 GO
@@ -80,16 +80,16 @@ GO
 
 -- Create Loan table
 CREATE TABLE [dbo].[Loan] (
-    [LoanId] INT IDENTITY(1,1) NOT NULL,
+    [Id] INT IDENTITY(1,1) NOT NULL,
     [BookId] INT NOT NULL,
     [PatronId] INT NOT NULL,
     [LoanDate] DATETIME2 NOT NULL DEFAULT GETDATE(),
     [DueDate] DATETIME2 NOT NULL,
     [ReturnDate] DATETIME2 NULL,
     [IsReturned] BIT NOT NULL DEFAULT 0,
-    CONSTRAINT [PK_Loan] PRIMARY KEY CLUSTERED ([LoanId] ASC),
-    CONSTRAINT [FK_Loan_Book] FOREIGN KEY ([BookId]) REFERENCES [dbo].[Book]([BookId]),
-    CONSTRAINT [FK_Loan_Patron] FOREIGN KEY ([PatronId]) REFERENCES [dbo].[Patron]([PatronId])
+    CONSTRAINT [PK_Loan] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Loan_Book] FOREIGN KEY ([BookId]) REFERENCES [dbo].[Book]([Id]),
+    CONSTRAINT [FK_Loan_Patron] FOREIGN KEY ([PatronId]) REFERENCES [dbo].[Patron]([Id])
 );
 GO
 

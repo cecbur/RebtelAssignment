@@ -2,7 +2,7 @@ namespace DataStorage.Entities;
 
 internal class Patron
 {
-    public int PatronId { get; set; }
+    public int Id { get; set; }
 
     public string FirstName { get; set; } = string.Empty;
 

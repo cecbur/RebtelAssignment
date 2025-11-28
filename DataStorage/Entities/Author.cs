@@ -2,7 +2,7 @@ namespace DataStorage.Entities;
 
 internal class Author
 {
-    public int AuthorId { get; set; }
+    public int Id { get; set; }
 
     public string? GivenName { get; set; }
 

@@ -9,7 +9,7 @@ internal static class PatronConverter
     {
         return new BusinessModels.Patron
         {
-            PatronId = entity.PatronId,
+            Id = entity.Id,
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             Email = entity.Email,
@@ -23,7 +23,7 @@ internal static class PatronConverter
     {
         return new Entities.Patron
         {
-            PatronId = model.PatronId,
+            Id = model.Id,
             FirstName = model.FirstName,
             LastName = model.LastName,
             Email = model.Email,

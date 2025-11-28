@@ -9,7 +9,7 @@ internal static class LoanConverter
     {
         return new BusinessModels.Loan
         {
-            LoanId = entity.LoanId,
+            Id = entity.Id,
             BookId = entity.BookId,
             PatronId = entity.PatronId,
             LoanDate = entity.LoanDate,
@@ -23,7 +23,7 @@ internal static class LoanConverter
     {
         return new Entities.Loan
         {
-            LoanId = model.LoanId,
+            Id = model.Id,
             BookId = model.BookId,
             PatronId = model.PatronId,
             LoanDate = model.LoanDate,

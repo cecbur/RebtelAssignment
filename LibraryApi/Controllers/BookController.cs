@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLogic;
 using DataStorage.Repositories;
-using DataStorage.Entities;
+using BusinessModels;
 using DataStorage.Exceptions;
 using LibraryApi.DTOs;
 
@@ -173,11 +173,11 @@ public class BookController : ControllerBase
 
         try
         {
-            var book = MapToEntity(bookDto);
+            var book = MapToModel(bookDto);
             var createdBook = await _bookRepository.AddBook(book);
 
-            _logger.LogInformation("Created new book with ID {BookId}: '{Title}'", createdBook.BookId, createdBook.Title);
-            return CreatedAtAction(nameof(GetBookByIdAsync), new { id = createdBook.BookId }, MapToDto(createdBook));
+            _logger.LogInformation("Created new book with ID {BookId}: '{Title}'", createdBook.Id, createdBook.Title);
+            return CreatedAtAction(nameof(GetBookByIdAsync), new { id = createdBook.Id }, MapToDto(createdBook));
         }
         catch (Exception ex)
         {
@@ -201,7 +201,7 @@ public class BookController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateBookAsync(int id, [FromBody] BookDto bookDto)
     {
-        if (id != bookDto.BookId)
+        if (id != bookDto.Id)
         {
             return BadRequest("ID in URL does not match ID in body");
         }
@@ -213,7 +213,7 @@ public class BookController : ControllerBase
 
         try
         {
-            var book = MapToEntity(bookDto);
+            var book = MapToModel(bookDto);
             Book updatedBook = await _bookRepository.UpdateBook(book);
             _logger.LogInformation("Updated book with ID {BookId}", id);
             return NoContent();
@@ -257,29 +257,41 @@ public class BookController : ControllerBase
         }
     }
 
-    // Helper methods for mapping between Entity and DTO
+    // Helper methods for mapping between Model and DTO
     private static BookDto MapToDto(Book book)
     {
         return new BookDto
         {
-            BookId = book.BookId,
+            Id = book.Id,
             Title = book.Title,
-            Author = book.Author,
+            Author = book.Author != null ? new AuthorDto
+            {
+                Id = book.Author.Id,
+                GivenName = book.Author.GivenName,
+                Surname = book.Author.Surname
+            } : null,
             ISBN = book.Isbn,
             PublicationYear = book.PublicationYear,
+            NumberOfPages = book.NumberOfPages,
             IsAvailable = book.IsAvailableForLoan
         };
     }
 
-    private static Book MapToEntity(BookDto dto)
+    private static Book MapToModel(BookDto dto)
     {
         return new Book
         {
-            BookId = dto.BookId,
+            Id = dto.Id,
             Title = dto.Title,
-            Author = dto.Author,
+            Author = dto.Author != null ? new BusinessModels.Author
+            {
+                Id = dto.Author.Id,
+                GivenName = dto.Author.GivenName,
+                Surname = dto.Author.Surname
+            } : null,
             Isbn = dto.ISBN,
             PublicationYear = dto.PublicationYear,
+            NumberOfPages = dto.NumberOfPages,
             IsAvailableForLoan = dto.IsAvailable
         };
     }

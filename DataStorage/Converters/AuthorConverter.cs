@@ -9,7 +9,7 @@ internal static class AuthorConverter
     {
         return new BusinessModels.Author
         {
-            AuthorId = entity.AuthorId,
+            Id = entity.Id,
             GivenName = entity.GivenName,
             Surname = entity.Surname
         };
@@ -19,7 +19,7 @@ internal static class AuthorConverter
     {
         return new Entities.Author
         {
-            AuthorId = model.AuthorId,
+            Id = model.Id,
             GivenName = model.GivenName,
             Surname = model.Surname
         };
