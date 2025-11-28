@@ -1,6 +1,6 @@
 namespace DataStorage.Entities;
 
-public class Book
+internal class Book
 {
     public int BookId { get; set; }
 

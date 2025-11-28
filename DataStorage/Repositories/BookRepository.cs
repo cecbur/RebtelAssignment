@@ -1,6 +1,7 @@
 using Dapper;
 using DataStorage.Entities;
 using DataStorage.Exceptions;
+using DataStorage.Converters;
 
 namespace DataStorage.Repositories;
 
@@ -8,8 +9,8 @@ namespace DataStorage.Repositories;
 public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepository
 {
     private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
-    
-    public async Task<IEnumerable<Book>> GetAllBooks()
+
+    public async Task<IEnumerable<BusinessModels.Book>> GetAllBooks()
     {
         const string sql = @"
             SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
@@ -17,10 +18,11 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             ORDER BY BookId";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Book>(sql);
+        var entities = await connection.QueryAsync<Entities.Book>(sql);
+        return entities.Select(BookConverter.ToModel);
     }
 
-    public async Task<Book> GetBookById(int bookId)
+    public async Task<BusinessModels.Book> GetBookById(int bookId)
     {
         const string sql = @"
             SELECT BookId, Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable
@@ -28,32 +30,36 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             WHERE BookId = @BookId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var book = await connection.QuerySingleOrDefaultAsync<Book>(sql, new { BookId = bookId });
+        var entity = await connection.QuerySingleOrDefaultAsync<Entities.Book>(sql, new { BookId = bookId });
 
-        if (book == null)
+        if (entity == null)
             throw new BookIdMissingException($"Book with id {bookId} not found", bookId);
 
-        return book;
+        return BookConverter.ToModel(entity);
     }
 
-    public async Task<Book> AddBook(Book book)
+    public async Task<BusinessModels.Book> AddBook(BusinessModels.Book book)
     {
         if (book == null)
             throw new ArgumentNullException(nameof(book));
 
+        var entity = BookConverter.ToEntity(book);
+
         const string sql = @"
             INSERT INTO Book (Title, AuthorGivenName, AuthorSurname, ISBN, PublicationYear, NumberOfPages, IsAvailable)
             OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorGivenName, INSERTED.AuthorSurname, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
-            VALUES (@Title, @AuthorGivenName, @AuthorSurname, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailable);";
+            VALUES (@Title, @AuthorGivenName, @AuthorSurname, @ISBN, @PublicationYear, @NumberOfPages, @IsAvailableForLoan);";
 
         using var connection = _connectionFactory.CreateConnection();
-        var newBook = await connection.QuerySingleAsync<Book>(sql, book);
-        return newBook;
+        var newEntity = await connection.QuerySingleAsync<Entities.Book>(sql, entity);
+        return BookConverter.ToModel(newEntity);
     }
 
 
-    public async Task<Book> UpdateBook(Book book)
+    public async Task<BusinessModels.Book> UpdateBook(BusinessModels.Book book)
     {
+        var entity = BookConverter.ToEntity(book);
+
         const string sql = @"
             UPDATE Book
             SET Title = @Title,
@@ -62,25 +68,25 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
                 ISBN = @ISBN,
                 PublicationYear = @PublicationYear,
                 NumberOfPages = @NumberOfPages,
-                IsAvailable = @IsAvailable
+                IsAvailable = @IsAvailableForLoan
             OUTPUT INSERTED.BookId, INSERTED.Title, INSERTED.AuthorGivenName, INSERTED.AuthorSurname, INSERTED.ISBN, INSERTED.PublicationYear, INSERTED.NumberOfPages, INSERTED.IsAvailable
             WHERE BookId = @BookId";
 
-        Book? updatedBook;
+        Entities.Book? updatedEntity;
         try
         {
             using var connection = _connectionFactory.CreateConnection();
-            updatedBook = await connection.QuerySingleOrDefaultAsync<Book>(sql, book);
+            updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Book>(sql, entity);
         }
         catch (Exception e)
         {
             throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId, e);
         }
 
-        if (updatedBook == null)
+        if (updatedEntity == null)
             throw new BookIdMissingException($"Book with id {book.BookId} not found", book.BookId);
 
-        return updatedBook;
+        return BookConverter.ToModel(updatedEntity);
     }
 
 
@@ -95,7 +101,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
         return rowsAffected > 0;
     }
 
-    public async Task<IEnumerable<Book>> SearchBooksByTitleLikeQuery(string titlePattern)
+    public async Task<IEnumerable<BusinessModels.Book>> SearchBooksByTitleLikeQuery(string titlePattern)
     {
         if (string.IsNullOrWhiteSpace(titlePattern))
         {
@@ -109,6 +115,7 @@ public class BookRepository(IDbConnectionFactory connectionFactory) : IBookRepos
             ORDER BY Title";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Book>(sql, new { TitlePattern = titlePattern });
+        var entities = await connection.QueryAsync<Entities.Book>(sql, new { TitlePattern = titlePattern });
+        return entities.Select(BookConverter.ToModel);
     }
 }

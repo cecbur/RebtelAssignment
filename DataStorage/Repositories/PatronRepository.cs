@@ -1,5 +1,6 @@
 using Dapper;
 using DataStorage.Entities;
+using DataStorage.Converters;
 
 namespace DataStorage.Repositories;
 
@@ -7,7 +8,7 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
 {
     private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
 
-    public async Task<IEnumerable<Patron>> GetAllPatrons()
+    public async Task<IEnumerable<BusinessModels.Patron>> GetAllPatrons()
     {
         const string sql = @"
             SELECT PatronId, FirstName, LastName, Email, PhoneNumber, MembershipDate, IsActive
@@ -15,10 +16,11 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
             ORDER BY LastName, FirstName";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Patron>(sql);
+        var entities = await connection.QueryAsync<Entities.Patron>(sql);
+        return entities.Select(PatronConverter.ToModel);
     }
 
-    public async Task<Patron> GetPatronById(int patronId)
+    public async Task<BusinessModels.Patron> GetPatronById(int patronId)
     {
         const string sql = @"
             SELECT PatronId, FirstName, LastName, Email, PhoneNumber, MembershipDate, IsActive
@@ -26,15 +28,15 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
             WHERE PatronId = @PatronId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var patron = await connection.QuerySingleOrDefaultAsync<Patron>(sql, new { PatronId = patronId });
+        var entity = await connection.QuerySingleOrDefaultAsync<Entities.Patron>(sql, new { PatronId = patronId });
 
-        if (patron == null)
+        if (entity == null)
             throw new InvalidOperationException($"Patron with id {patronId} not found");
 
-        return patron;
+        return PatronConverter.ToModel(entity);
     }
 
-    public async Task<Patron?> GetPatronByEmail(string email)
+    public async Task<BusinessModels.Patron?> GetPatronByEmail(string email)
     {
         const string sql = @"
             SELECT PatronId, FirstName, LastName, Email, PhoneNumber, MembershipDate, IsActive
@@ -42,13 +44,16 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
             WHERE Email = @Email";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QuerySingleOrDefaultAsync<Patron>(sql, new { Email = email });
+        var entity = await connection.QuerySingleOrDefaultAsync<Entities.Patron>(sql, new { Email = email });
+        return entity != null ? PatronConverter.ToModel(entity) : null;
     }
 
-    public async Task<Patron> AddPatron(Patron patron)
+    public async Task<BusinessModels.Patron> AddPatron(BusinessModels.Patron patron)
     {
         if (patron == null)
             throw new ArgumentNullException(nameof(patron));
+
+        var entity = PatronConverter.ToEntity(patron);
 
         const string sql = @"
             INSERT INTO Patron (FirstName, LastName, Email, PhoneNumber, MembershipDate, IsActive)
@@ -56,12 +61,14 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
             VALUES (@FirstName, @LastName, @Email, @PhoneNumber, @MembershipDate, @IsActive);";
 
         using var connection = _connectionFactory.CreateConnection();
-        var newPatron = await connection.QuerySingleAsync<Patron>(sql, patron);
-        return newPatron;
+        var newEntity = await connection.QuerySingleAsync<Entities.Patron>(sql, entity);
+        return PatronConverter.ToModel(newEntity);
     }
 
-    public async Task<Patron> UpdatePatron(Patron patron)
+    public async Task<BusinessModels.Patron> UpdatePatron(BusinessModels.Patron patron)
     {
+        var entity = PatronConverter.ToEntity(patron);
+
         const string sql = @"
             UPDATE Patron
             SET FirstName = @FirstName,
@@ -74,12 +81,12 @@ public class PatronRepository(IDbConnectionFactory connectionFactory) : IPatronR
             WHERE PatronId = @PatronId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var updatedPatron = await connection.QuerySingleOrDefaultAsync<Patron>(sql, patron);
+        var updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Patron>(sql, entity);
 
-        if (updatedPatron == null)
+        if (updatedEntity == null)
             throw new InvalidOperationException($"Patron with id {patron.PatronId} not found");
 
-        return updatedPatron;
+        return PatronConverter.ToModel(updatedEntity);
     }
 
     public async Task<bool> DeletePatron(int patronId)

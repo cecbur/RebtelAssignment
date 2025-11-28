@@ -1,6 +1,6 @@
-namespace DataStorage.Entities;
+namespace BusinessModels;
 
-internal class Patron
+public class Patron
 {
     public int PatronId { get; set; }
 

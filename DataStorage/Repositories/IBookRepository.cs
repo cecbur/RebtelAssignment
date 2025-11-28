@@ -1,4 +1,4 @@
-using DataStorage.Entities;
+using BusinessModels;
 
 namespace DataStorage.Repositories;
 
@@ -6,7 +6,7 @@ namespace DataStorage.Repositories;
 public interface IBookRepository
 {
     Task<IEnumerable<Book>> GetAllBooks();
-    
+
     Task<Book> GetBookById(int bookId);
 
     /// Adds a new book to the database

@@ -1,4 +1,4 @@
-using DataStorage.Entities;
+using BusinessModels;
 
 namespace DataStorage.Repositories;
 

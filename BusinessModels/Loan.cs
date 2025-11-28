@@ -1,6 +1,6 @@
-namespace DataStorage.Entities;
+namespace BusinessModels;
 
-internal class Loan
+public class Loan
 {
     public int LoanId { get; set; }
 

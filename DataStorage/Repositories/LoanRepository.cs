@@ -1,5 +1,6 @@
 using Dapper;
 using DataStorage.Entities;
+using DataStorage.Converters;
 
 namespace DataStorage.Repositories;
 
@@ -7,7 +8,7 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
 {
     private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
 
-    public async Task<IEnumerable<Loan>> GetAllLoans()
+    public async Task<IEnumerable<BusinessModels.Loan>> GetAllLoans()
     {
         const string sql = @"
             SELECT LoanId, BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned
@@ -15,10 +16,11 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             ORDER BY LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Loan>(sql);
+        var entities = await connection.QueryAsync<Entities.Loan>(sql);
+        return entities.Select(LoanConverter.ToModel);
     }
 
-    public async Task<Loan> GetLoanById(int loanId)
+    public async Task<BusinessModels.Loan> GetLoanById(int loanId)
     {
         const string sql = @"
             SELECT LoanId, BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned
@@ -26,15 +28,15 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             WHERE LoanId = @LoanId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var loan = await connection.QuerySingleOrDefaultAsync<Loan>(sql, new { LoanId = loanId });
+        var entity = await connection.QuerySingleOrDefaultAsync<Entities.Loan>(sql, new { LoanId = loanId });
 
-        if (loan == null)
+        if (entity == null)
             throw new InvalidOperationException($"Loan with id {loanId} not found");
 
-        return loan;
+        return LoanConverter.ToModel(entity);
     }
 
-    public async Task<IEnumerable<Loan>> GetLoansByPatronId(int patronId)
+    public async Task<IEnumerable<BusinessModels.Loan>> GetLoansByPatronId(int patronId)
     {
         const string sql = @"
             SELECT LoanId, BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned
@@ -43,10 +45,11 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             ORDER BY LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Loan>(sql, new { PatronId = patronId });
+        var entities = await connection.QueryAsync<Entities.Loan>(sql, new { PatronId = patronId });
+        return entities.Select(LoanConverter.ToModel);
     }
 
-    public async Task<IEnumerable<Loan>> GetLoansByBookId(int bookId)
+    public async Task<IEnumerable<BusinessModels.Loan>> GetLoansByBookId(int bookId)
     {
         const string sql = @"
             SELECT LoanId, BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned
@@ -55,10 +58,11 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             ORDER BY LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Loan>(sql, new { BookId = bookId });
+        var entities = await connection.QueryAsync<Entities.Loan>(sql, new { BookId = bookId });
+        return entities.Select(LoanConverter.ToModel);
     }
 
-    public async Task<IEnumerable<Loan>> GetActiveLoans()
+    public async Task<IEnumerable<BusinessModels.Loan>> GetActiveLoans()
     {
         const string sql = @"
             SELECT LoanId, BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned
@@ -67,13 +71,16 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             ORDER BY DueDate ASC";
 
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<Loan>(sql);
+        var entities = await connection.QueryAsync<Entities.Loan>(sql);
+        return entities.Select(LoanConverter.ToModel);
     }
 
-    public async Task<Loan> AddLoan(Loan loan)
+    public async Task<BusinessModels.Loan> AddLoan(BusinessModels.Loan loan)
     {
         if (loan == null)
             throw new ArgumentNullException(nameof(loan));
+
+        var entity = LoanConverter.ToEntity(loan);
 
         const string sql = @"
             INSERT INTO Loan (BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned)
@@ -81,12 +88,14 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             VALUES (@BookId, @PatronId, @LoanDate, @DueDate, @ReturnDate, @IsReturned);";
 
         using var connection = _connectionFactory.CreateConnection();
-        var newLoan = await connection.QuerySingleAsync<Loan>(sql, loan);
-        return newLoan;
+        var newEntity = await connection.QuerySingleAsync<Entities.Loan>(sql, entity);
+        return LoanConverter.ToModel(newEntity);
     }
 
-    public async Task<Loan> UpdateLoan(Loan loan)
+    public async Task<BusinessModels.Loan> UpdateLoan(BusinessModels.Loan loan)
     {
+        var entity = LoanConverter.ToEntity(loan);
+
         const string sql = @"
             UPDATE Loan
             SET BookId = @BookId,
@@ -99,12 +108,12 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : ILoanRepos
             WHERE LoanId = @LoanId";
 
         using var connection = _connectionFactory.CreateConnection();
-        var updatedLoan = await connection.QuerySingleOrDefaultAsync<Loan>(sql, loan);
+        var updatedEntity = await connection.QuerySingleOrDefaultAsync<Entities.Loan>(sql, entity);
 
-        if (updatedLoan == null)
+        if (updatedEntity == null)
             throw new InvalidOperationException($"Loan with id {loan.LoanId} not found");
 
-        return updatedLoan;
+        return LoanConverter.ToModel(updatedEntity);
     }
 
     public async Task<bool> DeleteLoan(int loanId)
