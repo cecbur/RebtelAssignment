@@ -1,6 +1,6 @@
+using BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 using DataStorageContracts;
-using BusinessLogic.InventoryInsights;
 using LibraryApi.DTOs;
 
 namespace LibraryApi.Controllers;

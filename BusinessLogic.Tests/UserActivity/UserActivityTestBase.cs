@@ -7,12 +7,12 @@ namespace BusinessLogic.Tests.InventoryInsights.UserActivity;
 public abstract class UserActivityTestBase
 {
     protected readonly Mock<ILoanRepository> MockLoanRepository;
-    protected readonly BusinessLogic.InventoryInsights.UserActivity UserActivity;
+    protected readonly BusinessLogic.UserActivity UserActivity;
 
     protected UserActivityTestBase()
     {
         MockLoanRepository = new Mock<ILoanRepository>();
-        UserActivity = new BusinessLogic.InventoryInsights.UserActivity(MockLoanRepository.Object);
+        UserActivity = new BusinessLogic.UserActivity(MockLoanRepository.Object);
     }
 
     protected static Patron CreatePatron(int id, string firstName = "Test", string lastName = "User")

@@ -1,4 +1,4 @@
-using BusinessLogic.InventoryInsights;
+using BusinessLogic;
 using LibraryApi.DTOs;
 
 namespace LibraryApi.Converters;

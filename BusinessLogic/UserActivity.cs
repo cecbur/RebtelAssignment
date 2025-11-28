@@ -1,8 +1,7 @@
-
 using BusinessModels;
 using DataStorageContracts;
 
-namespace BusinessLogic.InventoryInsights;
+namespace BusinessLogic;
 
 public class UserActivity(ILoanRepository loanRepository)
 {

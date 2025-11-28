@@ -15,21 +15,13 @@ namespace LibraryApi.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class BookController : ControllerBase
+public class BookController(
+    IBookRepository bookRepository,
+    ILogger<BookController> logger)
+    : ControllerBase
 {
-    private readonly IBookService _bookService;
-    private readonly IBookRepository _bookRepository;
-    private readonly ILogger<BookController> _logger;
-
-    public BookController(
-        IBookService bookService,
-        IBookRepository bookRepository,
-        ILogger<BookController> logger)
-    {
-        _bookService = bookService ?? throw new ArgumentNullException(nameof(bookService));
-        _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly IBookRepository _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
+    private readonly ILogger<BookController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>
     /// Gets all books from the library
@@ -78,65 +70,6 @@ public class BookController : ControllerBase
         return Ok(BookDtoConverter.ToDto(book));
     }
 
-    /// <summary>
-    /// Reverses a book title
-    /// </summary>
-    /// <param name="request">The title operation request</param>
-    /// <returns>The reversed title</returns>
-    /// <response code="200">Returns the reversed title</response>
-    /// <response code="400">If the request is invalid</response>
-    [HttpPost("reverse-title")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<string> ReverseTitle([FromBody] TitleOperationRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
-            var reversedTitle = _bookService.ReverseTitle(request.Title);
-            _logger.LogInformation("Reversed title: '{Original}' -> '{Reversed}'", request.Title, reversedTitle);
-            return Ok(reversedTitle);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error reversing title");
-            return BadRequest(ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// Generates replicas of a book title
-    /// </summary>
-    /// <param name="request">The title replica request</param>
-    /// <returns>The replicated title</returns>
-    /// <response code="200">Returns the replicated title</response>
-    /// <response code="400">If the request is invalid</response>
-    [HttpPost("generate-replicas")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<string> GenerateTitleReplicas([FromBody] TitleReplicaRequest request)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        try
-        {
-            var replicatedTitle = _bookService.GenerateTitleReplicas(request.Title, request.Count);
-            _logger.LogInformation("Generated {Count} replicas of title: '{Title}'", request.Count, request.Title);
-            return Ok(replicatedTitle);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating title replicas");
-            return BadRequest(ex.Message);
-        }
-    }
 
     /// <summary>
     /// Searches books by title pattern

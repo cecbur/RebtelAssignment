@@ -1,5 +1,5 @@
+using BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
-using BusinessLogic.InventoryInsights;
 using LibraryApi.Converters;
 using LibraryApi.DTOs;
 

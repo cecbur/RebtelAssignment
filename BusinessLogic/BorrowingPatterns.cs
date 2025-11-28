@@ -1,7 +1,7 @@
 using BusinessModels;
 using DataStorageContracts;
 
-namespace BusinessLogic.InventoryInsights;
+namespace BusinessLogic;
 
 public class BorrowingPatterns(ILoanRepository loanRepository, IBorrowingPatternRepository borrowingPatternRepository)
 {
