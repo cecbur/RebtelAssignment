@@ -264,30 +264,26 @@ Accept: application/json
 
 ###
 
-#####################
-# Patron Controller
-#####################
-
-### Get reading pace (pages per day) for patron 1
-GET {{LibraryApi_HostAddress}}/api/Patron/1/reading-pace-pages-per-day
+### Get reading pace (pages per day) for loan 1
+GET {{LibraryApi_HostAddress}}/api/Loan/1/reading-pace-pages-per-day
 Accept: application/json
 
 ###
 
-### Get reading pace (pages per day) for patron 2
-GET {{LibraryApi_HostAddress}}/api/Patron/2/reading-pace-pages-per-day
+### Get reading pace (pages per day) for loan 2
+GET {{LibraryApi_HostAddress}}/api/Loan/2/reading-pace-pages-per-day
 Accept: application/json
 
 ###
 
-### Get reading pace (pages per day) for patron 3
-GET {{LibraryApi_HostAddress}}/api/Patron/3/reading-pace-pages-per-day
+### Get reading pace (pages per day) for loan 3
+GET {{LibraryApi_HostAddress}}/api/Loan/3/reading-pace-pages-per-day
 Accept: application/json
 
 ###
 
-### Get reading pace (pages per day) for non-existent patron
-GET {{LibraryApi_HostAddress}}/api/Patron/999/reading-pace-pages-per-day
+### Get reading pace (pages per day) for non-existent loan
+GET {{LibraryApi_HostAddress}}/api/Loan/999/reading-pace-pages-per-day
 Accept: application/json
 
 ###
