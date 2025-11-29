@@ -8,6 +8,88 @@
 # gRPC service runs on port 5001 (HTTP/2)
 ###############################################
 
+##########################
+# Assignment Controller
+# (Assignment Endpoints)
+##########################
+
+### 1. Get most loaned books sorted by loan count
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books
+Accept: application/json
+
+###
+
+### Get most loaned books sorted by loan count (top 5)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books?maxBooks=5
+Accept: application/json
+
+###
+
+### Get most loaned books sorted by loan count (top 10)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books?maxBooks=10
+Accept: application/json
+
+###
+
+### 2. Get most active patrons (January 2024, top 10)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
+Accept: application/json
+
+###
+
+### Get most active patrons (Q1 2024, top 5)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
+Accept: application/json
+
+###
+
+### Get most active patrons (All of 2024, top 20)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
+Accept: application/json
+
+###
+
+### 3. Get reading pace (pages per day) for loan 1
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/1
+Accept: application/json
+
+###
+
+### Get reading pace (pages per day) for loan 2
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/2
+Accept: application/json
+
+###
+
+### Get reading pace (pages per day) for loan 3
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/3
+Accept: application/json
+
+###
+
+### Get reading pace (pages per day) for non-existent loan
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/999
+Accept: application/json
+
+###
+
+### 4. Get other books borrowed by individuals who borrowed book 1
+GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/1
+Accept: application/json
+
+###
+
+### Get other books borrowed by individuals who borrowed book 2
+GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/2
+Accept: application/json
+
+###
+
+### Get other books borrowed by individuals who borrowed book 4
+GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/4
+Accept: application/json
+
+###
 ###################
 # Book Controller
 ###################
@@ -142,28 +224,6 @@ Content-Type: application/json
 
 ###
 
-##############################
-# Patron Activity Controller
-##############################
-
-### Get most active patrons (January 2024, top 10)
-GET {{LibraryApi_HostAddress}}/api/PatronActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
-Accept: application/json
-
-###
-
-### Get most active patrons (Q1 2024, top 5)
-GET {{LibraryApi_HostAddress}}/api/PatronActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
-Accept: application/json
-
-###
-
-### Get most active patrons (All of 2024, top 20)
-GET {{LibraryApi_HostAddress}}/api/PatronActivity/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
-Accept: application/json
-
-###
-
 ###################
 # Loan Controller (via gRPC)
 ###################
@@ -216,66 +276,3 @@ Accept: application/json
 
 ###
 
-### Get reading pace (pages per day) for loan 1
-GET {{LibraryApi_HostAddress}}/api/Loan/1/reading-pace-pages-per-day
-Accept: application/json
-
-###
-
-### Get reading pace (pages per day) for loan 2
-GET {{LibraryApi_HostAddress}}/api/Loan/2/reading-pace-pages-per-day
-Accept: application/json
-
-###
-
-### Get reading pace (pages per day) for loan 3
-GET {{LibraryApi_HostAddress}}/api/Loan/3/reading-pace-pages-per-day
-Accept: application/json
-
-###
-
-### Get reading pace (pages per day) for non-existent loan
-GET {{LibraryApi_HostAddress}}/api/Loan/999/reading-pace-pages-per-day
-Accept: application/json
-
-###
-
-#################################
-# Borrowing Pattern Controller
-#################################
-
-### Get other books borrowed by individuals who borrowed book 1
-GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/1
-Accept: application/json
-
-###
-
-### Get other books borrowed by individuals who borrowed book 2
-GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/2
-Accept: application/json
-
-###
-
-### Get other books borrowed by individuals who borrowed book 4
-GET {{LibraryApi_HostAddress}}/api/BorrowingPattern/other-books-borrowed/4
-Accept: application/json
-
-###
-
-### Get most loaned books sorted by loan count
-GET {{LibraryApi_HostAddress}}/api/Book/most-loaned
-Accept: application/json
-
-###
-
-### Get most loaned books sorted by loan count (top 5)
-GET {{LibraryApi_HostAddress}}/api/Book/most-loaned?maxBooks=5
-Accept: application/json
-
-###
-
-### Get most loaned books sorted by loan count (top 10)
-GET {{LibraryApi_HostAddress}}/api/Book/most-loaned?maxBooks=10
-Accept: application/json
-
-###

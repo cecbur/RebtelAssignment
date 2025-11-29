@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using BusinessLogic;
 using DataStorageContracts;
 using BusinessModels;
 using DataStorage.Exceptions;
@@ -17,12 +16,10 @@ namespace LibraryApi.Controllers;
 [Produces("application/json")]
 public class BookController(
     IBookRepository bookRepository,
-    BookPatterns bookPatterns,
     ILogger<BookController> logger)
     : ControllerBase
 {
     private readonly IBookRepository _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
-    private readonly BookPatterns _bookPatterns = bookPatterns ?? throw new ArgumentNullException(nameof(bookPatterns));
     private readonly ILogger<BookController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>
@@ -88,36 +85,6 @@ public class BookController(
 
         _logger.LogInformation("Found {Count} books matching pattern '{Pattern}'", bookDtos.Count(), titlePattern);
         return Ok(bookDtos);
-    }
-
-    /// <summary>
-    /// Gets all books sorted by how many times they were loaned (most loaned first)
-    /// </summary>
-    /// <param name="maxBooks">Optional maximum number of books to return</param>
-    /// <returns>List of books with their loan counts, ordered by loan count descending</returns>
-    /// <response code="200">Returns the list of books sorted by loan count</response>
-    /// <response code="500">If there was an internal server error</response>
-    [HttpGet("most-loaned")]
-    [ProducesResponseType(typeof(IEnumerable<BookLoansResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<BookLoansResponse>>> GetMostLoanedBooksSorted([FromQuery] int? maxBooks = null)
-    {
-        try
-        {
-            _logger.LogInformation("Getting most loaned books sorted by loan count (max: {MaxBooks})", maxBooks ?? -1);
-
-            var bookLoans = await _bookPatterns.GetMostLoanedBooksSorted(maxBooks);
-            var response = BookLoansResponseConverter.ToDto(bookLoans);
-
-            _logger.LogInformation("Retrieved {Count} books sorted by loan count", response.Length);
-
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting most loaned books");
-            return StatusCode(500, "An error occurred while retrieving book loan statistics");
-        }
     }
 
     /// <summary>
