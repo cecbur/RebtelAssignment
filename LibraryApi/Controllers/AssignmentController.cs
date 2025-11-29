@@ -164,7 +164,7 @@ public class AssignmentController : ControllerBase
         {
             _logger.LogInformation("Getting other books borrowed for book id {BookId}", bookId);
 
-            var bookFrequencies = await _borrowingPatterns.GetPatronsOrderedByLoanFrequency(bookId);
+            var bookFrequencies = await _borrowingPatterns.GetOtherBooksBorrowed(bookId);
             var response = BookFrequencyResponseConverter.ToDto(bookFrequencies);
 
             _logger.LogInformation("Retrieved {Count} associated books for book id {BookId}",

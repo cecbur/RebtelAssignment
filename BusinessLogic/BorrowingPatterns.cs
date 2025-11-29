@@ -1,11 +1,11 @@
-using BusinessModels;
+using BusinessLogicContracts.Dto;
 using DataStorageContracts;
 
 namespace BusinessLogic;
 
 public class BorrowingPatterns(ILoanRepository loanRepository, IBorrowingPatternRepository borrowingPatternRepository)
 {
-    public async Task<BookFrequency[]> GetPatronsOrderedByLoanFrequency(int bookId)
+    public async Task<BookFrequency[]> GetOtherBooksBorrowed(int bookId)
     {
         var loans = await loanRepository.GetLoansByBookId(bookId);
         var loanCount = loans.Count();
@@ -22,11 +22,4 @@ public class BorrowingPatterns(ILoanRepository loanRepository, IBorrowingPattern
             .ToArray();
         return bookFrequencies;
     }
-
-    public class BookFrequency
-    {
-        public required Book AssociatedBook { get; set; }
-        public double LoansOfThisBookPerLoansOfMainBook { get; set; }
-    }
-
 }

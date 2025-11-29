@@ -1,4 +1,4 @@
-using BusinessModels;
+using BusinessLogicContracts.Dto;
 using DataStorageContracts;
 
 namespace BusinessLogic;
@@ -25,11 +25,4 @@ public class BookPatterns(ILoanRepository loanRepository)
             .ToArray();
         return bookLoans;
     }
-    
-    public class BookLoans
-    {
-        public required Book Book { get; set; }
-        public int LoanCount { get; set; }
-    }
-    
 }

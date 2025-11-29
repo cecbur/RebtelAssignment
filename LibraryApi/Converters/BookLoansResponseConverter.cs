@@ -1,17 +1,17 @@
-using BusinessLogic;
+using BusinessLogicContracts.Dto;
 using LibraryApi.DTOs;
 
 namespace LibraryApi.Converters;
 
 /// <summary>
-/// Converter for BookPatterns.BookLoans to BookLoansResponse
+/// Converter for BookLoans to BookLoansResponse
 /// </summary>
 public static class BookLoansResponseConverter
 {
     /// <summary>
-    /// Converts a BookPatterns.BookLoans to BookLoansResponse DTO
+    /// Converts a BookLoans to BookLoansResponse DTO
     /// </summary>
-    public static BookLoansResponse ToDto(BookPatterns.BookLoans bookLoans)
+    public static BookLoansResponse ToDto(BookLoans bookLoans)
     {
         return new BookLoansResponse
         {
@@ -21,9 +21,9 @@ public static class BookLoansResponseConverter
     }
 
     /// <summary>
-    /// Converts a collection of BookPatterns.BookLoans to BookLoansResponse DTOs
+    /// Converts a collection of BookLoans to BookLoansResponse DTOs
     /// </summary>
-    public static BookLoansResponse[] ToDto(IEnumerable<BookPatterns.BookLoans> bookLoans)
+    public static BookLoansResponse[] ToDto(IEnumerable<BookLoans> bookLoans)
     {
         return bookLoans.Select(ToDto).ToArray();
     }
