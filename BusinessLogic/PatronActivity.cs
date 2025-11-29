@@ -6,34 +6,51 @@ namespace BusinessLogic;
 
 public class PatronActivity(ILoanRepository loanRepository)
 {
-    public async Task<PatronLoans[]> GetPatronsOrderedByLoanFrequency(DateTime startDate, DateTime endDate)
+    private readonly ILoanRepository _loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
+
+    public async Task<PatronLoans[]> GetPatronsOrderedByLoanFrequency(
+        DateTime startDate,
+        DateTime endDate)
     {
-        IEnumerable<Loan> loans = await loanRepository.GetLoansByTime(startDate, endDate);
-        var patronLoans = GetPatronLoans(loans);
-        return patronLoans.OrderByDescending(x => x.LoanCount).ToArray();
+        var loans = await _loanRepository.GetLoansByTime(startDate, endDate);
+        var patronLoans = GroupLoansByPatron(loans);
+        var sortedPatronLoans = SortPatronsByLoanCount(patronLoans);
+        return sortedPatronLoans;
     }
 
-    /// <summary>
-    /// Patron's estimated reading pace assuming continuous reading
-    /// </summary>
-    /// <param name="loanId">ID of the loan</param>
-    /// <returns>Number of pages read per day. Null if the book is not yet returned</returns>
     public async Task<double?> GetPagesPerDay(int loanId)
     {
-        var loan = await loanRepository.GetLoanById(loanId);
-        if (loan.ReturnDate is null)
+        var loan = await _loanRepository.GetLoanById(loanId);
+
+        if (loan.ReturnDate is null || loan.Book.NumberOfPages is null)
             return null;
-        var time = (loan.ReturnDate - loan.LoanDate).Value.TotalDays;
-        var pace = loan.Book.NumberOfPages / time;
-        return pace;
+
+        var readingPace = CalculateReadingPace(loan);
+        return readingPace;
     }
-    
-    private PatronLoans[] GetPatronLoans(IEnumerable<Loan> loans)
+
+    private static PatronLoans[] GroupLoansByPatron(IEnumerable<Loan> loans)
     {
         var patronLoans = loans
-            .GroupBy(l => l.Patron)
-            .Select(x => new PatronLoans(x.Key, x.ToArray()))
+            .GroupBy(loan => loan.Patron)
+            .Select(group => new PatronLoans(group.Key, group.ToArray()))
             .ToArray();
         return patronLoans;
+    }
+
+    private static PatronLoans[] SortPatronsByLoanCount(
+        PatronLoans[] patronLoans)
+    {
+        var sortedPatronLoans = patronLoans
+            .OrderByDescending(patron => patron.LoanCount)
+            .ToArray();
+        return sortedPatronLoans;
+    }
+
+    private static double CalculateReadingPace(Loan loan)
+    {
+        var loanDurationInDays = (loan.ReturnDate - loan.LoanDate)!.Value.TotalDays;
+        var pagesPerDay = loan.Book.NumberOfPages!.Value / loanDurationInDays;
+        return pagesPerDay;
     }
 }
