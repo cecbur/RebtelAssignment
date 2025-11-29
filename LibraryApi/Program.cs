@@ -1,10 +1,9 @@
 using BusinessLogic;
 using BusinessLogic.Services;
-using BusinessLogicContracts.Interfaces;
+using BusinessLogicGrpcClient;
 using DataStorage;
-using DataStorage.Repositories;
-using DataStorage.RepositoriesMultipleTables;
 using DataStorage.Services;
+using DataStorageGrpcClient;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,31 +33,13 @@ builder.Services.AddSingleton<IDbConnectionFactory>(sp => new SqlServerConnectio
 // Register gRPC server address
 var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://localhost:5001";
 
-// Register DataStorage repositories as concrete types for gRPC services to inject
-builder.Services.AddScoped<DataStorage.Repositories.LoanRepository>();
-builder.Services.AddScoped<DataStorage.RepositoriesMultipleTables.BorrowingPatternRepository>();
-builder.Services.AddScoped<DataStorage.Repositories.BookRepository>();
-// Note: AuthorRepository and PatronRepository are only used internally by DataStorage
+// Register DataStorage services (server-side) and clients (via gRPC)
+builder.Services.AddDataStorageServices();
+builder.Services.AddDataStorageGrpcClient(grpcServerAddress);
 
-// Register DataStorageClient repositories for business logic/controllers to use (via gRPC)
-builder.Services.AddScoped<DataStorageContracts.ILoanRepository>(sp =>
-    new DataStorageGrpcClient.LoanRepository(grpcServerAddress));
-builder.Services.AddScoped<DataStorageContracts.IBorrowingPatternRepository>(sp =>
-    new DataStorageGrpcClient.BorrowingPatternRepository(grpcServerAddress));
-builder.Services.AddScoped<DataStorageContracts.IBookRepository>(sp =>
-    new DataStorageGrpcClient.BookRepository(grpcServerAddress));
-
-// Register business logic services (for server-side gRPC service)
-builder.Services.AddScoped<PatronActivity>();
-builder.Services.AddScoped<BorrowingPatterns>();
-builder.Services.AddScoped<BookPatterns>();
-
-// Register BusinessLogic Facade for gRPC service to inject
-builder.Services.AddScoped<Facade>();
-
-// Register IBusinessLogicFacade for controllers to use (via gRPC client)
-builder.Services.AddScoped<IBusinessLogicFacade>(sp =>
-    new BusinessLogicGrpcClient.BusinessLogicGrpcFacade(grpcServerAddress));
+// Register BusinessLogic services (server-side) and clients (via gRPC)
+builder.Services.AddBusinessLogicServices();
+builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
