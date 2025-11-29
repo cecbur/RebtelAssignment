@@ -1,7 +1,7 @@
 namespace BusinessLogic;
 
 
-public class AssignmentStarters 
+internal class AssignmentStarters 
 {
     /// 1. Check if a book ID is a power of two
     public bool IsPowerOfTwo(int bookId)

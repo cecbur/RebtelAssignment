@@ -47,13 +47,17 @@ builder.Services.AddScoped<DataStorageContracts.IBorrowingPatternRepository>(sp 
 builder.Services.AddScoped<DataStorageContracts.IBookRepository>(sp =>
     new DataStorageGrpcClient.BookRepository(grpcServerAddress));
 
-// Register business logic services
+// Register business logic services (for server-side gRPC service)
 builder.Services.AddScoped<PatronActivity>();
 builder.Services.AddScoped<BorrowingPatterns>();
 builder.Services.AddScoped<BookPatterns>();
 
 // Register BusinessLogic Facade for gRPC service to inject
 builder.Services.AddScoped<Facade>();
+
+// Register IBusinessLogicFacade for controllers to use (via gRPC client)
+builder.Services.AddScoped<IBusinessLogicFacade>(sp =>
+    new BusinessLogicGrpcClient.BusinessLogicGrpcFacade(grpcServerAddress));
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();

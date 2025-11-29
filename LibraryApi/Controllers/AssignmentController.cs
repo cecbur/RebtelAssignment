@@ -1,4 +1,5 @@
 using BusinessLogic;
+using BusinessLogicGrpcClient;
 using Microsoft.AspNetCore.Mvc;
 using LibraryApi.Converters;
 using LibraryApi.DTOs;
@@ -13,20 +14,14 @@ namespace LibraryApi.Controllers;
 [Produces("application/json")]
 public class AssignmentController : ControllerBase
 {
-    private readonly BookPatterns _bookPatterns;
-    private readonly PatronActivity _patronActivity;
-    private readonly BorrowingPatterns _borrowingPatterns;
+    private readonly IBusinessLogicFacade _businessLogicGrpcFacade;
     private readonly ILogger<AssignmentController> _logger;
 
     public AssignmentController(
-        BookPatterns bookPatterns,
-        PatronActivity patronActivity,
-        BorrowingPatterns borrowingPatterns,
+        IBusinessLogicFacade businessLogicFacade,
         ILogger<AssignmentController> logger)
     {
-        _bookPatterns = bookPatterns ?? throw new ArgumentNullException(nameof(bookPatterns));
-        _patronActivity = patronActivity ?? throw new ArgumentNullException(nameof(patronActivity));
-        _borrowingPatterns = borrowingPatterns ?? throw new ArgumentNullException(nameof(borrowingPatterns));
+        _businessLogicGrpcFacade = businessLogicFacade ?? throw new ArgumentNullException(nameof(businessLogicFacade));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -47,7 +42,7 @@ public class AssignmentController : ControllerBase
         {
             _logger.LogInformation("Getting most loaned books sorted by loan count (max: {MaxBooks})", maxBooks ?? -1);
 
-            var bookLoans = await _bookPatterns.GetBooksSortedByMostLoaned(maxBooks);
+            var bookLoans = await _businessLogicGrpcFacade.GetBooksSortedByMostLoaned(maxBooks);
             var response = BookLoansResponseConverter.ToDto(bookLoans);
 
             _logger.LogInformation("Retrieved {Count} books sorted by loan count", response.Length);
@@ -83,7 +78,7 @@ public class AssignmentController : ControllerBase
         {
             _logger.LogInformation("Getting most active patrons from {StartDate} to {EndDate}", startDate, endDate);
 
-            var patronLoans = await _patronActivity.GetPatronsOrderedByLoanFrequency(startDate, endDate);
+            var patronLoans = await _businessLogicGrpcFacade.GetPatronsOrderedByLoanFrequency(startDate, endDate);
 
             if (patronLoans.Count() > maxPatrons)
                 patronLoans = patronLoans.Take(maxPatrons).ToArray();
@@ -121,7 +116,7 @@ public class AssignmentController : ControllerBase
     {
         try
         {
-            var pagesPerDay = await _patronActivity.GetPagesPerDay(loanId);
+            var pagesPerDay = await _businessLogicGrpcFacade.GetPagesPerDay(loanId);
 
             if (pagesPerDay == null)
             {
@@ -164,7 +159,7 @@ public class AssignmentController : ControllerBase
         {
             _logger.LogInformation("Getting other books borrowed for book id {BookId}", bookId);
 
-            var bookFrequencies = await _borrowingPatterns.GetOtherBooksBorrowed(bookId);
+            var bookFrequencies = await _businessLogicGrpcFacade.GetOtherBooksBorrowed(bookId);
             var response = BookFrequencyResponseConverter.ToDto(bookFrequencies);
 
             _logger.LogInformation("Retrieved {Count} associated books for book id {BookId}",
