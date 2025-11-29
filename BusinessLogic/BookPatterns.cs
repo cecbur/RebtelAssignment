@@ -5,7 +5,7 @@ namespace BusinessLogic;
 
 public class BookPatterns(ILoanRepository loanRepository)
 {
-    public async Task<BookLoans[]> GetMostLoanedBooksSorted(int? maxBooksToReturn = null)
+    public async Task<BookLoans[]> GetBooksSortedByMostLoaned(int? maxBooksToReturn = null)
     {
         var loans = await loanRepository.GetAllLoans();
         var loansSorted = loans

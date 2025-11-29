@@ -3,7 +3,7 @@ using Moq;
 
 namespace BusinessLogic.Tests.PatronActivity;
 
-public class GetPatronLoansOrderedByFrequencyTests : PatronActivityTestBase
+public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
 {
     private readonly DateTime _startDate = new(2024, 1, 1);
     private readonly DateTime _endDate = new(2024, 12, 31);
@@ -34,7 +34,7 @@ public class GetPatronLoansOrderedByFrequencyTests : PatronActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await PatronActivity.GetPatronLoansOrderedByFrequency(_startDate, _endDate);
+        var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
         Assert.Equal(3, result.Length);
@@ -55,7 +55,7 @@ public class GetPatronLoansOrderedByFrequencyTests : PatronActivityTestBase
             .ReturnsAsync(new List<Loan>());
 
         // Act
-        var result = await PatronActivity.GetPatronLoansOrderedByFrequency(_startDate, _endDate);
+        var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
         Assert.Empty(result);
@@ -79,7 +79,7 @@ public class GetPatronLoansOrderedByFrequencyTests : PatronActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await PatronActivity.GetPatronLoansOrderedByFrequency(_startDate, _endDate);
+        var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
         Assert.Single(result);
@@ -109,7 +109,7 @@ public class GetPatronLoansOrderedByFrequencyTests : PatronActivityTestBase
             .ReturnsAsync(loans);
 
         // Act
-        var result = await PatronActivity.GetPatronLoansOrderedByFrequency(_startDate, _endDate);
+        var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
         Assert.Equal(2, result.Length);

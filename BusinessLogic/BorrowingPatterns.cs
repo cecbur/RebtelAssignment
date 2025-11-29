@@ -5,7 +5,7 @@ namespace BusinessLogic;
 
 public class BorrowingPatterns(ILoanRepository loanRepository, IBorrowingPatternRepository borrowingPatternRepository)
 {
-    public async Task<BookFrequency[]> GetPatronLoansOrderedByFrequency(int bookId)
+    public async Task<BookFrequency[]> GetPatronsOrderedByLoanFrequency(int bookId)
     {
         var loans = await loanRepository.GetLoansByBookId(bookId);
         var loanCount = loans.Count();

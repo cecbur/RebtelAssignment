@@ -5,7 +5,7 @@ namespace BusinessLogic;
 
 public class PatronActivity(ILoanRepository loanRepository)
 {
-    public async Task<PatronLoans[]> GetPatronLoansOrderedByFrequency(DateTime startDate, DateTime endDate)
+    public async Task<PatronLoans[]> GetPatronsOrderedByLoanFrequency(DateTime startDate, DateTime endDate)
     {
         IEnumerable<Loan> loans = await loanRepository.GetLoansByTime(startDate, endDate);
         var patronLoans = GetPatronLoans(loans);

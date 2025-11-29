@@ -41,13 +41,13 @@ public class AssignmentController : ControllerBase
     [HttpGet("most-loaned-books")]
     [ProducesResponseType(typeof(IEnumerable<BookLoansResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<IEnumerable<BookLoansResponse>>> GetMostLoanedBooksSorted([FromQuery] int? maxBooks = null)
+    public async Task<ActionResult<IEnumerable<BookLoansResponse>>> GetBooksSortedByMostLoaned([FromQuery] int? maxBooks = null)
     {
         try
         {
             _logger.LogInformation("Getting most loaned books sorted by loan count (max: {MaxBooks})", maxBooks ?? -1);
 
-            var bookLoans = await _bookPatterns.GetMostLoanedBooksSorted(maxBooks);
+            var bookLoans = await _bookPatterns.GetBooksSortedByMostLoaned(maxBooks);
             var response = BookLoansResponseConverter.ToDto(bookLoans);
 
             _logger.LogInformation("Retrieved {Count} books sorted by loan count", response.Length);
@@ -83,7 +83,7 @@ public class AssignmentController : ControllerBase
         {
             _logger.LogInformation("Getting most active patrons from {StartDate} to {EndDate}", startDate, endDate);
 
-            var patronLoans = await _patronActivity.GetPatronLoansOrderedByFrequency(startDate, endDate);
+            var patronLoans = await _patronActivity.GetPatronsOrderedByLoanFrequency(startDate, endDate);
 
             if (patronLoans.Count() > maxPatrons)
                 patronLoans = patronLoans.Take(maxPatrons).ToArray();
@@ -164,7 +164,7 @@ public class AssignmentController : ControllerBase
         {
             _logger.LogInformation("Getting other books borrowed for book id {BookId}", bookId);
 
-            var bookFrequencies = await _borrowingPatterns.GetPatronLoansOrderedByFrequency(bookId);
+            var bookFrequencies = await _borrowingPatterns.GetPatronsOrderedByLoanFrequency(bookId);
             var response = BookFrequencyResponseConverter.ToDto(bookFrequencies);
 
             _logger.LogInformation("Retrieved {Count} associated books for book id {BookId}",
