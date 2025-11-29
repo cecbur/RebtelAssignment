@@ -7,7 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Grpc.Net.Client" Version="2.65.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.28.2" />
+        <PackageReference Include="Grpc.Tools" Version="2.65.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="..\BusinessLogic\Protos\common.proto" GrpcServices="None" ProtoRoot="..\BusinessLogic\Protos" />
+        <Protobuf Include="..\BusinessLogic\Protos\business_logic.proto" GrpcServices="Client" ProtoRoot="..\BusinessLogic\Protos" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\BusinessLogicContracts\BusinessLogicContracts.csproj" />
+      <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
     </ItemGroup>
 
 </Project>

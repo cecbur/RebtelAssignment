@@ -1,4 +1,5 @@
 using BusinessLogic;
+using BusinessLogic.Services;
 using DataStorage;
 using DataStorage.Repositories;
 using DataStorage.RepositoriesMultipleTables;
@@ -50,6 +51,9 @@ builder.Services.AddScoped<DataStorageContracts.IBookRepository>(sp =>
 builder.Services.AddScoped<PatronActivity>();
 builder.Services.AddScoped<BorrowingPatterns>();
 builder.Services.AddScoped<BookPatterns>();
+
+// Register BusinessLogic Facade for gRPC service to inject
+builder.Services.AddScoped<Facade>();
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -111,6 +115,7 @@ app.MapControllers();
 app.MapGrpcService<LoanGrpcService>();
 app.MapGrpcService<BorrowingPatternGrpcService>();
 app.MapGrpcService<BookGrpcService>();
+app.MapGrpcService<BusinessLogicGrpcService>();
 
 // Log startup information
 app.Logger.LogInformation("Library API started successfully");
