@@ -1,4 +1,5 @@
 using BusinessLogic;
+using BusinessLogicContracts.Interfaces;
 using BusinessLogicGrpcClient;
 using Microsoft.AspNetCore.Mvc;
 using LibraryApi.Converters;

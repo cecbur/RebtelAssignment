@@ -1,6 +1,7 @@
 ﻿using BusinessLogic;
 using BusinessLogic.Grpc;
 using BusinessLogicContracts;
+using BusinessLogicContracts.Interfaces;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
