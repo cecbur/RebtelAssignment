@@ -8,8 +8,8 @@ public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
     private readonly DateTime _startDate = new(2024, 1, 1);
     private readonly DateTime _endDate = new(2024, 12, 31);
 
-    [Fact]
-    public async Task WithMultiplePatrons_ReturnsOrderedByLoanCount()
+    [Test]
+    public async Task GetPatronsOrderedByLoanFrequency_WithMultiplePatrons_ReturnsOrderedByLoanCount()
     {
         // Arrange
         var patron1 = CreatePatron(1, "Alice", "Johnson");
@@ -37,17 +37,17 @@ public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
         var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
-        Assert.Equal(3, result.Length);
-        Assert.Equal(patron1.Id, result[0].Patron.Id);
-        Assert.Equal(3, result[0].LoanCount);
-        Assert.Equal(patron2.Id, result[1].Patron.Id);
-        Assert.Equal(2, result[1].LoanCount);
-        Assert.Equal(patron3.Id, result[2].Patron.Id);
-        Assert.Equal(1, result[2].LoanCount);
+        Assert.That(result.Length, Is.EqualTo(3), "Should return all 3 patrons");
+        Assert.That(result[0].Patron.Id, Is.EqualTo(patron1.Id), "Most frequent patron should be first");
+        Assert.That(result[0].LoanCount, Is.EqualTo(3), "First patron should have 3 loans");
+        Assert.That(result[1].Patron.Id, Is.EqualTo(patron2.Id), "Second most frequent patron should be second");
+        Assert.That(result[1].LoanCount, Is.EqualTo(2), "Second patron should have 2 loans");
+        Assert.That(result[2].Patron.Id, Is.EqualTo(patron3.Id), "Least frequent patron should be third");
+        Assert.That(result[2].LoanCount, Is.EqualTo(1), "Third patron should have 1 loan");
     }
 
-    [Fact]
-    public async Task WithNoLoans_ReturnsEmptyArray()
+    [Test]
+    public async Task GetPatronsOrderedByLoanFrequency_WithNoLoans_ReturnsEmptyArray()
     {
         // Arrange
         MockLoanRepository
@@ -58,11 +58,11 @@ public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
         var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
-        Assert.Empty(result);
+        Assert.That(result.Length, Is.EqualTo(0), "Should return empty array when there are no loans in the time period");
     }
 
-    [Fact]
-    public async Task WithSinglePatron_ReturnsSinglePatronLoans()
+    [Test]
+    public async Task GetPatronsOrderedByLoanFrequency_WithSinglePatron_ReturnsSinglePatronLoans()
     {
         // Arrange
         var patron = CreatePatron(1, "Alice", "Johnson");
@@ -82,13 +82,13 @@ public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
         var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(patron.Id, result[0].Patron.Id);
-        Assert.Equal(2, result[0].LoanCount);
+        Assert.That(result.Length, Is.EqualTo(1), "Should return single patron");
+        Assert.That(result[0].Patron.Id, Is.EqualTo(patron.Id), "Returned patron should match the only patron");
+        Assert.That(result[0].LoanCount, Is.EqualTo(2), "Patron should have 2 loans");
     }
 
-    [Fact]
-    public async Task WithEqualLoanCounts_MaintainsStableOrder()
+    [Test]
+    public async Task GetPatronsOrderedByLoanFrequency_WithEqualLoanCounts_MaintainsStableOrder()
     {
         // Arrange
         var patron1 = CreatePatron(1, "Alice", "Johnson");
@@ -112,8 +112,8 @@ public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
         var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate);
 
         // Assert
-        Assert.Equal(2, result.Length);
-        Assert.Equal(2, result[0].LoanCount);
-        Assert.Equal(2, result[1].LoanCount);
+        Assert.That(result.Length, Is.EqualTo(2), "Should return both patrons with equal loan counts");
+        Assert.That(result[0].LoanCount, Is.EqualTo(2), "First patron should have 2 loans");
+        Assert.That(result[1].LoanCount, Is.EqualTo(2), "Second patron should have 2 loans");
     }
 }

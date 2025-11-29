@@ -4,17 +4,16 @@ namespace BusinessLogic.Tests.PatronActivity;
 
 public class GetPagesPerDayTests : PatronActivityTestBase
 {
-    [Fact]
-    public async Task WithReturnedLoan_CalculatesPagesPerDay()
+    [Test]
+    public async Task GetPagesPerDay_WithReturnedLoan_CalculatesPagesPerDay()
     {
         // Arrange
         var patron = CreatePatron(1, "Alice", "Johnson");
         var book = CreateBook(1, "Test Book", 300);
 
-        // Loan: 300 pages from Jan 1 to Jan 11 = 10 days = 30 pages/day
         var loan = CreateLoan(1, book, patron,
-            new DateTime(2024, 1, 1),
-            new DateTime(2024, 1, 15),
+            loanDate:  new DateTime(2024, 1, 1),
+            dueDate: new DateTime(2024, 1, 15),
             returnDate: new DateTime(2024, 1, 11),
             isReturned: true);
 
@@ -26,20 +25,21 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(30.0, result.Value, precision: 2);
+        Assert.That(result, Is.Not.Null, "Should return a value when loan is returned with page count");
+        // Loan: 300 pages from Jan 1 to Jan 11 = 10 days = 30 pages/day
+        Assert.That(result!.Value, Is.EqualTo(30.0).Within(0.01), "Should calculate 30 pages per day (300 pages / 10 days)");
     }
 
-    [Fact]
-    public async Task WithNonReturnedLoan_ReturnsNull()
+    [Test]
+    public async Task GetPagesPerDay_WithNonReturnedLoan_ReturnsNull()
     {
         // Arrange
         var patron = CreatePatron(1, "Alice", "Johnson");
         var book = CreateBook(1, "Test Book", 300);
 
         var loan = CreateLoan(1, book, patron,
-            new DateTime(2024, 1, 1),
-            new DateTime(2024, 1, 15),
+            loanDate: new DateTime(2024, 1, 1),
+            dueDate: new DateTime(2024, 1, 15),
             returnDate: null,
             isReturned: false);
 
@@ -51,11 +51,11 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
-        Assert.Null(result);
+        Assert.That(result, Is.Null, "Should return null when loan has not been returned");
     }
 
-    [Fact]
-    public async Task WithReturnedLoanSameDay_CalculatesCorrectly()
+    [Test]
+    public async Task GetPagesPerDay_WithReturnedLoanSameDay_CalculatesCorrectly()
     {
         // Arrange
         var patron = CreatePatron(1, "Alice", "Johnson");
@@ -63,8 +63,8 @@ public class GetPagesPerDayTests : PatronActivityTestBase
 
         // Returned same day - 0 days
         var loan = CreateLoan(1, book, patron,
-            new DateTime(2024, 1, 1, 9, 0, 0),
-            new DateTime(2024, 1, 15),
+            loanDate: new DateTime(2024, 1, 1, 9, 0, 0),
+            dueDate: new DateTime(2024, 1, 15),
             returnDate: new DateTime(2024, 1, 1, 17, 0, 0),
             isReturned: true);
 
@@ -76,13 +76,13 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
-        Assert.NotNull(result);
+        Assert.That(result, Is.Not.Null, "Should return a value when loan is returned same day");
         // 8 hours = 0.333... days, so 100 pages / 0.333... = ~300 pages/day
-        Assert.True(result.Value > 0);
+        Assert.That(result!.Value, Is.GreaterThan(0), "Should calculate a positive pages per day value for same-day return");
     }
 
-    [Fact]
-    public async Task WithLongLoan_CalculatesCorrectly()
+    [Test]
+    public async Task GetPagesPerDay_WithLongLoan_CalculatesCorrectly()
     {
         // Arrange
         var patron = CreatePatron(1, "Alice", "Johnson");
@@ -92,7 +92,7 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         var loan = CreateLoan(1, book, patron,
             new DateTime(2024, 1, 1),
             new DateTime(2024, 3, 15),
-            returnDate: new DateTime(2024, 2, 20),
+            returnDate: new DateTime(2024, 6, 16),
             isReturned: true);
 
         MockLoanRepository
@@ -103,12 +103,12 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(20.0, result.Value, precision: 2);
+        Assert.That(result, Is.Not.Null, "Should return a value for long loan with page count");
+        Assert.That(result!.Value, Is.EqualTo(6.0).Within(0.1), "Should calculate 5,99 pages per day (1000 pages / 167 days)");
     }
 
-    [Fact]
-    public async Task WithBookWithoutPageCount_ReturnsNull()
+    [Test]
+    public async Task GetPagesPerDay_WithBookWithoutPageCount_ReturnsNull()
     {
         // Arrange
         var patron = CreatePatron(1, "Alice", "Johnson");
@@ -128,6 +128,6 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         var result = await PatronActivity.GetPagesPerDay(1);
 
         // Assert
-        Assert.Null(result);
+        Assert.That(result, Is.Null, "Should return null when book has no page count");
     }
 }
