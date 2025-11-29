@@ -29,32 +29,27 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Register Dapper connection factory - Dependency Injection (SOLID: Dependency Inversion Principle)
 builder.Services.AddSingleton<IDbConnectionFactory>(sp => new SqlServerConnectionFactory(connectionString));
 
-// Register application services - Dependency Injection (SOLID: Dependency Inversion Principle)
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-builder.Services.AddScoped<IPatronRepository, PatronRepository>();
+// Register gRPC server address
+var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://localhost:5001";
+
+// Register DataStorage repositories as concrete types for gRPC services to inject
+builder.Services.AddScoped<DataStorage.Repositories.LoanRepository>();
+builder.Services.AddScoped<DataStorage.RepositoriesMultipleTables.BorrowingPatternRepository>();
+builder.Services.AddScoped<DataStorage.Repositories.BookRepository>();
+// Note: AuthorRepository and PatronRepository are only used internally by DataStorage
+
+// Register DataStorageClient repositories for business logic/controllers to use (via gRPC)
+builder.Services.AddScoped<DataStorageContracts.ILoanRepository>(sp =>
+    new DataStorageGrpcClient.LoanRepository(grpcServerAddress));
+builder.Services.AddScoped<DataStorageContracts.IBorrowingPatternRepository>(sp =>
+    new DataStorageGrpcClient.BorrowingPatternRepository(grpcServerAddress));
+builder.Services.AddScoped<DataStorageContracts.IBookRepository>(sp =>
+    new DataStorageGrpcClient.BookRepository(grpcServerAddress));
 
 // Register business logic services
 builder.Services.AddScoped<PatronActivity>();
 builder.Services.AddScoped<BorrowingPatterns>();
 builder.Services.AddScoped<BookPatterns>();
-
-// Register DataStorage LoanRepository as concrete type for gRPC service to inject
-builder.Services.AddScoped<LoanRepository>();
-
-// Register DataStorage BorrowingPatternRepository as concrete type for gRPC service to inject
-builder.Services.AddScoped<BorrowingPatternRepository>();
-
-// Register gRPC server address
-var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://localhost:5001";
-
-// Register DataStorageClient LoanRepository for controllers to use (via gRPC)
-builder.Services.AddScoped<DataStorageContracts.ILoanRepository>(sp =>
-    new DataStorageGrpcClient.LoanRepository(grpcServerAddress));
-
-// Register DataStorageClient BorrowingPatternRepository for controllers to use (via gRPC)
-builder.Services.AddScoped<DataStorageContracts.IBorrowingPatternRepository>(sp =>
-    new DataStorageGrpcClient.BorrowingPatternRepository(grpcServerAddress));
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -115,6 +110,7 @@ app.MapControllers();
 // Map gRPC services
 app.MapGrpcService<LoanGrpcService>();
 app.MapGrpcService<BorrowingPatternGrpcService>();
+app.MapGrpcService<BookGrpcService>();
 
 // Log startup information
 app.Logger.LogInformation("Library API started successfully");

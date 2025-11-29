@@ -1,7 +1,6 @@
 using BusinessModels;
 
-namespace DataStorage.Repositories;
-
+namespace DataStorageContracts;
 
 public interface IBookRepository
 {

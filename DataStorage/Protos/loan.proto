@@ -22,20 +22,10 @@ service LoanService {
 }
 
 // Messages
-message Patron {
-  int32 id = 1;
-  string first_name = 2;
-  string last_name = 3;
-  string email = 4;
-  google.protobuf.StringValue phone_number = 5;
-  google.protobuf.Timestamp membership_date = 6;
-  bool is_active = 7;
-}
-
 message Loan {
   int32 id = 1;
   common.Book book = 2;
-  Patron patron = 3;
+  common.Patron patron = 3;
   google.protobuf.Timestamp loan_date = 4;
   google.protobuf.Timestamp due_date = 5;
   google.protobuf.Timestamp return_date = 6;

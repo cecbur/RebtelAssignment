@@ -21,6 +21,7 @@
     <Protobuf Include="Protos\common.proto" GrpcServices="None" ProtoRoot="Protos" />
     <Protobuf Include="Protos\loan.proto" GrpcServices="Server" ProtoRoot="Protos" />
     <Protobuf Include="Protos\borrowing_pattern.proto" GrpcServices="Server" ProtoRoot="Protos" />
+    <Protobuf Include="Protos\book.proto" GrpcServices="Server" ProtoRoot="Protos" />
   </ItemGroup>
 
   <ItemGroup>

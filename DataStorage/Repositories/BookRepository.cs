@@ -2,6 +2,7 @@ using Dapper;
 using DataStorage.Entities;
 using DataStorage.Exceptions;
 using DataStorage.Converters;
+using DataStorageContracts;
 
 namespace DataStorage.Repositories;
 
