@@ -1,6 +1,5 @@
-using BusinessLogic;
-using BusinessLogic.Services;
 using BusinessLogicGrpcClient;
+using BusinessLogicGrpcClient.Setup;
 using DataStorage;
 using DataStorage.Services;
 using DataStorageGrpcClient;
@@ -38,7 +37,6 @@ builder.Services.AddDataStorageServices();
 builder.Services.AddDataStorageGrpcClient(grpcServerAddress);
 
 // Register BusinessLogic services (server-side) and clients (via gRPC)
-builder.Services.AddBusinessLogicServices();
 builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
 
 // Configure Swagger/OpenAPI for API documentation
@@ -101,7 +99,7 @@ app.MapControllers();
 app.MapGrpcService<LoanGrpcService>();
 app.MapGrpcService<BorrowingPatternGrpcService>();
 app.MapGrpcService<BookGrpcService>();
-app.MapGrpcService<BusinessLogicGrpcService>();
+app.MapBusinessLogicGrpcService();
 
 // Log startup information
 app.Logger.LogInformation("Library API started successfully");

@@ -1,7 +1,8 @@
+using BusinessLogic;
 using BusinessLogicContracts.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BusinessLogicGrpcClient;
+namespace BusinessLogicGrpcClient.Setup;
 
 public static class ServiceCollectionExtensions
 {
@@ -13,9 +14,9 @@ public static class ServiceCollectionExtensions
     /// <param name="grpcServerAddress">The gRPC server address (e.g., "http://localhost:5001")</param>
     public static IServiceCollection AddBusinessLogicGrpcClient(this IServiceCollection services, string grpcServerAddress)
     {
+        services.AddBusinessLogicServices();
         services.AddScoped<IBusinessLogicFacade>(sp =>
             new BusinessLogicGrpcFacade(grpcServerAddress));
-
         return services;
     }
 }
