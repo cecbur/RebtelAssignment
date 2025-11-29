@@ -181,4 +181,16 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
         Assert.That(result[2].LoanCount, Is.EqualTo(2), "All books should have equal loan count of 2");
     }
 
+    [Test]
+    public void GetBooksSortedByMostLoaned_WhenRepositoryThrowsException_PropagatesException()
+    {
+        // Arrange
+        MockLoanRepository
+            .Setup(r => r.GetAllLoans())
+            .ThrowsAsync(new Exception("Database connection failed"));
+
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await BookPatterns.GetBooksSortedByMostLoaned());
+    }
+
 }

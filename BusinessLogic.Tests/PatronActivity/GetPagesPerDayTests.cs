@@ -130,4 +130,41 @@ public class GetPagesPerDayTests : PatronActivityTestBase
         // Assert
         Assert.That(result, Is.Null, "Should return null when book has no page count");
     }
+
+    [Test]
+    public void GetPagesPerDay_WhenRepositoryThrowsException_PropagatesException()
+    {
+        // Arrange
+        MockLoanRepository
+            .Setup(r => r.GetLoanById(It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Database connection failed"));
+
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await PatronActivity.GetPagesPerDay(1));
+    }
+
+    [Test]
+    public async Task GetPagesPerDay_WithLoanWithZeroDuration_ReturnsInfinity()
+    {
+        // Arrange
+        var patron = CreatePatron(1, "Alice", "Johnson");
+        var book = CreateBook(1, "Instant Read", 100);
+
+        var loan = CreateLoan(1, book, patron,
+            loanDate: new DateTime(2024, 1, 1, 10, 0, 0),
+            dueDate: new DateTime(2024, 1, 15),
+            returnDate: new DateTime(2024, 1, 1, 10, 0, 0),
+            isReturned: true);
+
+        MockLoanRepository
+            .Setup(r => r.GetLoanById(1))
+            .ReturnsAsync(loan);
+
+        // Act
+        var result = await PatronActivity.GetPagesPerDay(1);
+
+        // Assert
+        Assert.That(result, Is.Not.Null, "Should return a value even with zero duration");
+        Assert.That(double.IsInfinity(result!.Value) || result.Value > 1000000, Is.True, "Should return infinity or very large number for instant read");
+    }
 }

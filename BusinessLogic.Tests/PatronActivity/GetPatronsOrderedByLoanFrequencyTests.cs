@@ -116,4 +116,34 @@ public class GetPatronsOrderedByLoanFrequencyTests : PatronActivityTestBase
         Assert.That(result[0].LoanCount, Is.EqualTo(2), "First patron should have 2 loans");
         Assert.That(result[1].LoanCount, Is.EqualTo(2), "Second patron should have 2 loans");
     }
+
+    [Test]
+    public void GetPatronsOrderedByLoanFrequency_WhenRepositoryThrowsException_PropagatesException()
+    {
+        // Arrange
+        MockLoanRepository
+            .Setup(r => r.GetLoansByTime(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .ThrowsAsync(new Exception("Database connection failed"));
+
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await PatronActivity.GetPatronsOrderedByLoanFrequency(_startDate, _endDate));
+    }
+
+    [Test]
+    public async Task GetPatronsOrderedByLoanFrequency_WithStartDateAfterEndDate_ReturnsEmptyArray()
+    {
+        // Arrange
+        var invalidStartDate = new DateTime(2024, 12, 31);
+        var invalidEndDate = new DateTime(2024, 1, 1);
+
+        MockLoanRepository
+            .Setup(r => r.GetLoansByTime(invalidStartDate, invalidEndDate))
+            .ReturnsAsync(new List<Loan>());
+
+        // Act
+        var result = await PatronActivity.GetPatronsOrderedByLoanFrequency(invalidStartDate, invalidEndDate);
+
+        // Assert
+        Assert.That(result.Length, Is.EqualTo(0), "Should return empty array when start date is after end date");
+    }
 }

@@ -237,4 +237,40 @@ public class GetOtherBooksBorrowedTests : BorrowingPatternsTestBase
         Assert.That(result.Length, Is.EqualTo(1), "Should return the associated book with higher frequency");
         Assert.That(result[0].LoansOfThisBookPerLoansOfMainBook, Is.EqualTo(5.0).Within(0.01), "Book should have ratio of 5.0 (10/2)");
     }
+
+    [Test]
+    public void GetOtherBooksBorrowed_WhenLoanRepositoryThrowsException_PropagatesException()
+    {
+        // Arrange
+        MockLoanRepository
+            .Setup(r => r.GetLoansByBookId(It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Database connection failed"));
+
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await BorrowingPatterns.GetOtherBooksBorrowed(1));
+    }
+
+    [Test]
+    public void GetOtherBooksBorrowed_WhenBorrowingPatternRepositoryThrowsException_PropagatesException()
+    {
+        // Arrange
+        var mainBook = CreateBook(1, "Main Book");
+        var patron = CreatePatron(1, "Test", "Patron");
+
+        var mainBookLoans = new List<Loan>
+        {
+            CreateLoan(1, mainBook, patron, DateTime.Now, DateTime.Now.AddDays(14))
+        };
+
+        MockLoanRepository
+            .Setup(r => r.GetLoansByBookId(1))
+            .ReturnsAsync(mainBookLoans);
+
+        MockBorrowingPatternRepository
+            .Setup(r => r.GetOtherBooksBorrowed(It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Repository failed"));
+
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await BorrowingPatterns.GetOtherBooksBorrowed(1));
+    }
 }

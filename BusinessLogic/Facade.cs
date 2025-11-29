@@ -22,20 +22,16 @@ public class Facade(BookPatterns bookPatterns, PatronActivity patronActivity, Bo
     /// <param name="endDate">End date of the time frame</param>
     /// <param name="maxPatrons">The maximum number of patrons to return</param>
     /// <returns>List of patrons ordered by loan count (descending)</returns>
-    /// <response code="200">List of patrons ordered by loan count (descending)</response>
-    /// <response code="500">If there was an internal server error</response>
     public async Task<PatronLoans[]> GetPatronsOrderedByLoanFrequency(DateTime startDate, DateTime endDate) =>
         await patronActivity.GetPatronsOrderedByLoanFrequency(startDate, endDate);
 
     /// <summary>
     /// 3. User Activity: Estimate a users reading pace (pages per day)
     ///    based on the borrow and return duration of a book, assuming continuous reading.
-    /// Get the average reading pace (pages per day) for a specific loan
+    /// Gets the average reading pace (pages per day) for a specific loan
     /// </summary>
     /// <param name="loanId">The ID of the loan</param>
     /// <returns>The patron's reading pace in pages per day. Null if the book is not yet returned</returns>
-    /// <response code="200">Returns the reading pace information</response>
-    /// <response code="500">If there was an internal server error</response>
     public async Task<double?> GetPagesPerDay(int loanId) => 
         await patronActivity.GetPagesPerDay(loanId);
 
