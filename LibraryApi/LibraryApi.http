@@ -1,0 +1,278 @@
+@LibraryApi_HostAddress = http://localhost:7000
+@LibraryApi_Http = http://localhost:7000
+
+###############################################
+# Library API - HTTP Request Collection
+# Use these requests to test all endpoints
+# API runs on port 7000 (HTTP/1.1)
+# gRPC service runs on port 5001 (HTTP/2)
+###############################################
+
+##########################
+# Assignment Controller
+# (Assignment Endpoints)
+##########################
+
+### 1. Get most loaned books sorted by loan count
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books
+Accept: application/json
+
+###
+
+### Get most loaned books sorted by loan count (top 5)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books?maxBooks=5
+Accept: application/json
+
+###
+
+### Get most loaned books sorted by loan count (top 10)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books?maxBooks=10
+Accept: application/json
+
+###
+
+### 2. Get most active patrons (January 2024, top 10)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
+Accept: application/json
+
+###
+
+### Get most active patrons (Q1 2024, top 5)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
+Accept: application/json
+
+###
+
+### Get most active patrons (All of 2024, top 20)
+GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
+Accept: application/json
+
+###
+
+### 3. Get reading pace (pages per day) for loan 1
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/1
+Accept: application/json
+
+###
+
+### Get reading pace (pages per day) for loan 2
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/2
+Accept: application/json
+
+###
+
+### Get reading pace (pages per day) for loan 3
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/3
+Accept: application/json
+
+###
+
+### Get reading pace (pages per day) for non-existent loan
+GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/999
+Accept: application/json
+
+###
+
+### 4. Get other books borrowed by individuals who borrowed book 1
+GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/1
+Accept: application/json
+
+###
+
+### Get other books borrowed by individuals who borrowed book 2
+GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/2
+Accept: application/json
+
+###
+
+### Get other books borrowed by individuals who borrowed book 4
+GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/4
+Accept: application/json
+
+###
+###################
+# Book Controller
+###################
+
+### Get all books
+GET {{LibraryApi_HostAddress}}/api/Book
+Accept: application/json
+
+###
+
+### Get book by ID
+GET {{LibraryApi_HostAddress}}/api/Book/2
+Accept: application/json
+
+###
+
+### Get book by ID (not found example)
+GET {{LibraryApi_HostAddress}}/api/Book/999
+Accept: application/json
+
+###
+
+### Search books by title
+GET {{LibraryApi_HostAddress}}/api/Book/search?titlePattern=Moby
+Accept: application/json
+
+###
+
+### Search books by title (partial match)
+GET {{LibraryApi_HostAddress}}/api/Book/search?titlePattern=Harry
+Accept: application/json
+
+###
+
+### Create a new book
+POST {{LibraryApi_HostAddress}}/api/Book
+Content-Type: application/json
+
+{
+  "bookId": 0,
+  "title": "The Pragmatic Programmer",
+  "author": "Andrew Hunt",
+  "isbn": "978-0135957059",
+  "publicationYear": 2019,
+  "isAvailable": true
+}
+
+###
+
+### Update an existing book
+PUT {{LibraryApi_HostAddress}}/api/Book/1
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "title": "Moby Dick (Updated)",
+  "author": "Herman Melville",
+  "isbn": "978-0142437247",
+  "publicationYear": 1851,
+  "isAvailable": false
+}
+
+###
+
+### Delete a book
+DELETE {{LibraryApi_HostAddress}}/api/Book/1
+Accept: application/json
+
+###
+
+### Reverse a book title
+POST {{LibraryApi_HostAddress}}/api/Book/reverse-title
+Content-Type: application/json
+
+{
+  "title": "Moby Dick"
+}
+
+###
+
+### Reverse a book title (another example)
+POST {{LibraryApi_HostAddress}}/api/Book/reverse-title
+Content-Type: application/json
+
+{
+  "title": "The Great Gatsby"
+}
+
+###
+
+### Generate title replicas
+POST {{LibraryApi_HostAddress}}/api/Book/generate-replicas
+Content-Type: application/json
+
+{
+  "title": "Read",
+  "count": 3
+}
+
+###
+
+### Generate title replicas (larger example)
+POST {{LibraryApi_HostAddress}}/api/Book/generate-replicas
+Content-Type: application/json
+
+{
+  "title": "Book",
+  "count": 5
+}
+
+###
+
+### Generate title replicas (zero count)
+POST {{LibraryApi_HostAddress}}/api/Book/generate-replicas
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "count": 0
+}
+
+###
+
+### Generate title replicas (validation error - negative count)
+POST {{LibraryApi_HostAddress}}/api/Book/generate-replicas
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "count": -1
+}
+
+###
+
+###################
+# Loan Controller (via gRPC)
+###################
+
+### Get all loans
+GET {{LibraryApi_HostAddress}}/api/Loan
+Accept: application/json
+
+###
+
+### Get loan by ID
+GET {{LibraryApi_HostAddress}}/api/Loan/1
+Accept: application/json
+
+###
+
+### Get loan by ID (example 2)
+GET {{LibraryApi_HostAddress}}/api/Loan/5
+Accept: application/json
+
+###
+
+### Get loan by ID (not found example)
+GET {{LibraryApi_HostAddress}}/api/Loan/999
+Accept: application/json
+
+###
+
+### Get active loans (not returned)
+GET {{LibraryApi_HostAddress}}/api/Loan/active
+Accept: application/json
+
+###
+
+### Get loans by time range (January 2024)
+GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-01-01&endDate=2024-01-31
+Accept: application/json
+
+###
+
+### Get loans by time range (December 2024)
+GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-12-01&endDate=2024-12-31
+Accept: application/json
+
+###
+
+### Get loans by time range (all of 2024)
+GET {{LibraryApi_HostAddress}}/api/Loan/by-time?startDate=2024-01-01&endDate=2024-12-31
+Accept: application/json
+
+###
+

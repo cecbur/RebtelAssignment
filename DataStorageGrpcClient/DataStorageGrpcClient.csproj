@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.Net.Client" Version="2.65.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.28.2" />
+        <PackageReference Include="Grpc.Tools" Version="2.65.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="..\DataStorage\Protos\common.proto" GrpcServices="None" ProtoRoot="..\DataStorage\Protos" />
+        <Protobuf Include="..\DataStorage\Protos\loan.proto" GrpcServices="Client" ProtoRoot="..\DataStorage\Protos" />
+        <Protobuf Include="..\DataStorage\Protos\borrowing_pattern.proto" GrpcServices="Client" ProtoRoot="..\DataStorage\Protos" />
+        <Protobuf Include="..\DataStorage\Protos\book.proto" GrpcServices="Client" ProtoRoot="..\DataStorage\Protos" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
+        <ProjectReference Include="..\DataStorageContracts\DataStorageContracts.csproj" />
+        <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore">
+        <HintPath>..\..\..\..\..\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.8\Microsoft.AspNetCore.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

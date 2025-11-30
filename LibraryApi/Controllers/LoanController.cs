@@ -1,0 +1,91 @@
+using Microsoft.AspNetCore.Mvc;
+using DataStorageContracts;
+using LibraryApi.DTOs;
+using LibraryApi.Converters;
+
+namespace LibraryApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class LoanController : ControllerBase
+{
+    private readonly ILoanRepository _loanRepository;
+    private readonly ILogger<LoanController> _logger;
+
+    public LoanController(ILoanRepository loanRepository, ILogger<LoanController> logger)
+    {
+        _loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+    
+    
+    
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetAllLoans()
+    {
+        try
+        {
+            var loans = await _loanRepository.GetAllLoans();
+            var loanDtos = LoanDtoConverter.ToDto(loans);
+            return Ok(loanDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting all loans via gRPC");
+            return StatusCode(500, "An error occurred while retrieving loans");
+        }
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<LoanDto>> GetLoanById(int id)
+    {
+        try
+        {
+            var loan = await _loanRepository.GetLoanById(id);
+            var loanDto = LoanDtoConverter.ToDto(loan);
+            return Ok(loanDto);
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound($"Loan with id {id} not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting loan {LoanId} via gRPC", id);
+            return StatusCode(500, "An error occurred while retrieving the loan");
+        }
+    }
+
+    [HttpGet("active")]
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetActiveLoans()
+    {
+        try
+        {
+            var loans = await _loanRepository.GetActiveLoans();
+            var loanDtos = LoanDtoConverter.ToDto(loans);
+            return Ok(loanDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting active loans via gRPC");
+            return StatusCode(500, "An error occurred while retrieving active loans");
+        }
+    }
+
+    [HttpGet("by-time")]
+    public async Task<ActionResult<IEnumerable<LoanDto>>> GetLoansByTime([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        try
+        {
+            var loans = await _loanRepository.GetLoansByTime(startDate, endDate);
+            var loanDtos = LoanDtoConverter.ToDto(loans);
+            return Ok(loanDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting loans by time range {StartDate} to {EndDate} via gRPC", startDate, endDate);
+            return StatusCode(500, "An error occurred while retrieving loans by time");
+        }
+    }
+}

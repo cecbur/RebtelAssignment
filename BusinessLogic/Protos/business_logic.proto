@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+option csharp_namespace = "BusinessLogic.Grpc";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+package business_logic;
+
+// Business Logic service definition
+service BusinessLogicService {
+  rpc GetBooksSortedByMostLoaned (GetBooksSortedByMostLoanedRequest) returns (GetBooksSortedByMostLoanedResponse);
+  rpc GetPatronsOrderedByLoanFrequency (GetPatronsOrderedByLoanFrequencyRequest) returns (GetPatronsOrderedByLoanFrequencyResponse);
+  rpc GetPagesPerDay (GetPagesPerDayRequest) returns (GetPagesPerDayResponse);
+  rpc GetOtherBooksBorrowed (GetOtherBooksBorrowedRequest) returns (GetOtherBooksBorrowedResponse);
+}
+
+// Messages
+message BookLoans {
+  common.Book book = 1;
+  int32 loan_count = 2;
+}
+
+message PatronLoans {
+  common.Patron patron = 1;
+  repeated common.Loan loans = 2;
+  int32 loan_count = 3;
+}
+
+message BookFrequency {
+  common.Book associated_book = 1;
+  double loans_of_this_book_per_loans_of_main_book = 2;
+}
+
+// Request/Response messages for GetBooksSortedByMostLoaned
+message GetBooksSortedByMostLoanedRequest {
+  google.protobuf.Int32Value max_books_to_return = 1;
+}
+
+message GetBooksSortedByMostLoanedResponse {
+  repeated BookLoans book_loans = 1;
+}
+
+// Request/Response messages for GetPatronsOrderedByLoanFrequency
+message GetPatronsOrderedByLoanFrequencyRequest {
+  google.protobuf.Timestamp start_date = 1;
+  google.protobuf.Timestamp end_date = 2;
+}
+
+message GetPatronsOrderedByLoanFrequencyResponse {
+  repeated PatronLoans patron_loans = 1;
+}
+
+// Request/Response messages for GetPagesPerDay
+message GetPagesPerDayRequest {
+  int32 loan_id = 1;
+}
+
+message GetPagesPerDayResponse {
+  google.protobuf.DoubleValue pages_per_day = 1;
+}
+
+// Request/Response messages for GetOtherBooksBorrowed
+message GetOtherBooksBorrowedRequest {
+  int32 book_id = 1;
+}
+
+message GetOtherBooksBorrowedResponse {
+  repeated BookFrequency book_frequencies = 1;
+}

@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataStorage.Grpc";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "common.proto";
+
+package loan;
+
+// Loan service definition
+service LoanService {
+  rpc GetAllLoans (GetAllLoansRequest) returns (GetAllLoansResponse);
+  rpc GetLoanById (GetLoanByIdRequest) returns (LoanResponse);
+  rpc GetLoansByPatronId (GetLoansByPatronIdRequest) returns (GetLoansResponse);
+  rpc GetLoansByBookId (GetLoansByBookIdRequest) returns (GetLoansResponse);
+  rpc GetActiveLoans (GetActiveLoansRequest) returns (GetLoansResponse);
+  rpc GetLoansByTime (GetLoansByTimeRequest) returns (GetLoansResponse);
+  rpc AddLoan (AddLoanRequest) returns (LoanResponse);
+  rpc UpdateLoan (UpdateLoanRequest) returns (LoanResponse);
+  rpc DeleteLoan (DeleteLoanRequest) returns (DeleteLoanResponse);
+}
+
+// Messages
+message Loan {
+  int32 id = 1;
+  common.Book book = 2;
+  common.Patron patron = 3;
+  google.protobuf.Timestamp loan_date = 4;
+  google.protobuf.Timestamp due_date = 5;
+  google.protobuf.Timestamp return_date = 6;
+  bool is_returned = 7;
+}
+
+// Request/Response messages
+message GetAllLoansRequest {}
+
+message GetAllLoansResponse {
+  repeated Loan loans = 1;
+}
+
+message GetLoanByIdRequest {
+  int32 loan_id = 1;
+}
+
+message LoanResponse {
+  Loan loan = 1;
+}
+
+message GetLoansByPatronIdRequest {
+  int32 patron_id = 1;
+}
+
+message GetLoansByBookIdRequest {
+  int32 book_id = 1;
+}
+
+message GetLoansResponse {
+  repeated Loan loans = 1;
+}
+
+message GetActiveLoansRequest {}
+
+message GetLoansByTimeRequest {
+  google.protobuf.Timestamp start_date = 1;
+  google.protobuf.Timestamp end_date = 2;
+}
+
+message AddLoanRequest {
+  int32 book_id = 1;
+  int32 patron_id = 2;
+  google.protobuf.Timestamp loan_date = 3;
+  google.protobuf.Timestamp due_date = 4;
+  google.protobuf.Timestamp return_date = 5;
+  bool is_returned = 6;
+}
+
+message UpdateLoanRequest {
+  int32 id = 1;
+  int32 book_id = 2;
+  int32 patron_id = 3;
+  google.protobuf.Timestamp loan_date = 4;
+  google.protobuf.Timestamp due_date = 5;
+  google.protobuf.Timestamp return_date = 6;
+  bool is_returned = 7;
+}
+
+message DeleteLoanRequest {
+  int32 loan_id = 1;
+}
+
+message DeleteLoanResponse {
+  bool success = 1;
+}

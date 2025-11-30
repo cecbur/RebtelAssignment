@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataStorage.Grpc";
+
+import "common.proto";
+import "google/protobuf/wrappers.proto";
+
+package book;
+
+// Book service definition
+service BookService {
+  rpc GetAllBooks (GetAllBooksRequest) returns (GetAllBooksResponse);
+  rpc GetBookById (GetBookByIdRequest) returns (BookResponse);
+  rpc GetBooksByIds (GetBooksByIdsRequest) returns (GetBooksResponse);
+  rpc AddBook (AddBookRequest) returns (BookResponse);
+  rpc UpdateBook (UpdateBookRequest) returns (BookResponse);
+  rpc DeleteBook (DeleteBookRequest) returns (DeleteBookResponse);
+  rpc SearchBooksByTitleLikeQuery (SearchBooksByTitleLikeQueryRequest) returns (GetBooksResponse);
+}
+
+// Request/Response messages
+message GetAllBooksRequest {}
+
+message GetAllBooksResponse {
+  repeated common.Book books = 1;
+}
+
+message GetBookByIdRequest {
+  int32 book_id = 1;
+}
+
+message BookResponse {
+  common.Book book = 1;
+}
+
+message GetBooksByIdsRequest {
+  repeated int32 book_ids = 1;
+}
+
+message GetBooksResponse {
+  repeated common.Book books = 1;
+}
+
+message AddBookRequest {
+  string title = 1;
+  int32 author_id = 2;
+  string isbn = 3;
+  google.protobuf.Int32Value publication_year = 4;
+  google.protobuf.Int32Value number_of_pages = 5;
+  bool is_available = 6;
+}
+
+message UpdateBookRequest {
+  int32 id = 1;
+  string title = 2;
+  int32 author_id = 3;
+  string isbn = 4;
+  google.protobuf.Int32Value publication_year = 5;
+  google.protobuf.Int32Value number_of_pages = 6;
+  bool is_available = 7;
+}
+
+message DeleteBookRequest {
+  int32 book_id = 1;
+}
+
+message DeleteBookResponse {
+  bool success = 1;
+}
+
+message SearchBooksByTitleLikeQueryRequest {
+  string title_pattern = 1;
+}
