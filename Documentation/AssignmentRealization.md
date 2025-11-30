@@ -14,8 +14,6 @@ Where to find the different parts
 
 `BusinessLogic.AssignmentStarters.IsPowerOfTwo`
 
-
-
 ### 2. Reverse a Book Title 
 
 Write a method that takes a  book title  as input and  returns it reversed. 
@@ -129,6 +127,7 @@ Set up is done with scripts in folder `Database`
 ### Testing Requirements  
 
 Emphasis on test coverage  
+Tests should be automated and easy to execute.
 
 #### Unit Tests  for individual methods/classes 
 
@@ -141,22 +140,23 @@ Tests for `LibraryApi.Commands.AssignmentCommands` are found in  `LibraryApiTest
 
 #### Integration Tests  for database interactions 
 
+Tests for `LoanRepository` and `BorrowingPatternRepository` are found in  `DataStorageIntegrationTests`
+
+
+#### System Tests  to validate complete user flows 
 
 TODO
 
-                   ■   System Tests  to validate complete user flows 
 
-           ○   Tests should be automated and easy to execute. 
+    
 
 ### Code Quality  : 
 
-Implemented especially along the path described in TODO
+Implementation has especially high quality along the path described in the file `ARCHITECTURE.md` in the folder `Documentation`
 
 * Clean, maintainable, and well-structured code is highly valued.¨ 
 * Clear separation of concerns across different layers. 
 * Proper use of modern .NET patterns and best practices. 
-
-
 
 ###  Technologies 
 #### Primary Language  : C#, .NET Core 
@@ -178,4 +178,5 @@ Tests are implemented in NUnit
 
 ### Submission should include a  README  file explaining  how to run the project and the 
 
+There is a README.md file in the root directory. There are more .md files in the folder `Documentation`. README.md contains an overview of the documentation.
 TODO

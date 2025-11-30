@@ -6,11 +6,12 @@ This document explains the layered architecture of the Library API, focusing on 
 1. [Architecture Overview](#architecture-overview)
 2. [Layer 1: Controllers](#layer-1-controllers)
 3. [Layer 2: Commands](#layer-2-commands)
-4. [Layer 3: Business Logic Facade](#layer-3-business-logic-facade)
-5. [Layer 4: Business Logic Services](#layer-4-business-logic-services)
-6. [Layer 5: Data Storage Repositories](#layer-5-data-storage-repositories)
-7. [Complete Example Flow](#complete-example-flow)
-8. [Why This Architecture?](#why-this-architecture)
+4. [Layer 3: Business Logic Grpc Client](#layer-3-business-logic-grpc-client)
+5. [Layer 4: Business Logic Facade](#layer-3-business-logic-facade)
+6. [Layer 5: Business Logic Services](#layer-4-business-logic-services)
+7. [Layer 6: Data Storage Repositories](#layer-5-data-storage-repositories)
+8. [Complete Example Flow](#complete-example-flow)
+9. [Why This Architecture?](#why-this-architecture)
 
 ---
 
@@ -85,7 +86,7 @@ Commands orchestrate a single API operation. They handle:
 - Input validation
 - Logging
 - Error handling and exception translation
-- Calling business logic through the Facade
+- Calling business logic through the gRPC Facade
 - Converting between DTOs and domain models
 
 ### Implementation Example
@@ -138,9 +139,77 @@ public class GetOtherBooksBorrowedCommand(
 - Logs at Information level for success, Error level for failures
 - Validates input before calling business logic
 
+
+
 ---
 
-## Layer 3: Business Logic Facade
+## Layer 3: Business Logic Grpc Client
+
+**Location:** `BusinessLogicGrpcClient/BusinessLogicGrpcFacade.cs`
+
+### What It Does
+
+This client provides transparent and seemless access to the service layer.
+
+
+### Implementation Example
+```csharp
+public class BusinessLogicGrpcFacade : IBusinessLogicFacade
+{
+    private readonly GrpcChannel _channel;
+    private readonly BusinessLogicService.BusinessLogicServiceClient _client;
+
+    public BusinessLogicGrpcFacade(string serverAddress)
+    {
+        _channel = GrpcChannel.ForAddress(serverAddress);
+        _client = new BusinessLogicService.BusinessLogicServiceClient(_channel);
+    }
+
+    public async Task<BusinessLogicContracts.Dto.BookLoans[]> GetBooksSortedByMostLoaned(int? maxBooksToReturn = null)
+    {
+        var request = new GetBooksSortedByMostLoanedRequest();
+        if (maxBooksToReturn.HasValue)
+        {
+            request.MaxBooksToReturn = maxBooksToReturn.Value;
+        }
+
+        var response = await _client.GetBooksSortedByMostLoanedAsync(request);
+        return response.BookLoans.Select(MapFromGrpcBookLoans).ToArray();
+    }
+
+    public async Task<BusinessLogicContracts.Dto.PatronLoans[]> GetPatronsOrderedByLoanFrequency(DateTime startDate, DateTime endDate)
+    {
+        var request = new GetPatronsOrderedByLoanFrequencyRequest
+        {
+            StartDate = Timestamp.FromDateTime(DateTime.SpecifyKind(startDate, DateTimeKind.Utc)),
+            EndDate = Timestamp.FromDateTime(DateTime.SpecifyKind(endDate, DateTimeKind.Utc))
+        };
+
+        var response = await _client.GetPatronsOrderedByLoanFrequencyAsync(request);
+        return response.PatronLoans.Select(MapFromGrpcPatronLoans).ToArray();
+    }
+
+```
+
+### Why This Layer Exists
+- **Reverse responsibility**: The service layer defines what the API layer knows about it
+- **Simplified access to service layer**: Commands don't need to know about gRPC. They just use the clients methods to automatically access the business logic in the service layer
+- **Dependency Management**: Single dependency instead of many
+- **Abstraction**: API layer doesn't know about internal business logic organization
+- **Microservice architecture**: A microservice that provides a client like this is completely encapsulated in all respects
+- **Intellisense**: since the client use the same interface as the facade in the service layer, the intellisense works
+- **Bugs**: Errors are found at compile time instead of runtime which means they never even become bugs 
+
+
+### Key Patterns
+- Encapsulation - The only thing that is visible outside the microservice is its interface/facade
+- Implements `IBusinessLogicFacade` interface. This is the same interface the the business logic micro service on the other side of the gRPC uses 
+- Just encapsulated communication - no business logic here
+- Provides dependency injection for the entire Business Logic
+
+---
+
+## Layer 4: Business Logic Facade
 
 **Location:** `BusinessLogic/Facade.cs`
 
@@ -169,7 +238,7 @@ public class Facade(
 - **Simplified API**: Commands don't need to know about multiple business service classes
 - **Dependency Management**: Single dependency instead of many
 - **Abstraction**: API layer doesn't know about internal business logic organization
-- **Interface Segregation**: Can expose different facades for different clients (API, gRPC, etc.)
+- **Interface Segregation**: Can expose different facades for different clients
 - **Future Evolution**: Easy to reorganize business logic without affecting Commands
 
 ### Key Patterns
@@ -179,7 +248,7 @@ public class Facade(
 
 ---
 
-## Layer 4: Business Logic Services
+## Layer 5: Business Logic Services
 
 **Location:** `BusinessLogic/BorrowingPatterns.cs`, `BusinessLogic/BookPatterns.cs`
 
@@ -287,7 +356,7 @@ public class BookPatterns(ILoanRepository loanRepository)
 
 ---
 
-## Layer 5: Data Storage Repositories
+## Layer 6: Data Storage Repositories
 
 **Location:** `DataStorage/Repositories/`, `DataStorage/RepositoriesMultipleTables/`
 
