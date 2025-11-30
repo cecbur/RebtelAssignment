@@ -102,17 +102,25 @@ public class TestDataGenerator(string connectionString)
     }
 
     /// <summary>
-    /// Creates multiple loans in a single database call for better performance.
+    /// Creates multiple loans and returns the created Loan objects with their IDs.
     /// </summary>
-    public async Task CreateLoans(IEnumerable<LoanData> loans)
+    public async Task<List<Loan>> CreateLoans(IEnumerable<LoanData> loans)
     {
         await using var connection = new SqlConnection(connectionString);
         await connection.OpenAsync();
 
-        await connection.ExecuteAsync(@"
-            INSERT INTO Loan (BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned)
-            VALUES (@BookId, @PatronId, @LoanDate, @DueDate, @ReturnDate, @IsReturned)",
-            loans);
+        var createdLoans = new List<Loan>();
+        foreach (var loan in loans)
+        {
+            var createdLoan = await connection.QuerySingleAsync<Loan>(@"
+                INSERT INTO Loan (BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned)
+                OUTPUT INSERTED.*
+                VALUES (@BookId, @PatronId, @LoanDate, @DueDate, @ReturnDate, @IsReturned)",
+                loan);
+            createdLoans.Add(createdLoan);
+        }
+
+        return createdLoans;
     }
 
     public record LoanData(

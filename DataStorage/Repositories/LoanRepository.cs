@@ -180,9 +180,9 @@ public class LoanRepository(IDbConnectionFactory connectionFactory) : BaseReposi
             LEFT JOIN Book b ON l.BookId = b.Id
             LEFT JOIN Author a ON b.AuthorId = a.Id
             LEFT JOIN Patron p ON l.PatronId = p.Id
-            WHERE (l.LoanDate BEFORE @EndDate)
-               AND (l.DueDate AFTER @StartDate
-               OR (l.ReturnDate IS NOT NULL AND l.ReturnDate AFTER @StartDate))
+            WHERE (l.LoanDate <= @EndDate)
+               AND (l.DueDate >= @StartDate
+               OR (l.ReturnDate IS NOT NULL AND l.ReturnDate >= @StartDate))
             ORDER BY l.LoanDate DESC";
 
         using var connection = _connectionFactory.CreateConnection();
