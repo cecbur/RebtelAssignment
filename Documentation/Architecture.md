@@ -873,11 +873,21 @@ However, for medium-to-large applications, the benefits outweigh the costs:
 
 ## Summary
 
-The Library API uses a **4-layer architecture**:
+The Library API uses a **9-layer architecture** organized into 4 main groups:
 
+### API Layer (2 layers):
 1. **Controllers**: HTTP API endpoints
 2. **Commands**: Request orchestration, validation, error handling
-3. **Business Services**: Domain logic and rules
-4. **Data Storage**: Data access and SQL
 
-Each layer has a clear purpose, communicates through interfaces, and can be tested independently. This design prioritizes **maintainability**, **testability**, and **separation of concerns** over simplicity.
+### Business Logic Layer (4 layers):
+3. **Business Logic gRPC Client**: Seamless access to business services
+4. **Business Logic Contracts**: Interfaces and DTOs for business operations
+5. **Business Logic Facade**: Unified interface to business services
+6. **Business Logic Services**: Domain logic and rules
+
+### Data Storage Layer (3 layers):
+7. **Data Storage gRPC Client**: Seamless access to data storage
+8. **Data Storage Contracts**: Interfaces and DTOs for data operations
+9. **Data Storage Repositories**: Data access and SQL
+
+Each layer has a clear purpose, communicates through interfaces, and can be tested independently. This design prioritizes **maintainability**, **testability**, **separation of concerns**, and **microservice readiness** over simplicity.
