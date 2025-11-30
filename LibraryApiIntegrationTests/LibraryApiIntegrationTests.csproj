@@ -11,13 +11,11 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NUnit" Version="4.4.0" />
     <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="Testcontainers.MsSql" Version="4.9.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,10 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
-    <ProjectReference Include="..\DataStorageContracts\DataStorageContracts.csproj" />
-    <ProjectReference Include="..\BusinessModels\BusinessModels.csproj" />
     <ProjectReference Include="..\TestData\TestData.csproj" />
+    <ProjectReference Include="..\LibraryApi\LibraryApi.csproj" />
   </ItemGroup>
 
 </Project>

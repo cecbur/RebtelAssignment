@@ -32,6 +32,10 @@ public class GetBooksSortedByMostLoanedCommandTests : CommandTestBase<GetBooksSo
         var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
         var loans = book1Loans.Concat(book2Loans).ToArray();
 
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2 });
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(loans);
@@ -66,6 +70,10 @@ public class GetBooksSortedByMostLoanedCommandTests : CommandTestBase<GetBooksSo
         var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
         var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).ToArray();
+
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2, book3 });
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
@@ -104,6 +112,10 @@ public class GetBooksSortedByMostLoanedCommandTests : CommandTestBase<GetBooksSo
         var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
         var book4Loans = TestDataBuilder.CreateLoansForBook(book4, startId: book3Loans.Max(l => l.Id)+1, count: book4LoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).Concat(book4Loans).ToArray();
+
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2, book3, book4 });
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
@@ -234,6 +246,10 @@ public class GetBooksSortedByMostLoanedCommandTests : CommandTestBase<GetBooksSo
         var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: sameLoanCount);
         var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: sameLoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).ToArray();
+
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2, book3 });
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())

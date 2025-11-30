@@ -19,12 +19,14 @@ public abstract class DataStorageMockGrpcTestFixtureBase
     private IHost? _testServer;
     protected string ServerAddress { get; private set; } = null!;
     protected Mock<ILoanRepository> MockLoanRepository { get; private set; } = null!;
+    protected Mock<IBookRepository> MockBookRepository { get; private set; } = null!;
     protected Mock<IBorrowingPatternRepository> MockBorrowingPatternRepository { get; set; } = null!;
     private Mock<ILogger<BusinessLogic.Services.BusinessLogicGrpcService>> _mockGrpcServiceLogger = null!;
 
     protected async Task SetUpGrpcServer()
     {
         MockLoanRepository = new Mock<ILoanRepository>();
+        MockBookRepository = new Mock<IBookRepository>();
         MockBorrowingPatternRepository = new Mock<IBorrowingPatternRepository>();
         _mockGrpcServiceLogger = new Mock<ILogger<BusinessLogic.Services.BusinessLogicGrpcService>>();
 
@@ -34,6 +36,7 @@ public abstract class DataStorageMockGrpcTestFixtureBase
         _testServer = new TestServerBuilder()
             .WithMockedRepositories(
                 MockLoanRepository.Object,
+                MockBookRepository.Object,
                 MockBorrowingPatternRepository.Object,
                 _mockGrpcServiceLogger.Object)
             .OnPort(port)
@@ -63,6 +66,7 @@ public abstract class DataStorageMockGrpcTestFixtureBase
     private class TestServerBuilder
     {
         private ILoanRepository? _loanRepository;
+        private IBookRepository? _bookRepository;
         private IBorrowingPatternRepository? _borrowingPatternRepository;
         private ILogger<BusinessLogic.Services.BusinessLogicGrpcService>? _grpcServiceLogger;
         private int _port;
@@ -70,10 +74,12 @@ public abstract class DataStorageMockGrpcTestFixtureBase
 
         public TestServerBuilder WithMockedRepositories(
             ILoanRepository loanRepo,
+            IBookRepository bookRepo,
             IBorrowingPatternRepository borrowingRepo,
             ILogger<BusinessLogic.Services.BusinessLogicGrpcService> grpcServiceLogger)
         {
             _loanRepository = loanRepo;
+            _bookRepository = bookRepo;
             _borrowingPatternRepository = borrowingRepo;
             _grpcServiceLogger = grpcServiceLogger;
             return this;
@@ -88,7 +94,7 @@ public abstract class DataStorageMockGrpcTestFixtureBase
 
         public IHost Build()
         {
-            if (_loanRepository == null || _borrowingPatternRepository == null || _grpcServiceLogger == null)
+            if (_loanRepository == null || _bookRepository == null || _borrowingPatternRepository == null || _grpcServiceLogger == null)
             {
                 throw new InvalidOperationException("Mocked repositories must be configured before building the server.");
             }
@@ -110,6 +116,7 @@ public abstract class DataStorageMockGrpcTestFixtureBase
                     {
                         // Register mocked repositories
                         services.AddSingleton(_loanRepository);
+                        services.AddSingleton(_bookRepository);
                         services.AddSingleton(_borrowingPatternRepository);
                         services.AddSingleton(_grpcServiceLogger);
 

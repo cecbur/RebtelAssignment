@@ -2,7 +2,7 @@ using BusinessModels;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
-namespace DataStorageIntegrationTests;
+namespace TestData;
 
 /// <summary>
 /// Helper class for generating test data in integration tests.

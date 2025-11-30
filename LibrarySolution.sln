@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryApiTests", "LibraryA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageIntegrationTests", "DataStorageIntegrationTests\DataStorageIntegrationTests.csproj", "{0967A4A4-2569-436F-8039-4F2137BF6B84}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryApiIntegrationTests", "LibraryApiIntegrationTests\LibraryApiIntegrationTests.csproj", "{E99C86DE-97E0-4AF2-8F87-C02A39248A9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestData", "TestData\TestData.csproj", "{506B5386-8AA8-4BDC-90F1-C9FE228E6F95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +88,13 @@ Global
 		{0967A4A4-2569-436F-8039-4F2137BF6B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0967A4A4-2569-436F-8039-4F2137BF6B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0967A4A4-2569-436F-8039-4F2137BF6B84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E99C86DE-97E0-4AF2-8F87-C02A39248A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99C86DE-97E0-4AF2-8F87-C02A39248A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99C86DE-97E0-4AF2-8F87-C02A39248A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99C86DE-97E0-4AF2-8F87-C02A39248A9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{506B5386-8AA8-4BDC-90F1-C9FE228E6F95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{506B5386-8AA8-4BDC-90F1-C9FE228E6F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{506B5386-8AA8-4BDC-90F1-C9FE228E6F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{506B5386-8AA8-4BDC-90F1-C9FE228E6F95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

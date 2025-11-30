@@ -5,12 +5,16 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Kestrel to listen on multiple ports
+// Allow ports to be configured via environment variables for testing
+var httpPort = int.TryParse(builder.Configuration["Kestrel:HttpPort"], out var hp) ? hp : 7000;
+var grpcPort = int.TryParse(builder.Configuration["Kestrel:GrpcPort"], out var gp) ? gp : 5001;
+
 builder.WebHost.ConfigureKestrel(options =>
 {
     // HTTP/1.1 endpoint for the web API
-    options.ListenLocalhost(7000, o => o.Protocols = HttpProtocols.Http1);
+    options.ListenLocalhost(httpPort, o => o.Protocols = HttpProtocols.Http1);
     // HTTP/2 endpoint for gRPC
-    options.ListenLocalhost(5001, o => o.Protocols = HttpProtocols.Http2);
+    options.ListenLocalhost(grpcPort, o => o.Protocols = HttpProtocols.Http2);
 });
 
 // Add services to the container
@@ -101,8 +105,7 @@ app.MapBusinessLogicGrpcService();
 
 // Log startup information
 app.Logger.LogInformation("Library API started successfully");
-app.Logger.LogInformation("Swagger UI available at: https://localhost:{Port}",
-    app.Configuration["ASPNETCORE_HTTPS_PORT"] ?? "7000");
-app.Logger.LogInformation("gRPC service available at: http://localhost:5001");
+app.Logger.LogInformation("HTTP API available at: http://localhost:{Port}", httpPort);
+app.Logger.LogInformation("gRPC service available at: http://localhost:{Port}", grpcPort);
 
 app.Run();

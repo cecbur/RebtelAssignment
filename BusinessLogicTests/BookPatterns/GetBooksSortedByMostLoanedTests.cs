@@ -25,6 +25,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
             CreateLoan(6, lessPopularBook, patron, DateTime.Now.AddDays(-5), DateTime.Now)
         };
 
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { popularBook, veryPopularBook, lessPopularBook });
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(loans);
@@ -46,6 +50,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
     public async Task GetBooksSortedByMostLoaned_WithNoLoans_ReturnsEmptyArray()
     {
         // Arrange
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new List<Book>());
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(new List<Loan>());
@@ -79,6 +87,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
             CreateLoan(7, book4, patron, DateTime.Now, DateTime.Now.AddDays(14))
         };
 
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2, book3, book4 });
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(loans);
@@ -109,6 +121,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
             CreateLoan(2, book2, patron, DateTime.Now, DateTime.Now.AddDays(14))
         };
 
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2 });
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(loans);
@@ -133,6 +149,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
             CreateLoan(2, book, patron, DateTime.Now, DateTime.Now.AddDays(14)),
             CreateLoan(3, book, patron, DateTime.Now, DateTime.Now.AddDays(14))
         };
+
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book });
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
@@ -167,6 +187,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
             CreateLoan(6, book3, patron, DateTime.Now, DateTime.Now.AddDays(14))
         };
 
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new[] { book1, book2, book3 });
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(loans);
@@ -185,6 +209,10 @@ public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
     public void GetBooksSortedByMostLoaned_WhenRepositoryThrowsException_PropagatesException()
     {
         // Arrange
+        MockBookRepository
+            .Setup(r => r.GetAllBooks())
+            .ReturnsAsync(new List<Book>());
+
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ThrowsAsync(new Exception("Database connection failed"));

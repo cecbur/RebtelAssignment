@@ -4,48 +4,29 @@ using DataStorageContracts;
 
 namespace BusinessLogic;
 
-public class BookPatterns(ILoanRepository loanRepository)
+public class BookPatterns(ILoanRepository loanRepository, IBookRepository bookRepository)
 {
     private readonly ILoanRepository _loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
+    private readonly IBookRepository _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
 
     public async Task<BookLoans[]> GetBooksSortedByMostLoaned(int? maxBooksToReturn = null)
     {
+        var allBooks = await _bookRepository.GetAllBooks();
         var allLoans = await _loanRepository.GetAllLoans();
-        var bookLoanGroups = allLoans.GroupBy(loan => loan.Book);
-        var sortedBookLoanGroups = SortByLoanCountDescending(bookLoanGroups);
-        var limitedBookLoanGroups = ApplyResultLimit(sortedBookLoanGroups, maxBooksToReturn);
-        var bookLoansResults = MapToBookLoansDto(limitedBookLoanGroups);
-        return bookLoansResults;
-    }
 
-    private static IGrouping<Book, Loan>[] SortByLoanCountDescending(
-        IEnumerable<IGrouping<Book, Loan>> bookLoanGroups)
-    {
-        return bookLoanGroups
-            .OrderByDescending(group => group.Count())
-            .ToArray();
-    }
-
-    private static IGrouping<Book, Loan>[] ApplyResultLimit(
-        IGrouping<Book, Loan>[] sortedBookLoanGroups,
-        int? maxBooksToReturn)
-    {
-        if (!maxBooksToReturn.HasValue || sortedBookLoanGroups.Length <= maxBooksToReturn.Value)
-            return sortedBookLoanGroups;
-
-        return sortedBookLoanGroups
-            .Take(maxBooksToReturn.Value)
-            .ToArray();
-    }
-
-    private static BookLoans[] MapToBookLoansDto(IEnumerable<IGrouping<Book, Loan>> bookLoanGroups)
-    {
-        return bookLoanGroups
-            .Select(group => new BookLoans
+        var bookLoansQuery = allBooks
+            .Select(book => new BookLoans
             {
-                Book = group.Key,
-                LoanCount = group.Count()
+                Book = book,
+                LoanCount = allLoans.Count(loan => loan.Book.Id == book.Id)
             })
-            .ToArray();
+            .OrderByDescending(x => x.LoanCount);
+
+        if (maxBooksToReturn.HasValue)
+        {
+            return bookLoansQuery.Take(maxBooksToReturn.Value).ToArray();
+        }
+
+        return bookLoansQuery.ToArray();
     }
 }

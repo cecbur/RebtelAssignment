@@ -1,8 +1,9 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
+using NUnit.Framework;
 using Testcontainers.MsSql;
 
-namespace DataStorageIntegrationTests;
+namespace TestData;
 
 /// <summary>
 /// Base test fixture that manages a SQL Server container lifecycle for integration tests.
@@ -17,11 +18,36 @@ public class SqlServerTestFixture
 
     /// <summary>
     /// Starts the SQL Server container and initializes the database schema.
-    /// Called once before any tests run in the namespace.
+    /// Called once before any tests run in the TestData namespace.
     /// </summary>
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
     {
+        await InitializeAsync();
+    }
+
+    /// <summary>
+    /// Stops and disposes the SQL Server container.
+    /// Called once after all tests complete in the TestData namespace.
+    /// </summary>
+    [OneTimeTearDown]
+    public async Task OneTimeTearDown()
+    {
+        await DisposeAsync();
+    }
+
+    /// <summary>
+    /// Starts the SQL Server container and initializes the database schema.
+    /// This is the public method that can be called from other test fixtures.
+    /// </summary>
+    public static async Task InitializeAsync()
+    {
+        // Only initialize once (in case multiple test projects call this)
+        if (_msSqlContainer != null)
+        {
+            return;
+        }
+
         _msSqlContainer = new MsSqlBuilder()
             .WithImage("mcr.microsoft.com/mssql/server:2025-latest")
             .WithPassword("YourStrong@Passw0rd")
@@ -39,14 +65,14 @@ public class SqlServerTestFixture
 
     /// <summary>
     /// Stops and disposes the SQL Server container.
-    /// Called once after all tests complete in the namespace.
+    /// This is the public method that can be called from other test fixtures.
     /// </summary>
-    [OneTimeTearDown]
-    public async Task OneTimeTearDown()
+    public static async Task DisposeAsync()
     {
         if (_msSqlContainer != null)
         {
             await _msSqlContainer.DisposeAsync();
+            _msSqlContainer = null;
         }
     }
 
