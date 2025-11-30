@@ -35,6 +35,7 @@ The application follows a **layered architecture** with clear separation of conc
 ```
 
 Each layer has a specific responsibility and communicates only with adjacent layers through well-defined interfaces.
+There is no front end since this system is accessed through a REST API
 
 ---
 
@@ -192,7 +193,7 @@ public class BusinessLogicGrpcFacade : IBusinessLogicFacade
 ```
 
 ### Why This Layer Exists
-- **Reverse responsibility**: The service layer defines what the API layer knows about it
+- **Reverse responsibility**: The Business Logic client is the only thing the API layer need in order to access the service layer 
 - **Simplified access to service layer**: Commands don't need to know about gRPC. They just use the clients methods to automatically access the business logic in the service layer
 - **Dependency Management**: Single dependency instead of many
 - **Abstraction**: API layer doesn't know about internal business logic organization
@@ -206,6 +207,69 @@ public class BusinessLogicGrpcFacade : IBusinessLogicFacade
 - Implements `IBusinessLogicFacade` interface. This is the same interface the the business logic micro service on the other side of the gRPC uses 
 - Just encapsulated communication - no business logic here
 - Provides dependency injection for the entire Business Logic
+
+---
+
+### Layer 7: Business Logic Contracts
+
+**Location:** `BusinessLogicContracts`
+
+### What It Does
+These are the interfaces and DTO objects that API layer might need to be aware of when they use business logic in the service layer
+
+### Implementation Example: Interface
+
+```csharp
+namespace BusinessLogicContracts.Interfaces;
+
+public interface IBusinessLogicFacade
+{
+    /// <summary>
+    /// 1. Inventory Insights: What are the most borrowed books? 
+    /// Gets all books sorted by how many times they were loaned (most loaned first)
+    /// </summary>
+    /// <param name="maxBooks">Optional maximum number of books to return</param>
+    /// <returns>List of books with their loan counts, ordered by loan count descending</returns>
+    Task<BookLoans[]> GetBooksSortedByMostLoaned(int? maxBooksToReturn = null);
+
+    /// <summary>
+    /// 2. User Activity: Which users have borrowed the most books within a given time frame?
+    /// Gets patrons ordered by loan frequency within a given time frame
+    /// </summary>
+    /// <param name="startDate">Start date of the time frame</param>
+    /// <param name="endDate">End date of the time frame</param>
+    /// <param name="maxPatrons">The maximum number of patrons to return</param>
+    /// <returns>List of patrons ordered by loan count (descending)</returns>
+    /// <response code="200">List of patrons ordered by loan count (descending)</response>
+    /// <response code="500">If there was an internal server error</response>
+    Task<PatronLoans[]> GetPatronsOrderedByLoanFrequency(DateTime startDate, DateTime endDate);
+
+
+```
+
+### Implementation Example: DTO
+
+```csharp
+namespace BusinessLogicContracts.Dto;
+
+    public class BookFrequency
+    {
+        public required Book AssociatedBook { get; set; }
+        public double LoansOfThisBookPerLoansOfMainBook { get; set; }
+    }
+
+```
+
+### Why This Layer Exists
+- **Domain Logic**: Encapsulates access to service layer
+- **Maintainability**: Publicly available interfaces in one place, easy to understand and hard to modify by mistake
+- **Technology Independence**: Only interfaces and DTOs are available publicly
+- **Testability**: Makes it easy to mock the service layer
+- **Reusability**: Business logic endpoints can be reused by multiple commands or applications
+
+### Key Patterns
+- **Separation of Concerns**: No other class use anything in BusinessLogic. BusinessLogic displays exactly this facade and no other
+
 
 ---
 
@@ -356,7 +420,129 @@ public class BookPatterns(ILoanRepository loanRepository)
 
 ---
 
-## Layer 6: Data Storage Repositories
+## Layer 6: Data Storage Grpc Client
+
+**Location:** `DataStorageGrpcClient`
+
+### What It Does
+
+This client provides transparent and seemless access to the data storage layer.
+
+
+### Implementation Example
+```csharp
+namespace DataStorageGrpcClient;
+
+public class BorrowingPatternRepository : DataStorageContracts.IBorrowingPatternRepository
+{
+    private readonly GrpcChannel _channel;
+    private readonly DataStorage.Grpc.BorrowingPatternService.BorrowingPatternServiceClient _client;
+
+    public BorrowingPatternRepository(string serverAddress)
+    {
+        _channel = GrpcChannel.ForAddress(serverAddress);
+        _client = new DataStorage.Grpc.BorrowingPatternService.BorrowingPatternServiceClient(_channel);
+    }
+
+    public async Task<DataStorageContracts.Dto.AssociatedBooks> GetOtherBooksBorrowed(int bookId)
+    {
+        try
+        {
+            var request = new DataStorage.Grpc.GetOtherBooksBorrowedRequest { BookId = bookId };
+            var response = await _client.GetOtherBooksBorrowedAsync(request);
+            return MapFromGrpcAssociatedBooks(response.AssociatedBooks);
+        }
+        catch (RpcException ex)
+        {
+            throw new InvalidOperationException($"Error getting other books borrowed for book id {bookId}", ex);
+        }
+    }
+
+
+
+```
+
+### Why This Layer Exists
+- **Reverse responsibility**: The client is the only thing other parts of the solution need in order to access data storage 
+- **Simplified access to service layer**: Other classes don't need to know about gRPC. They just use the clients methods to automatically access the data storage layer
+- **Dependency Management**: Single dependency instead of many
+- **Abstraction**: No other layers know about internal data storag organization
+- **Microservice architecture**: A microservice that provides a client like this is completely encapsulated in all respects
+- **Intellisense**: since the client use the same interface as the repository in the data storage, the intellisense works
+- **Bugs**: Errors are found at compile time instead of runtime which means they never even become bugs 
+
+
+### Key Patterns
+- Encapsulation - The only thing that is visible outside the DataStorage microservice is its interface/facade
+- Implements the interfaces `IBookRepository`, `ILoanRepository` and `IBorrowingPatternRepository`. These are the same interfaces that the DataStorage micro service uses on the other side of the gRPC 
+- Just encapsulated communication - no business logic here
+- Provides dependency injection for the entire DataStorage
+
+---
+
+### Layer 7: Data Storage Contracts
+
+**Location:** `DataStorageContracts`
+
+### What It Does
+These are the interfaces and DTO objects that other classes might need to be aware of when they use DataStorageClient
+
+### Implementation Example: Interface
+
+```csharp
+namespace DataStorageContracts;
+
+public interface ILoanRepository
+{
+    Task<IEnumerable<Loan>> GetAllLoans();
+    Task<Loan> GetLoanById(int loanId);
+    Task<IEnumerable<Loan>> GetLoansByPatronId(int patronId);
+    Task<IEnumerable<Loan>> GetLoansByBookId(int bookId);
+    Task<IEnumerable<Loan>> GetActiveLoans();
+    Task<IEnumerable<Loan>> GetLoansByTime(DateTime startDate, DateTime endDate);
+    Task<Loan> AddLoan(Loan loan);
+    Task<Loan> UpdateLoan(Loan loan);
+    Task<bool> DeleteLoan(int loanId);
+}
+
+
+
+```
+
+### Implementation Example: DTO
+
+```csharp
+public class AssociatedBooks
+{
+    public Book Book { get; set; }
+
+    public BookCount[] Associated { get; set; }
+    
+    public class BookCount
+    {
+        public Book Book { get; set; }
+        public int Count { get; set; }
+    }
+}
+
+```
+
+### Why This Layer Exists
+- **Domain Logic**: Encapsulates database access
+- **Testability**: Makes it easy to mock data storage
+- **Reusability**: Data storage endpoints can be reused by multiple commands or applications
+- **Maintainability**: Publicly available interfaces in one place, easy to understand and hard to modify by mistake
+- **Technology Independence**: Only interfaces and DTOs are available publicly
+
+### Key Patterns
+- **Separation of Concerns**: No other class use anything in DataStorage. DataStorage displays exactly this facade and no other
+- **Descriptive names**: Methods explain what they do (`GetAllBooks`, `GetBookById`)
+
+
+
+---
+
+# Layer 6: Data Storage Repositories
 
 **Location:** `DataStorage/Repositories/`, `DataStorage/RepositoriesMultipleTables/`
 

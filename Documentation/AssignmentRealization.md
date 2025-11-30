@@ -99,7 +99,7 @@ Encapsulates business logic and database  operations.
 * `BusinessLogic`
 * `BusinessModels`
 
-Interface to `BusinessLogic`
+Interface to BusinessLogic
 
 * `BusinessLogicContracts`
 * `BusinessLogicGrpcClient`
@@ -110,7 +110,7 @@ Interface to `BusinessLogic`
 
 * `DataStorage`
 
-Interface to `BusinessLogic`
+Interface to DataStorage
 
 * `DataStorageContracts`
 * `DataStorageGrpcClient`
@@ -120,8 +120,9 @@ Interface to `BusinessLogic`
 
 use  MongoDB or SQL  for data persistence.
 
-SQL Server is ust
-Set up is done with scripts in folder `Database`
+SQL Server is used
+
+Set up is done with scripts in folder *Database*. See the instruction file *Setup.md* in folder *Documentation* for further instructions
 
 
 ### Testing Requirements  
@@ -158,6 +159,53 @@ Implementation has especially high quality along the path described in the file 
 * Clear separation of concerns across different layers. 
 * Proper use of modern .NET patterns and best practices. 
 
+**SOLID Principles applied in this solution**
+
+1. ***Single Responsibility Principle (SRP)***
+   - Each class has one reason to change
+   - Separate projects for business logic, data access, and API
+
+2. ***Open/Closed Principle (OCP)***
+   - Interfaces allow extension without modification
+   - Repository pattern enables easy data source changes
+
+3. ***Liskov Substitution Principle (LSP)***
+   - All implementations can replace their interfaces
+   - Consistent behavior across implementations
+
+4. ***Interface Segregation Principle (ISP)***
+   - Small, focused interfaces
+   - Clients depend only on methods they use
+
+5. ***Dependency Inversion Principle (DIP)***
+   - High-level modules depend on abstractions
+   - Dependency injection throughout the solution
+
+
+**Design Patterns Used**
+
+- **Repository Pattern** - Abstracts data access logic
+- **Factory Pattern** - Database connection factory (IDbConnectionFactory)
+- **Dependency Injection** - Manages object dependencies
+- **DTO Pattern** - Separates API models from domain models
+- **POCO Pattern** - Plain objects without ORM dependencies
+
+**Best Practices Implemented**
+
+1. **Async/Await** - All I/O operations are asynchronous
+2. **Explicit SQL Queries** - Full control over database operations with Dapper
+3. **Parameterized Queries** - Prevents SQL injection attacks
+4. **Connection Management** - Proper using statements for connection disposal
+5. **Logging** - Comprehensive logging throughout
+6. **Error Handling** - Try-catch blocks with proper error responses
+7. **Input Validation** - Data annotations and model validation
+8. **XML Documentation** - Complete API documentation
+9. **Separation of Concerns** - Clear boundaries between layers
+10. **Naming Conventions** - Consistent and meaningful names
+11. **Swagger/OpenAPI** - Interactive API documentation
+
+
+
 ###  Technologies 
 #### Primary Language  : C#, .NET Core 
 
@@ -179,4 +227,3 @@ Tests are implemented in NUnit
 ### Submission should include a  README  file explaining  how to run the project and the 
 
 There is a README.md file in the root directory. There are more .md files in the folder `Documentation`. README.md contains an overview of the documentation.
-TODO
