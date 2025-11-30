@@ -6,7 +6,7 @@ namespace LibraryApiSystemTests.AssignmentControllerSystemTests;
 
 /// <summary>
 /// Base class for AssignmentController system tests.
-/// Handles common setup: starting LibraryApi process, creating HTTP client, and managing test data.
+/// Starts a single LibraryApi instance for all tests in the class, and cleans the database before each test.
 /// </summary>
 [NonParallelizable]
 public abstract class AssignmentControllerSystemTestBase
@@ -16,17 +16,14 @@ public abstract class AssignmentControllerSystemTestBase
     protected TestDataGenerator _testData = null!;
     protected const string ApiBaseUrl = "http://localhost:7100";
 
-    [SetUp]
-    public async Task SetUp()
+    [OneTimeSetUp]
+    public async Task OneTimeSetUp()
     {
-        // Clean the database before each test
-        await SqlServerTestFixture.CleanDatabase();
-
         // Determine the correct path to LibraryApi project
         var solutionDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".."));
         var libraryApiProject = Path.Combine(solutionDir, "LibraryApi", "LibraryApi.csproj");
 
-        // Start the LibraryApi process
+        // Start the LibraryApi process (once for all tests in this class)
         _apiProcess = new Process
         {
             StartInfo = new ProcessStartInfo
@@ -90,8 +87,15 @@ public abstract class AssignmentControllerSystemTestBase
         _testData = new TestDataGenerator(SqlServerTestFixture.ConnectionString);
     }
 
-    [TearDown]
-    public void TearDown()
+    [SetUp]
+    public async Task SetUp()
+    {
+        // Clean the database before each test
+        await SqlServerTestFixture.CleanDatabase();
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
     {
         _client?.Dispose();
 
