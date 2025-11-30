@@ -47,7 +47,8 @@ public class DataStorageArchitectureTests : MicroserviceArchitectureTestBase
         [
             DataStorageProjectName,
             DataStorageGrpcClientName,
-            ArchitectureTestsProjectName
+            "ArchitectureTests.csproj",
+            "DataStorageIntegrationTests.csproj",
         ];
     }
 

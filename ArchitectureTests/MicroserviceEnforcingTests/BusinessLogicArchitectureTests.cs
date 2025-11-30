@@ -51,7 +51,7 @@ public class BusinessLogicArchitectureTests : MicroserviceArchitectureTestBase
             BusinessLogicProjectName,
             BusinessLogicTestsProjectName,
             BusinessLogicGrpcClientName,
-            ArchitectureTestsProjectName
+            "ArchitectureTests.csproj",
         ];
     }
 

@@ -12,7 +12,6 @@ public abstract class MicroserviceArchitectureTestBase
     protected const string ObjDirectory = "obj";
     protected const string ProjectReferenceElement = "ProjectReference";
     protected const string IncludeAttribute = "Include";
-    protected const string ArchitectureTestsProjectName = "ArchitectureTests.csproj";
 
     private string _solutionDirectory = "";
 

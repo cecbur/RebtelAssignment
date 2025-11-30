@@ -1,4 +1,3 @@
-using BusinessModels;
 using DataStorage.Grpc;
 using DataStorageContracts;
 using Grpc.Core;
@@ -8,13 +7,12 @@ namespace DataStorageGrpcClient;
 
 public class BookRepository : IBookRepository
 {
-    private readonly GrpcChannel _channel;
     private readonly BookService.BookServiceClient _client;
 
     public BookRepository(string serverAddress)
     {
-        _channel = GrpcChannel.ForAddress(serverAddress);
-        _client = new BookService.BookServiceClient(_channel);
+        var channel = GrpcChannel.ForAddress(serverAddress);
+        _client = new BookService.BookServiceClient(channel);
     }
 
     public async Task<IEnumerable<BusinessModels.Book>> GetAllBooks()
