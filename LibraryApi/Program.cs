@@ -35,6 +35,9 @@ builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
 
 // Register commands
 builder.Services.AddScoped<LibraryApi.Commands.AssignmentCommands.GetBooksSortedByMostLoanedCommand>();
+builder.Services.AddScoped<LibraryApi.Commands.AssignmentCommands.GetMostActivePatronsCommand>();
+builder.Services.AddScoped<LibraryApi.Commands.AssignmentCommands.GetReadingPacePagesPerDayCommand>();
+builder.Services.AddScoped<LibraryApi.Commands.AssignmentCommands.GetOtherBooksBorrowedCommand>();
 
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();

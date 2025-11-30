@@ -15,17 +15,21 @@ namespace LibraryApi.Controllers;
 [Produces("application/json")]
 public class AssignmentController : ControllerBase
 {
-    private readonly IBusinessLogicFacade _businessLogicGrpcFacade;
-    private readonly ILogger<AssignmentController> _logger;
     private readonly GetBooksSortedByMostLoanedCommand _booksSortedByMostLoanedCommand;
+    private readonly GetMostActivePatronsCommand _mostActivePatronsCommand;
+    private readonly GetReadingPacePagesPerDayCommand _readingPacePagesPerDayCommand;
+    private readonly GetOtherBooksBorrowedCommand _otherBooksBorrowedCommand;
 
     public AssignmentController(
-        IBusinessLogicFacade businessLogicFacade,
-        ILogger<AssignmentController> logger, GetBooksSortedByMostLoanedCommand booksSortedByMostLoanedCommand)
+        GetBooksSortedByMostLoanedCommand booksSortedByMostLoanedCommand,
+        GetMostActivePatronsCommand mostActivePatronsCommand,
+        GetReadingPacePagesPerDayCommand readingPacePagesPerDayCommand,
+        GetOtherBooksBorrowedCommand otherBooksBorrowedCommand)
     {
-        _businessLogicGrpcFacade = businessLogicFacade ?? throw new ArgumentNullException(nameof(businessLogicFacade));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _booksSortedByMostLoanedCommand = booksSortedByMostLoanedCommand;
+        _booksSortedByMostLoanedCommand = booksSortedByMostLoanedCommand ?? throw new ArgumentNullException(nameof(booksSortedByMostLoanedCommand));
+        _mostActivePatronsCommand = mostActivePatronsCommand ?? throw new ArgumentNullException(nameof(mostActivePatronsCommand));
+        _readingPacePagesPerDayCommand = readingPacePagesPerDayCommand ?? throw new ArgumentNullException(nameof(readingPacePagesPerDayCommand));
+        _otherBooksBorrowedCommand = otherBooksBorrowedCommand ?? throw new ArgumentNullException(nameof(otherBooksBorrowedCommand));
     }
 
     /// <summary>
@@ -65,30 +69,10 @@ public class AssignmentController : ControllerBase
         [FromQuery] DateTime endDate,
         [FromQuery] int maxPatrons)
     {
-        try
-        {
-            _logger.LogInformation("Getting most active patrons from {StartDate} to {EndDate}", startDate, endDate);
-
-            var patronLoans = await _businessLogicGrpcFacade.GetPatronsOrderedByLoanFrequency(startDate, endDate);
-
-            if (patronLoans.Count() > maxPatrons)
-                patronLoans = patronLoans.Take(maxPatrons).ToArray();
-
-            var response = patronLoans.Select(pl => new PatronLoanFrequencyResponse
-            {
-                PatronId = pl.Patron.Id,
-                PatronName = $"{pl.Patron.FirstName} {pl.Patron.LastName}",
-                LoanCount = pl.LoanCount
-            }).ToList();
-
-            _logger.LogInformation("Retrieved {Count} patrons with loan activity", response.Count);
+        var (success, response) = await _mostActivePatronsCommand.GetMostActivePatrons(startDate, endDate, maxPatrons);
+        if (success)
             return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting most active patrons from {StartDate} to {EndDate}", startDate, endDate);
-            return StatusCode(500, "An error occurred while retrieving most active patrons");
-        }
+        return StatusCode(500, "An error occurred while retrieving most active patrons");
     }
 
     /// <summary>
@@ -105,32 +89,10 @@ public class AssignmentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<LoanReadingPaceResponse>> GetReadingPacePagesPerDay(int loanId)
     {
-        try
-        {
-            var pagesPerDay = await _businessLogicGrpcFacade.GetPagesPerDay(loanId);
-
-            if (pagesPerDay == null)
-            {
-                return Ok(new LoanReadingPaceResponse
-                {
-                    LoanId = loanId,
-                    PagesPerDay = null,
-                    Message = "This loan has not been returned"
-                });
-            }
-
-            return Ok(new LoanReadingPaceResponse
-            {
-                LoanId = loanId,
-                PagesPerDay = pagesPerDay.Value,
-                Message = null
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting reading pace for loan ID {LoanId}", loanId);
-            return StatusCode(500, "An error occurred while calculating reading pace");
-        }
+        var (success, response) = await _readingPacePagesPerDayCommand.GetReadingPacePagesPerDay(loanId);
+        if (success)
+            return Ok(response);
+        return StatusCode(500, "An error occurred while calculating reading pace");
     }
     
     /// <summary>
@@ -146,23 +108,10 @@ public class AssignmentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<BookFrequencyResponse[]>> GetOtherBooksBorrowed(int bookId)
     {
-        try
-        {
-            _logger.LogInformation("Getting other books borrowed for book id {BookId}", bookId);
-
-            var bookFrequencies = await _businessLogicGrpcFacade.GetOtherBooksBorrowed(bookId);
-            var response = BookFrequencyResponseConverter.ToDto(bookFrequencies);
-
-            _logger.LogInformation("Retrieved {Count} associated books for book id {BookId}",
-                response.Length, bookId);
-
+        var (success, response) = await _otherBooksBorrowedCommand.GetOtherBooksBorrowed(bookId);
+        if (success)
             return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting other books borrowed for book id {BookId}", bookId);
-            return StatusCode(500, "An error occurred while retrieving associated books");
-        }
+        return StatusCode(500, "An error occurred while retrieving associated books");
     }
 
 }

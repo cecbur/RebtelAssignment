@@ -19,7 +19,7 @@ public abstract class DataStorageMockGrpcTestFixtureBase
     private IHost? _testServer;
     protected string ServerAddress { get; private set; } = null!;
     protected Mock<ILoanRepository> MockLoanRepository { get; private set; } = null!;
-    private Mock<IBorrowingPatternRepository> MockBorrowingPatternRepository { get; set; } = null!;
+    protected Mock<IBorrowingPatternRepository> MockBorrowingPatternRepository { get; set; } = null!;
     private Mock<ILogger<BusinessLogic.Services.BusinessLogicGrpcService>> _mockGrpcServiceLogger = null!;
 
     protected async Task SetUpGrpcServer()

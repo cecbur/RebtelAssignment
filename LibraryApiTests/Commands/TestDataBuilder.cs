@@ -34,4 +34,16 @@ internal class TestDataBuilder
             .Select(i => CreateLoan(startId + i, book, CreateUniquePatron()))
             .ToArray();
     }
+
+    public Loan[] CreateLoansForPatron(Patron patron, int startId, int count, Author? author = null)
+    {
+        var bookAuthor = author ?? CreateAuthor(1, "Test", "Author");
+        return Enumerable.Range(0, count)
+            .Select(i =>
+            {
+                var book = CreateBook(startId + i, $"Book{startId + i}", bookAuthor);
+                return CreateLoan(startId + i, book, patron);
+            })
+            .ToArray();
+    }
 }
