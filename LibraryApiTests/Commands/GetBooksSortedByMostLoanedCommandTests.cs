@@ -1,5 +1,4 @@
 using BusinessLogicContracts.Interfaces;
-using BusinessLogicGrpcClient;
 using BusinessModels;
 using LibraryApi.Commands.AssignmentCommands;
 using Microsoft.Extensions.Logging;
@@ -8,44 +7,13 @@ using Moq;
 namespace LibraryApiTests.Commands;
 
 [TestFixture]
-public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFixtureBase
+public class GetBooksSortedByMostLoanedCommandTests : CommandTestBase<GetBooksSortedByMostLoanedCommand>
 {
-    private Mock<ILogger<GetBooksSortedByMostLoanedCommand>> _mockCommandLogger = null!;
-    private GetBooksSortedByMostLoanedCommand _sut = null!;
-    private IBusinessLogicFacade _businessLogicFacade = null!;
-    private TestDataBuilder _testDataBuilder = null!;
-
-    [SetUp]
-    public async Task SetUp()
+    protected override GetBooksSortedByMostLoanedCommand CreateSystemUnderTest(
+        IBusinessLogicFacade businessLogicFacade,
+        ILogger<GetBooksSortedByMostLoanedCommand> logger)
     {
-        _testDataBuilder = new TestDataBuilder();
-        await SetUpGrpcServer();
-
-        _mockCommandLogger = new Mock<ILogger<GetBooksSortedByMostLoanedCommand>>();
-        _businessLogicFacade = new BusinessLogicGrpcFacade(ServerAddress);
-        _sut = new GetBooksSortedByMostLoanedCommand(_businessLogicFacade, _mockCommandLogger.Object);
-    }
-
-    [TearDown]
-    public async Task TearDown()
-    {
-        await TearDownGrpcServer();
-    }
-
-    [Test]
-    public void Constructor_WithNullBusinessLogicFacade_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetBooksSortedByMostLoanedCommand(null!, _mockCommandLogger.Object));
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetBooksSortedByMostLoanedCommand(_businessLogicFacade, null!));
+        return new GetBooksSortedByMostLoanedCommand(businessLogicFacade, logger);
     }
 
     [Test]
@@ -55,13 +23,13 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int book1LoanCount = 10;
         const int book2LoanCount = 8;
 
-        var author1 = _testDataBuilder.CreateAuthor(1, "F. Scott", "Fitzgerald");
-        var author2 = _testDataBuilder.CreateAuthor(2, "George", "Orwell");
-        var book1 = _testDataBuilder.CreateBook(1, "The Great Gatsby", author1);
-        var book2 = _testDataBuilder.CreateBook(2, "1984", author2);
+        var author1 = TestDataBuilder.CreateAuthor(1, "F. Scott", "Fitzgerald");
+        var author2 = TestDataBuilder.CreateAuthor(2, "George", "Orwell");
+        var book1 = TestDataBuilder.CreateBook(1, "The Great Gatsby", author1);
+        var book2 = TestDataBuilder.CreateBook(2, "1984", author2);
 
-        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
-        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
+        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
+        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
         var loans = book1Loans.Concat(book2Loans).ToArray();
 
         MockLoanRepository
@@ -69,7 +37,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with valid data");
@@ -90,13 +58,13 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int book2LoanCount = 2;
         const int book3LoanCount = 1;
 
-        var book1 = _testDataBuilder.CreateBook(1, "Book A", _testDataBuilder.CreateAuthor(1, "Author", "A"));
-        var book2 = _testDataBuilder.CreateBook(2, "Book B", _testDataBuilder.CreateAuthor(2, "Author", "B"));
-        var book3 = _testDataBuilder.CreateBook(3, "Book C", _testDataBuilder.CreateAuthor(3, "Author", "C"));
+        var book1 = TestDataBuilder.CreateBook(1, "Book A", TestDataBuilder.CreateAuthor(1, "Author", "A"));
+        var book2 = TestDataBuilder.CreateBook(2, "Book B", TestDataBuilder.CreateAuthor(2, "Author", "B"));
+        var book3 = TestDataBuilder.CreateBook(3, "Book C", TestDataBuilder.CreateAuthor(3, "Author", "C"));
 
-        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
-        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
-        var book3Loans = _testDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
+        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
+        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
+        var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).ToArray();
 
         MockLoanRepository
@@ -104,7 +72,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: null);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: null);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with null maxBooks");
@@ -126,15 +94,15 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int book3LoanCount = 2;
         const int book4LoanCount = 1;
 
-        var book1 = _testDataBuilder.CreateBook(1, "Book 1", _testDataBuilder.CreateAuthor(1, "Author", "1"));
-        var book2 = _testDataBuilder.CreateBook(2, "Book 2", _testDataBuilder.CreateAuthor(2, "Author", "2"));
-        var book3 = _testDataBuilder.CreateBook(3, "Book 3", _testDataBuilder.CreateAuthor(3, "Author", "3"));
-        var book4 = _testDataBuilder.CreateBook(4, "Book 4", _testDataBuilder.CreateAuthor(4, "Author", "4"));
+        var book1 = TestDataBuilder.CreateBook(1, "Book 1", TestDataBuilder.CreateAuthor(1, "Author", "1"));
+        var book2 = TestDataBuilder.CreateBook(2, "Book 2", TestDataBuilder.CreateAuthor(2, "Author", "2"));
+        var book3 = TestDataBuilder.CreateBook(3, "Book 3", TestDataBuilder.CreateAuthor(3, "Author", "3"));
+        var book4 = TestDataBuilder.CreateBook(4, "Book 4", TestDataBuilder.CreateAuthor(4, "Author", "4"));
 
-        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
-        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
-        var book3Loans = _testDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
-        var book4Loans = _testDataBuilder.CreateLoansForBook(book4, startId: book3Loans.Max(l => l.Id)+1, count: book4LoanCount);
+        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
+        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
+        var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
+        var book4Loans = TestDataBuilder.CreateLoansForBook(book4, startId: book3Loans.Max(l => l.Id)+1, count: book4LoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).Concat(book4Loans).ToArray();
 
         MockLoanRepository
@@ -142,7 +110,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: maxBooksToReturn);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: maxBooksToReturn);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with maxBooks limit");
@@ -164,7 +132,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(emptyLoans);
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed even with no loans");
@@ -182,7 +150,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when repository throws exception");
@@ -200,10 +168,10 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
+        await Sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert - Verify that an error was logged (without checking the exact message)
-        _mockCommandLogger.Verify(
+        MockCommandLogger.Verify(
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
@@ -218,15 +186,15 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     {
         // Arrange
         const int zeroMaxBooks = 0;
-        var book = _testDataBuilder.CreateBook(1, "Book 1", _testDataBuilder.CreateAuthor(1, "Author", "1"));
-        var loans = _testDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
+        var book = TestDataBuilder.CreateBook(1, "Book 1", TestDataBuilder.CreateAuthor(1, "Author", "1"));
+        var loans = TestDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: zeroMaxBooks);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: zeroMaxBooks);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when maxBooks is 0");
@@ -243,7 +211,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int negativeMaxBooks = -1;
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: negativeMaxBooks);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: negativeMaxBooks);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when maxBooks is negative");
@@ -258,13 +226,13 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     {
         // Arrange
         const int sameLoanCount = 5;
-        var book1 = _testDataBuilder.CreateBook(1, "Book A", _testDataBuilder.CreateAuthor(1, "Author", "1"));
-        var book2 = _testDataBuilder.CreateBook(2, "Book B", _testDataBuilder.CreateAuthor(2, "Author", "2"));
-        var book3 = _testDataBuilder.CreateBook(3, "Book C", _testDataBuilder.CreateAuthor(3, "Author", "3"));
+        var book1 = TestDataBuilder.CreateBook(1, "Book A", TestDataBuilder.CreateAuthor(1, "Author", "1"));
+        var book2 = TestDataBuilder.CreateBook(2, "Book B", TestDataBuilder.CreateAuthor(2, "Author", "2"));
+        var book3 = TestDataBuilder.CreateBook(3, "Book C", TestDataBuilder.CreateAuthor(3, "Author", "3"));
 
-        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: sameLoanCount);
-        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: sameLoanCount);
-        var book3Loans = _testDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: sameLoanCount);
+        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: sameLoanCount);
+        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: sameLoanCount);
+        var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: sameLoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).ToArray();
 
         MockLoanRepository
@@ -272,7 +240,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: null);
+        var (success, response) = await Sut.GetBooksSortedByMostLoaned(maxBooks: null);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with identical loan counts");

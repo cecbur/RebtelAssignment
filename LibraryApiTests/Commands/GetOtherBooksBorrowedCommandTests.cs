@@ -1,5 +1,4 @@
 using BusinessLogicContracts.Interfaces;
-using BusinessLogicGrpcClient;
 using BusinessModels;
 using DataStorageContracts.Dto;
 using LibraryApi.Commands.AssignmentCommands;
@@ -9,46 +8,13 @@ using Moq;
 namespace LibraryApiTests.Commands;
 
 [TestFixture]
-public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureBase
+public class GetOtherBooksBorrowedCommandTests : CommandTestBase<GetOtherBooksBorrowedCommand>
 {
-    private Mock<ILogger<GetOtherBooksBorrowedCommand>> _mockCommandLogger = null!;
-    private GetOtherBooksBorrowedCommand _sut = null!;
-    private IBusinessLogicFacade _businessLogicFacade = null!;
-    private TestDataBuilder _testDataBuilder = null!;
-
-    [SetUp]
-    public async Task SetUp()
+    protected override GetOtherBooksBorrowedCommand CreateSystemUnderTest(
+        IBusinessLogicFacade businessLogicFacade,
+        ILogger<GetOtherBooksBorrowedCommand> logger)
     {
-        _testDataBuilder = new TestDataBuilder();
-        await SetUpGrpcServer();
-
-        _mockCommandLogger = new Mock<ILogger<GetOtherBooksBorrowedCommand>>();
-        _businessLogicFacade = new BusinessLogicGrpcFacade(ServerAddress);
-        _sut = new GetOtherBooksBorrowedCommand(_businessLogicFacade, _mockCommandLogger.Object);
-    }
-
-    [TearDown]
-    public async Task TearDown()
-    {
-        await TearDownGrpcServer();
-    }
-
-    [Test]
-    public void Constructor_WithNullBusinessLogicFacade_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetOtherBooksBorrowedCommand(null!, _mockCommandLogger.Object),
-            "Constructor should throw ArgumentNullException when businessLogicFacade is null");
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetOtherBooksBorrowedCommand(_businessLogicFacade, null!),
-            "Constructor should throw ArgumentNullException when logger is null");
+        return new GetOtherBooksBorrowedCommand(businessLogicFacade, logger);
     }
 
     [Test]
@@ -56,18 +22,18 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
     {
         // Arrange
         const int targetBookId = 1;
-        var author = _testDataBuilder.CreateAuthor(1, "Test", "Author");
-        var targetBook = _testDataBuilder.CreateBook(targetBookId, "Target Book", author);
-        var associatedBook1 = _testDataBuilder.CreateBook(2, "Associated Book 1", author);
-        var associatedBook2 = _testDataBuilder.CreateBook(3, "Associated Book 2", author);
+        var author = TestDataBuilder.CreateAuthor(1, "Test", "Author");
+        var targetBook = TestDataBuilder.CreateBook(targetBookId, "Target Book", author);
+        var associatedBook1 = TestDataBuilder.CreateBook(2, "Associated Book 1", author);
+        var associatedBook2 = TestDataBuilder.CreateBook(3, "Associated Book 2", author);
 
         // Create patrons who borrowed the target book
-        var patron1 = _testDataBuilder.CreatePatron(1, "John", "Doe");
-        var patron2 = _testDataBuilder.CreatePatron(2, "Jane", "Smith");
+        var patron1 = TestDataBuilder.CreatePatron(1, "John", "Doe");
+        var patron2 = TestDataBuilder.CreatePatron(2, "Jane", "Smith");
 
         // Target book loans (2 loans total)
-        var targetLoan1 = _testDataBuilder.CreateLoan(1, targetBook, patron1);
-        var targetLoan2 = _testDataBuilder.CreateLoan(3, targetBook, patron2);
+        var targetLoan1 = TestDataBuilder.CreateLoan(1, targetBook, patron1);
+        var targetLoan2 = TestDataBuilder.CreateLoan(3, targetBook, patron2);
 
         // Mock the repository calls
         MockLoanRepository
@@ -90,7 +56,7 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
             .ReturnsAsync(associatedBooksData);
 
         // Act
-        var (success, response) = await _sut.GetOtherBooksBorrowed(targetBookId);
+        var (success, response) = await Sut.GetOtherBooksBorrowed(targetBookId);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with valid bookId");
@@ -114,12 +80,12 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
     {
         // Arrange
         const int targetBookId = 1;
-        var author = _testDataBuilder.CreateAuthor(1, "Test", "Author");
-        var targetBook = _testDataBuilder.CreateBook(targetBookId, "Target Book", author);
-        var patron = _testDataBuilder.CreatePatron(1, "John", "Doe");
+        var author = TestDataBuilder.CreateAuthor(1, "Test", "Author");
+        var targetBook = TestDataBuilder.CreateBook(targetBookId, "Target Book", author);
+        var patron = TestDataBuilder.CreatePatron(1, "John", "Doe");
 
         // Only loan of the target book
-        var loan = _testDataBuilder.CreateLoan(1, targetBook, patron);
+        var loan = TestDataBuilder.CreateLoan(1, targetBook, patron);
 
         MockLoanRepository
             .Setup(r => r.GetLoansByBookId(targetBookId))
@@ -137,7 +103,7 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
             .ReturnsAsync(associatedBooksData);
 
         // Act
-        var (success, response) = await _sut.GetOtherBooksBorrowed(targetBookId);
+        var (success, response) = await Sut.GetOtherBooksBorrowed(targetBookId);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed even with no associated books");
@@ -158,7 +124,7 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        var (success, response) = await _sut.GetOtherBooksBorrowed(bookId);
+        var (success, response) = await Sut.GetOtherBooksBorrowed(bookId);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when repository throws exception");
@@ -178,10 +144,10 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        await _sut.GetOtherBooksBorrowed(bookId);
+        await Sut.GetOtherBooksBorrowed(bookId);
 
         // Assert - Verify that an error was logged
-        _mockCommandLogger.Verify(
+        MockCommandLogger.Verify(
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
@@ -196,10 +162,10 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
     {
         // Arrange
         const int bookId = 1;
-        var author = _testDataBuilder.CreateAuthor(1, "Test", "Author");
-        var book = _testDataBuilder.CreateBook(bookId, "Test Book", author);
-        var patron = _testDataBuilder.CreatePatron(1, "John", "Doe");
-        var loan = _testDataBuilder.CreateLoan(1, book, patron);
+        var author = TestDataBuilder.CreateAuthor(1, "Test", "Author");
+        var book = TestDataBuilder.CreateBook(bookId, "Test Book", author);
+        var patron = TestDataBuilder.CreatePatron(1, "John", "Doe");
+        var loan = TestDataBuilder.CreateLoan(1, book, patron);
 
         MockLoanRepository
             .Setup(r => r.GetLoansByBookId(bookId))
@@ -216,10 +182,10 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
             .ReturnsAsync(associatedBooksData);
 
         // Act
-        await _sut.GetOtherBooksBorrowed(bookId);
+        await Sut.GetOtherBooksBorrowed(bookId);
 
         // Assert - Verify that information was logged
-        _mockCommandLogger.Verify(
+        MockCommandLogger.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
@@ -236,7 +202,7 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
         const int zeroBookId = 0;
 
         // Act
-        var (success, response) = await _sut.GetOtherBooksBorrowed(zeroBookId);
+        var (success, response) = await Sut.GetOtherBooksBorrowed(zeroBookId);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when bookId is 0");
@@ -254,7 +220,7 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
         const int negativeBookId = -1;
 
         // Act
-        var (success, response) = await _sut.GetOtherBooksBorrowed(negativeBookId);
+        var (success, response) = await Sut.GetOtherBooksBorrowed(negativeBookId);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when bookId is negative");
@@ -272,10 +238,10 @@ public class GetOtherBooksBorrowedCommandTests : DataStorageMockGrpcTestFixtureB
         const int invalidBookId = -1;
 
         // Act
-        await _sut.GetOtherBooksBorrowed(invalidBookId);
+        await Sut.GetOtherBooksBorrowed(invalidBookId);
 
         // Assert - Verify that a warning was logged
-        _mockCommandLogger.Verify(
+        MockCommandLogger.Verify(
             x => x.Log(
                 LogLevel.Warning,
                 It.IsAny<EventId>(),

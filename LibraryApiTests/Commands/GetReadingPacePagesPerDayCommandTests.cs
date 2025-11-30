@@ -1,5 +1,4 @@
 using BusinessLogicContracts.Interfaces;
-using BusinessLogicGrpcClient;
 using BusinessModels;
 using LibraryApi.Commands.AssignmentCommands;
 using Microsoft.Extensions.Logging;
@@ -8,46 +7,13 @@ using Moq;
 namespace LibraryApiTests.Commands;
 
 [TestFixture]
-public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixtureBase
+public class GetReadingPacePagesPerDayCommandTests : CommandTestBase<GetReadingPacePagesPerDayCommand>
 {
-    private Mock<ILogger<GetReadingPacePagesPerDayCommand>> _mockCommandLogger = null!;
-    private GetReadingPacePagesPerDayCommand _sut = null!;
-    private IBusinessLogicFacade _businessLogicFacade = null!;
-    private TestDataBuilder _testDataBuilder = null!;
-
-    [SetUp]
-    public async Task SetUp()
+    protected override GetReadingPacePagesPerDayCommand CreateSystemUnderTest(
+        IBusinessLogicFacade businessLogicFacade,
+        ILogger<GetReadingPacePagesPerDayCommand> logger)
     {
-        _testDataBuilder = new TestDataBuilder();
-        await SetUpGrpcServer();
-
-        _mockCommandLogger = new Mock<ILogger<GetReadingPacePagesPerDayCommand>>();
-        _businessLogicFacade = new BusinessLogicGrpcFacade(ServerAddress);
-        _sut = new GetReadingPacePagesPerDayCommand(_businessLogicFacade, _mockCommandLogger.Object);
-    }
-
-    [TearDown]
-    public async Task TearDown()
-    {
-        await TearDownGrpcServer();
-    }
-
-    [Test]
-    public void Constructor_WithNullBusinessLogicFacade_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetReadingPacePagesPerDayCommand(null!, _mockCommandLogger.Object),
-            "Constructor should throw ArgumentNullException when businessLogicFacade is null");
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetReadingPacePagesPerDayCommand(_businessLogicFacade, null!),
-            "Constructor should throw ArgumentNullException when logger is null");
+        return new GetReadingPacePagesPerDayCommand(businessLogicFacade, logger);
     }
 
     [Test]
@@ -60,11 +26,11 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
         var returnDate = new DateTime(2024, 1, 11); // 10 days
         const double expectedPagesPerDay = 30.0; // 300 pages / 10 days
 
-        var author = _testDataBuilder.CreateAuthor(1, "Test", "Author");
-        var book = _testDataBuilder.CreateBook(1, "Test Book", author);
+        var author = TestDataBuilder.CreateAuthor(1, "Test", "Author");
+        var book = TestDataBuilder.CreateBook(1, "Test Book", author);
         book.NumberOfPages = numberOfPages;
-        var patron = _testDataBuilder.CreatePatron(1, "Test", "Patron");
-        var loan = _testDataBuilder.CreateLoan(loanId, book, patron);
+        var patron = TestDataBuilder.CreatePatron(1, "Test", "Patron");
+        var loan = TestDataBuilder.CreateLoan(loanId, book, patron);
         loan.LoanDate = loanDate;
         loan.ReturnDate = returnDate;
 
@@ -73,7 +39,7 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
             .ReturnsAsync(loan);
 
         // Act
-        var (success, response) = await _sut.GetReadingPacePagesPerDay(loanId);
+        var (success, response) = await Sut.GetReadingPacePagesPerDay(loanId);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with returned loan");
@@ -90,11 +56,11 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
     {
         // Arrange
         const int loanId = 1;
-        var author = _testDataBuilder.CreateAuthor(1, "Test", "Author");
-        var book = _testDataBuilder.CreateBook(1, "Test Book", author);
+        var author = TestDataBuilder.CreateAuthor(1, "Test", "Author");
+        var book = TestDataBuilder.CreateBook(1, "Test Book", author);
         book.NumberOfPages = 300;
-        var patron = _testDataBuilder.CreatePatron(1, "Test", "Patron");
-        var loan = _testDataBuilder.CreateLoan(loanId, book, patron);
+        var patron = TestDataBuilder.CreatePatron(1, "Test", "Patron");
+        var loan = TestDataBuilder.CreateLoan(loanId, book, patron);
         loan.LoanDate = new DateTime(2024, 1, 1);
         loan.ReturnDate = null; // Not returned yet
 
@@ -103,7 +69,7 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
             .ReturnsAsync(loan);
 
         // Act
-        var (success, response) = await _sut.GetReadingPacePagesPerDay(loanId);
+        var (success, response) = await Sut.GetReadingPacePagesPerDay(loanId);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed even when loan not returned");
@@ -120,11 +86,11 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
     {
         // Arrange
         const int loanId = 1;
-        var author = _testDataBuilder.CreateAuthor(1, "Test", "Author");
-        var book = _testDataBuilder.CreateBook(1, "Test Book", author);
+        var author = TestDataBuilder.CreateAuthor(1, "Test", "Author");
+        var book = TestDataBuilder.CreateBook(1, "Test Book", author);
         book.NumberOfPages = null; // No page count
-        var patron = _testDataBuilder.CreatePatron(1, "Test", "Patron");
-        var loan = _testDataBuilder.CreateLoan(loanId, book, patron);
+        var patron = TestDataBuilder.CreatePatron(1, "Test", "Patron");
+        var loan = TestDataBuilder.CreateLoan(loanId, book, patron);
         loan.LoanDate = new DateTime(2024, 1, 1);
         loan.ReturnDate = new DateTime(2024, 1, 11);
 
@@ -133,7 +99,7 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
             .ReturnsAsync(loan);
 
         // Act
-        var (success, response) = await _sut.GetReadingPacePagesPerDay(loanId);
+        var (success, response) = await Sut.GetReadingPacePagesPerDay(loanId);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed even when book has no page count");
@@ -156,7 +122,7 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        var (success, response) = await _sut.GetReadingPacePagesPerDay(loanId);
+        var (success, response) = await Sut.GetReadingPacePagesPerDay(loanId);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when repository throws exception");
@@ -176,10 +142,10 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        await _sut.GetReadingPacePagesPerDay(loanId);
+        await Sut.GetReadingPacePagesPerDay(loanId);
 
         // Assert - Verify that an error was logged (without checking the exact message)
-        _mockCommandLogger.Verify(
+        MockCommandLogger.Verify(
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
@@ -196,7 +162,7 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
         const int zeroLoanId = 0;
 
         // Act
-        var (success, response) = await _sut.GetReadingPacePagesPerDay(zeroLoanId);
+        var (success, response) = await Sut.GetReadingPacePagesPerDay(zeroLoanId);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when loanId is 0");
@@ -214,7 +180,7 @@ public class GetReadingPacePagesPerDayCommandTests : DataStorageMockGrpcTestFixt
         const int negativeLoanId = -1;
 
         // Act
-        var (success, response) = await _sut.GetReadingPacePagesPerDay(negativeLoanId);
+        var (success, response) = await Sut.GetReadingPacePagesPerDay(negativeLoanId);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when loanId is negative");

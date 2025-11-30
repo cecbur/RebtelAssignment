@@ -6,7 +6,7 @@ namespace LibraryApiTests.Commands;
 /// Factory for creating test data objects with sensible defaults.
 /// Each test should create its own instance to ensure test isolation.
 /// </summary>
-internal class TestDataBuilder
+public class TestDataBuilder
 {
     private int _patronIdCounter = 1;
 

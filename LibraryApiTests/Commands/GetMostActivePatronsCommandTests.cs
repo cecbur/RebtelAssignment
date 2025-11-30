@@ -1,5 +1,4 @@
 using BusinessLogicContracts.Interfaces;
-using BusinessLogicGrpcClient;
 using BusinessModels;
 using LibraryApi.Commands.AssignmentCommands;
 using Microsoft.Extensions.Logging;
@@ -8,51 +7,24 @@ using Moq;
 namespace LibraryApiTests.Commands;
 
 [TestFixture]
-public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBase
+public class GetMostActivePatronsCommandTests : CommandTestBase<GetMostActivePatronsCommand>
 {
-    private Mock<ILogger<GetMostActivePatronsCommand>> _mockCommandLogger = null!;
-    private GetMostActivePatronsCommand _sut = null!;
-    private IBusinessLogicFacade _businessLogicFacade = null!;
-    private TestDataBuilder _testDataBuilder = null!;
     private DateTime _startDate;
     private DateTime _endDate;
 
-    [SetUp]
-    public async Task SetUp()
+    protected override GetMostActivePatronsCommand CreateSystemUnderTest(
+        IBusinessLogicFacade businessLogicFacade,
+        ILogger<GetMostActivePatronsCommand> logger)
     {
-        _testDataBuilder = new TestDataBuilder();
-        await SetUpGrpcServer();
+        return new GetMostActivePatronsCommand(businessLogicFacade, logger);
+    }
 
-        _mockCommandLogger = new Mock<ILogger<GetMostActivePatronsCommand>>();
-        _businessLogicFacade = new BusinessLogicGrpcFacade(ServerAddress);
-        _sut = new GetMostActivePatronsCommand(_businessLogicFacade, _mockCommandLogger.Object);
-
+    [SetUp]
+    public async Task SetUpMostActivePatrons()
+    {
+        await CommandSetUp();
         _startDate = new DateTime(2024, 1, 1);
         _endDate = new DateTime(2024, 12, 31);
-    }
-
-    [TearDown]
-    public async Task TearDown()
-    {
-        await TearDownGrpcServer();
-    }
-
-    [Test]
-    public void Constructor_WithNullBusinessLogicFacade_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetMostActivePatronsCommand(null!, _mockCommandLogger.Object),
-            "Constructor should throw ArgumentNullException when businessLogicFacade is null");
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetMostActivePatronsCommand(_businessLogicFacade, null!),
-            "Constructor should throw ArgumentNullException when logger is null");
     }
 
     [Test]
@@ -63,11 +35,11 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         const int patron2LoanCount = 3;
         const int maxPatrons = 10;
 
-        var patron1 = _testDataBuilder.CreatePatron(1, "John", "Doe");
-        var patron2 = _testDataBuilder.CreatePatron(2, "Jane", "Smith");
+        var patron1 = TestDataBuilder.CreatePatron(1, "John", "Doe");
+        var patron2 = TestDataBuilder.CreatePatron(2, "Jane", "Smith");
 
-        var patron1Loans = _testDataBuilder.CreateLoansForPatron(patron1, startId: 1, count: patron1LoanCount);
-        var patron2Loans = _testDataBuilder.CreateLoansForPatron(patron2, startId: patron1LoanCount + 1, count: patron2LoanCount);
+        var patron1Loans = TestDataBuilder.CreateLoansForPatron(patron1, startId: 1, count: patron1LoanCount);
+        var patron2Loans = TestDataBuilder.CreateLoansForPatron(patron2, startId: patron1LoanCount + 1, count: patron2LoanCount);
         var loans = patron1Loans.Concat(patron2Loans).ToArray();
 
         MockLoanRepository
@@ -75,7 +47,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with valid data");
@@ -99,13 +71,13 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         const int patron2LoanCount = 4;
         const int patron3LoanCount = 3;
 
-        var patron1 = _testDataBuilder.CreatePatron(1, "Patron", "One");
-        var patron2 = _testDataBuilder.CreatePatron(2, "Patron", "Two");
-        var patron3 = _testDataBuilder.CreatePatron(3, "Patron", "Three");
+        var patron1 = TestDataBuilder.CreatePatron(1, "Patron", "One");
+        var patron2 = TestDataBuilder.CreatePatron(2, "Patron", "Two");
+        var patron3 = TestDataBuilder.CreatePatron(3, "Patron", "Three");
 
-        var patron1Loans = _testDataBuilder.CreateLoansForPatron(patron1, startId: 1, count: patron1LoanCount);
-        var patron2Loans = _testDataBuilder.CreateLoansForPatron(patron2, startId: patron1LoanCount + 1, count: patron2LoanCount);
-        var patron3Loans = _testDataBuilder.CreateLoansForPatron(patron3, startId: patron1LoanCount + patron2LoanCount + 1, count: patron3LoanCount);
+        var patron1Loans = TestDataBuilder.CreateLoansForPatron(patron1, startId: 1, count: patron1LoanCount);
+        var patron2Loans = TestDataBuilder.CreateLoansForPatron(patron2, startId: patron1LoanCount + 1, count: patron2LoanCount);
+        var patron3Loans = TestDataBuilder.CreateLoansForPatron(patron3, startId: patron1LoanCount + patron2LoanCount + 1, count: patron3LoanCount);
         var loans = patron1Loans.Concat(patron2Loans).Concat(patron3Loans).ToArray();
 
         MockLoanRepository
@@ -113,7 +85,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with maxPatrons limit");
@@ -136,7 +108,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
             .ReturnsAsync(emptyLoans);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed even with no loans");
@@ -156,7 +128,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when repository throws exception");
@@ -176,10 +148,10 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        await _sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
+        await Sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
 
         // Assert - Verify that an error was logged (without checking the exact message)
-        _mockCommandLogger.Verify(
+        MockCommandLogger.Verify(
             x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
@@ -197,7 +169,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         var defaultStartDate = default(DateTime);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(defaultStartDate, _endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(defaultStartDate, _endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when startDate is default value");
@@ -216,7 +188,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         var defaultEndDate = default(DateTime);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, defaultEndDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, defaultEndDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when endDate is default value");
@@ -236,7 +208,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         var endDate = new DateTime(2024, 1, 1);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(startDate, endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(startDate, endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when startDate is after endDate");
@@ -254,7 +226,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         const int zeroMaxPatrons = 0;
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, zeroMaxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, zeroMaxPatrons);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when maxPatrons is 0");
@@ -272,7 +244,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         const int negativeMaxPatrons = -1;
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, negativeMaxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, negativeMaxPatrons);
 
         // Assert
         Assert.That(success, Is.False, "Operation should fail when maxPatrons is negative");
@@ -290,13 +262,13 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
         const int sameLoanCount = 3;
         const int maxPatrons = 10;
 
-        var patron1 = _testDataBuilder.CreatePatron(1, "Patron", "A");
-        var patron2 = _testDataBuilder.CreatePatron(2, "Patron", "B");
-        var patron3 = _testDataBuilder.CreatePatron(3, "Patron", "C");
+        var patron1 = TestDataBuilder.CreatePatron(1, "Patron", "A");
+        var patron2 = TestDataBuilder.CreatePatron(2, "Patron", "B");
+        var patron3 = TestDataBuilder.CreatePatron(3, "Patron", "C");
 
-        var patron1Loans = _testDataBuilder.CreateLoansForPatron(patron1, startId: 1, count: sameLoanCount);
-        var patron2Loans = _testDataBuilder.CreateLoansForPatron(patron2, startId: sameLoanCount + 1, count: sameLoanCount);
-        var patron3Loans = _testDataBuilder.CreateLoansForPatron(patron3, startId: sameLoanCount * 2 + 1, count: sameLoanCount);
+        var patron1Loans = TestDataBuilder.CreateLoansForPatron(patron1, startId: 1, count: sameLoanCount);
+        var patron2Loans = TestDataBuilder.CreateLoansForPatron(patron2, startId: sameLoanCount + 1, count: sameLoanCount);
+        var patron3Loans = TestDataBuilder.CreateLoansForPatron(patron3, startId: sameLoanCount * 2 + 1, count: sameLoanCount);
         var loans = patron1Loans.Concat(patron2Loans).Concat(patron3Loans).ToArray();
 
         MockLoanRepository
@@ -304,7 +276,7 @@ public class GetMostActivePatronsCommandTests : DataStorageMockGrpcTestFixtureBa
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
+        var (success, response) = await Sut.GetMostActivePatrons(_startDate, _endDate, maxPatrons);
 
         // Assert
         Assert.That(success, Is.True, "Operation should succeed with identical loan counts");
