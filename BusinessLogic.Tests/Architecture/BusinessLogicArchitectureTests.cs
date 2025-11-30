@@ -42,6 +42,12 @@ public class BusinessLogicArchitectureTests
         
     }
 
+    /// <summary>
+    /// Returns the list of projects allowed to have a ProjectReference to BusinessLogic.csproj.
+    /// These projects are typically composition roots that sets up DI for both server and client.
+    /// They must use BusinessLogicGrpcClient.Setup extension methods and should not import the BusinessLogic namespace in source files.
+    /// </summary>
+    /// <returns>Array of .csproj file names that are allowed to reference BusinessLogic</returns>
     private static string[] GetAllowedReferencingProjectsForDi()
     {
         return
@@ -257,13 +263,24 @@ For unauthorized project references:
 2. Add a reference to BusinessLogicGrpcClient instead:
    <ProjectReference Include=""..\BusinessLogicGrpcClient\BusinessLogicGrpcClient.csproj"" />
 
-For direct usage :
-1. Do NOT import BusinessLogic namespace in non-Program.cs files
+For direct usage:
+1. Do NOT import BusinessLogic namespace in any source files
 2. Remove any 'using BusinessLogic;' statements from controllers/services
 3. ONLY inject IBusinessLogicFacade (the interface from BusinessLogicContracts)
 4. The interface is automatically resolved to the gRPC client via dependency injection
 
-EXAMPLE (in a Controller):
+SETUP IN PROGRAM.CS:
+  using BusinessLogicGrpcClient.Setup;
+
+  var grpcServerAddress = builder.Configuration[""GrpcServer:Address""] ?? ""http://localhost:5001"";
+
+  // Register the gRPC client (replaces AddBusinessLogicServices)
+  builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
+
+  // Map the gRPC service endpoint
+  app.MapBusinessLogicGrpcService();
+
+USAGE IN CONTROLLERS:
   using BusinessLogicContracts.Interfaces; // Use contracts, NOT BusinessLogic
 
   public class MyController : ControllerBase
@@ -277,14 +294,14 @@ EXAMPLE (in a Controller):
   }}
 
 ALLOWED DIRECT REFERENCES:
-Direct references are allowed for testing and dependency injection Program.cs only. Allowed projects are
+Direct references to BusinessLogic.csproj are allowed for hosting the gRPC server. Allowed projects:
   -"+ string.Join(Environment.NewLine + "  -", GetAllowedReferencingProjectsForDi())+
                       $@"
 
-To allow a new project to reference BusinessLogic (e.g., for DI setup):
-  - Add the project to the 'allowedReferencingProjects' array in this test (around line 25)
-  - Ensure the project only uses BusinessLogic in Program.cs for dependency injection setup
-  - All other files in the project must use BusinessLogicGrpcClient instead
+To allow a new project to reference BusinessLogic (e.g., for hosting gRPC server):
+  - Add the project to GetAllowedReferencingProjectsForDi() in BusinessLogicArchitectureTests
+  - Use BusinessLogicGrpcClient.Setup extension methods (AddBusinessLogicGrpcClient, MapBusinessLogicGrpcService)
+  - Do NOT import 'using BusinessLogic;' in any source files - use extension methods instead
 
 This architectural constraint ensures:
   - Proper separation of concerns
