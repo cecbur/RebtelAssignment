@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using LibraryApi.DTOs;
@@ -12,100 +11,8 @@ namespace LibraryApiSystemTests.AssignmentControllerSystemTests;
 /// Nothing is mocked - tests the full stack from HTTP request to database.
 /// </summary>
 [TestFixture]
-[NonParallelizable]
-public class GetOtherBooksBorrowedTests
+public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
 {
-    private Process? _apiProcess;
-    private HttpClient _client = null!;
-    private TestDataGenerator _testData = null!;
-    private const string ApiBaseUrl = "http://localhost:7100";
-
-    [SetUp]
-    public async Task SetUp()
-    {
-        // Clean the database before each test
-        await SqlServerTestFixture.CleanDatabase();
-
-        // Determine the correct path to LibraryApi project
-        var solutionDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".."));
-        var libraryApiProject = Path.Combine(solutionDir, "LibraryApi", "LibraryApi.csproj");
-
-        // Start the LibraryApi process
-        _apiProcess = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"run --project \"{libraryApiProject}\" --no-launch-profile",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-                WorkingDirectory = solutionDir,
-                Environment =
-                {
-                    ["ConnectionStrings__DefaultConnection"] = SqlServerTestFixture.ConnectionString,
-                    ["Kestrel__HttpPort"] = "7100",
-                    ["Kestrel__GrpcPort"] = "5100",
-                    ["GrpcServer__Address"] = "http://localhost:5100"
-                }
-            }
-        };
-
-        _apiProcess.OutputDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                Console.WriteLine($"[API OUT] {e.Data}");
-            }
-        };
-        _apiProcess.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                Console.WriteLine($"[API ERR] {e.Data}");
-            }
-        };
-
-        _apiProcess.Start();
-        _apiProcess.BeginOutputReadLine();
-        _apiProcess.BeginErrorReadLine();
-
-        // Wait for the API to be ready
-        _client = new HttpClient { BaseAddress = new Uri(ApiBaseUrl) };
-        var maxAttempts = 30;
-        for (int i = 0; i < maxAttempts; i++)
-        {
-            try
-            {
-                var response = await _client.GetAsync("/api/Assignment/most-loaned-books");
-                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.InternalServerError)
-                {
-                    break;
-                }
-            }
-            catch
-            {
-                if (i == maxAttempts - 1) throw;
-                await Task.Delay(1000);
-            }
-        }
-
-        _testData = new TestDataGenerator(SqlServerTestFixture.ConnectionString);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _client?.Dispose();
-
-        if (_apiProcess != null && !_apiProcess.HasExited)
-        {
-            _apiProcess.Kill(entireProcessTree: true);
-            _apiProcess.WaitForExit(5000);
-            _apiProcess.Dispose();
-        }
-    }
 
     [Test]
     public async Task GetOtherBooksBorrowed_WithBorrowingPattern_ReturnsAssociatedBooksOrderedByFrequency()

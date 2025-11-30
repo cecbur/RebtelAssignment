@@ -16,7 +16,7 @@ public class Book
 
     public bool IsAvailableForLoan { get; set; } = true;
     
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         var item = obj as Book;
 

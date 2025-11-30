@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using LibraryApi.DTOs;
@@ -7,111 +6,13 @@ using TestData;
 namespace LibraryApiSystemTests.AssignmentControllerSystemTests;
 
 /// <summary>
-/// End-to-end HTTP system tests for AssignmentController.
+/// End-to-end HTTP system tests for GetBooksSortedByMostLoaned endpoint.
 /// Uses real HTTP calls and a real SQL Server database (via Testcontainers).
 /// Nothing is mocked - tests the full stack from HTTP request to database.
 /// </summary>
 [TestFixture]
-[NonParallelizable]
-public class GetBooksSortedByMostLoanedTests
+public class GetBooksSortedByMostLoanedTests : AssignmentControllerSystemTestBase
 {
-    private Process? _apiProcess;
-    private HttpClient _client = null!;
-    private TestDataGenerator _testData = null!;
-    private const string ApiBaseUrl = "http://localhost:7100";
-
-    [SetUp]
-    public async Task SetUp()
-    {
-        // Clean the database before each test
-        await SqlServerTestFixture.CleanDatabase();
-
-        // Determine the correct path to LibraryApi project
-        var solutionDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".."));
-        var libraryApiProject = Path.Combine(solutionDir, "LibraryApi", "LibraryApi.csproj");
-
-        Console.WriteLine($"[TEST] Solution dir: {solutionDir}");
-        Console.WriteLine($"[TEST] LibraryApi project: {libraryApiProject}");
-        Console.WriteLine($"[TEST] Project exists: {File.Exists(libraryApiProject)}");
-
-        // Start the LibraryApi process
-        _apiProcess = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"run --project \"{libraryApiProject}\" --no-launch-profile",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-                WorkingDirectory = solutionDir,
-                Environment =
-                {
-                    ["ConnectionStrings__DefaultConnection"] = SqlServerTestFixture.ConnectionString,
-                    ["Kestrel__HttpPort"] = "7100",
-                    ["Kestrel__GrpcPort"] = "5100",
-                    ["GrpcServer__Address"] = "http://localhost:5100"
-                }
-            }
-        };
-
-        // Capture output for debugging
-        _apiProcess.OutputDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                Console.WriteLine($"[API OUT] {e.Data}");
-            }
-        };
-        _apiProcess.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                Console.WriteLine($"[API ERR] {e.Data}");
-            }
-        };
-
-        _apiProcess.Start();
-        _apiProcess.BeginOutputReadLine();
-        _apiProcess.BeginErrorReadLine();
-
-        // Wait for the API to be ready (simple polling approach)
-        _client = new HttpClient { BaseAddress = new Uri(ApiBaseUrl) };
-        var maxAttempts = 30;
-        for (int i = 0; i < maxAttempts; i++)
-        {
-            try
-            {
-                var response = await _client.GetAsync("/api/Assignment/most-loaned-books");
-                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.InternalServerError)
-                {
-                    break; // API is responding
-                }
-            }
-            catch
-            {
-                if (i == maxAttempts - 1) throw;
-                await Task.Delay(1000);
-            }
-        }
-
-        // Create test data generator
-        _testData = new TestDataGenerator(SqlServerTestFixture.ConnectionString);
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _client?.Dispose();
-
-        if (_apiProcess != null && !_apiProcess.HasExited)
-        {
-            _apiProcess.Kill(entireProcessTree: true);
-            _apiProcess.WaitForExit(5000);
-            _apiProcess.Dispose();
-        }
-    }
 
     [Test]
     public async Task GetBooksSortedByMostLoaned_WithMultipleBooksAndLoans_ReturnsBooksOrderedByLoanCount()
