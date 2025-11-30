@@ -111,7 +111,6 @@ public class TestDataGenerator(string connectionString)
 
         await connection.ExecuteAsync(@"
             INSERT INTO Loan (BookId, PatronId, LoanDate, DueDate, ReturnDate, IsReturned)
-            OUTPUT INSERTED.*
             VALUES (@BookId, @PatronId, @LoanDate, @DueDate, @ReturnDate, @IsReturned)",
             loans);
     }

@@ -150,10 +150,8 @@ public class BorrowingPatternRepositoryIntegrationTests
         // Arrange - Use a book ID that doesn't exist
         const int nonExistentBookId = 99999;
 
-        // Act & Assert
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
-        {
-            await _sut.GetOtherBooksBorrowed(nonExistentBookId);
-        }, "Should throw when book doesn't exist");
+        // Act & Assert - Should throw when book doesn't exist
+        Assert.That(async () => await _sut.GetOtherBooksBorrowed(nonExistentBookId),
+            Throws.TypeOf<InvalidOperationException>());
     }
 }
