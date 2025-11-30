@@ -6,12 +6,17 @@ This document explains the layered architecture of the Library API, focusing on 
 1. [Architecture Overview](#architecture-overview)
 2. [Layer 1: Controllers](#layer-1-controllers)
 3. [Layer 2: Commands](#layer-2-commands)
-4. [Layer 3: Business Logic Grpc Client](#layer-3-business-logic-grpc-client)
-5. [Layer 4: Business Logic Facade](#layer-3-business-logic-facade)
-6. [Layer 5: Business Logic Services](#layer-4-business-logic-services)
-7. [Layer 6: Data Storage Repositories](#layer-5-data-storage-repositories)
-8. [Complete Example Flow](#complete-example-flow)
-9. [Why This Architecture?](#why-this-architecture)
+4. [Layer 3: Business Logic gRPC Client](#layer-3-business-logic-grpc-client)
+5. [Layer 4: Business Logic Contracts](#layer-4-business-logic-contracts)
+6. [Layer 5: Business Logic Facade](#layer-5-business-logic-facade)
+7. [Layer 6: Business Logic Services](#layer-6-business-logic-services)
+8. [Layer 7: Data Storage gRPC Client](#layer-7-data-storage-grpc-client)
+9. [Layer 8: Data Storage Contracts](#layer-8-data-storage-contracts)
+10. [Layer 9: Data Storage Repositories](#layer-9-data-storage-repositories)
+11. [Complete Example Flow](#complete-example-flow)
+12. [Why This Architecture?](#why-this-architecture)
+13. [Summary](#summary)
+
 
 ---
 
@@ -144,7 +149,7 @@ public class GetOtherBooksBorrowedCommand(
 
 ---
 
-## Layer 3: Business Logic Grpc Client
+## Layer 3: Business Logic gRPC Client
 
 **Location:** `BusinessLogicGrpcClient/BusinessLogicGrpcFacade.cs`
 
@@ -210,7 +215,7 @@ public class BusinessLogicGrpcFacade : IBusinessLogicFacade
 
 ---
 
-### Layer 7: Business Logic Contracts
+## Layer 4: Business Logic Contracts
 
 **Location:** `BusinessLogicContracts`
 
@@ -273,7 +278,7 @@ namespace BusinessLogicContracts.Dto;
 
 ---
 
-## Layer 4: Business Logic Facade
+## Layer 5: Business Logic Facade
 
 **Location:** `BusinessLogic/Facade.cs`
 
@@ -312,7 +317,7 @@ public class Facade(
 
 ---
 
-## Layer 5: Business Logic Services
+## Layer 6: Business Logic Services
 
 **Location:** `BusinessLogic/BorrowingPatterns.cs`, `BusinessLogic/BookPatterns.cs`
 
@@ -420,7 +425,7 @@ public class BookPatterns(ILoanRepository loanRepository)
 
 ---
 
-## Layer 6: Data Storage Grpc Client
+## Layer 7: Data Storage gRPC Client
 
 **Location:** `DataStorageGrpcClient`
 
@@ -480,7 +485,7 @@ public class BorrowingPatternRepository : DataStorageContracts.IBorrowingPattern
 
 ---
 
-### Layer 7: Data Storage Contracts
+## Layer 8: Data Storage Contracts
 
 **Location:** `DataStorageContracts`
 
@@ -542,7 +547,7 @@ public class AssociatedBooks
 
 ---
 
-# Layer 6: Data Storage Repositories
+## Layer 9: Data Storage Repositories
 
 **Location:** `DataStorage/Repositories/`, `DataStorage/RepositoriesMultipleTables/`
 
