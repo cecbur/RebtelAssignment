@@ -146,7 +146,7 @@ Tests for `LoanRepository` and `BorrowingPatternRepository` are found in  `DataS
 
 #### System Tests  to validate complete user flows 
 
-TODO
+Tests for `LibraryApi.Controllers.AssignmentController` are found in  `LibraryApiSystemTests.AssignmentControllerSystemTest`
 
 
     

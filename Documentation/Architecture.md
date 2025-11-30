@@ -690,21 +690,27 @@ AssignmentController.GetOtherBooksBorrowed(bookId: 123)
 var (success, response) = await _otherBooksBorrowedCommand.GetOtherBooksBorrowed(123);
 ```
 
-### Step 3: Command Validates and Calls Facade
+### Step 3: Command Validates and Calls BusinessLogicGrpcClient
 ```csharp
 GetOtherBooksBorrowedCommand:
   1. Validates: bookId > 0 ✓
   2. Logs: "Getting other books borrowed for book id 123"
-  3. Calls: await _businessLogicFacade.GetOtherBooksBorrowed(123)
+  3. Uses: the Business Logic Grpc Client that it has
 ```
 
-### Step 4: Facade Delegates to Business Service
+### Step 4: BusinessLogicGrpcClient connects to Busines Logic Facade over gRPC
+```csharp
+GetOtherBooksBorrowedCommand:
+  1. Calls: await _client.GetOtherBooksBorrowed(123)
+```
+
+### Step 5: Facade Delegates to Business Service
 ```csharp
 Facade.GetOtherBooksBorrowed(123)
   → borrowingPatterns.GetOtherBooksBorrowed(123)
 ```
 
-### Step 5: Business Service Orchestrates Logic
+### Step 6: Business Service Orchestrates Logic
 ```csharp
 BorrowingPatterns.GetOtherBooksBorrowed(123):
   1. Get main book loan count
@@ -720,9 +726,18 @@ BorrowingPatterns.GetOtherBooksBorrowed(123):
   5. Calculate loan ratios
 
   6. Return BookFrequency[]
+
+  7. Uses: the Data Storage Grpc Client that it has
+     ↓ _loanRepository.GetLoansByBookId(123)
 ```
 
-### Step 6: Repositories Execute SQL
+### Step 7: DataStorageGrpcClient connects to Data Storage over gRPC
+```csharp
+GetOtherBooksBorrowedCommand:
+  1. Calls: await _client.GetLoansByBookIdAsync(123)
+```
+
+### Step 8: Repositories Execute SQL
 ```csharp
 LoanRepository.GetLoansByBookId(123):
   SQL: SELECT l.*, b.*, a.*, p.*
@@ -858,12 +873,11 @@ However, for medium-to-large applications, the benefits outweigh the costs:
 
 ## Summary
 
-The Library API uses a **5-layer architecture**:
+The Library API uses a **4-layer architecture**:
 
 1. **Controllers**: HTTP API endpoints
 2. **Commands**: Request orchestration, validation, error handling
-3. **Facade**: Unified business logic interface
-4. **Business Services**: Domain logic and rules
-5. **Repositories**: Data access and SQL
+3. **Business Services**: Domain logic and rules
+4. **Data Storage**: Data access and SQL
 
 Each layer has a clear purpose, communicates through interfaces, and can be tested independently. This design prioritizes **maintainability**, **testability**, and **separation of concerns** over simplicity.
