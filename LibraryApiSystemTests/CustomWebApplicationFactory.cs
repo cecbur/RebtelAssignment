@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TestData;
 
-namespace LibraryApiIntegrationTests;
+namespace LibraryApiSystemTests;
 
 /// <summary>
 /// Custom WebApplicationFactory that configures the LibraryApi to use the test database.

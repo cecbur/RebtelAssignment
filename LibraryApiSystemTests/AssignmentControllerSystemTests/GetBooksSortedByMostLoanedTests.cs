@@ -4,10 +4,10 @@ using System.Net.Http.Json;
 using LibraryApi.DTOs;
 using TestData;
 
-namespace LibraryApiIntegrationTests.AssignmentControllerSystemTests;
+namespace LibraryApiSystemTests.AssignmentControllerSystemTests;
 
 /// <summary>
-/// End-to-end HTTP integration tests for AssignmentController.
+/// End-to-end HTTP system tests for AssignmentController.
 /// Uses real HTTP calls and a real SQL Server database (via Testcontainers).
 /// Nothing is mocked - tests the full stack from HTTP request to database.
 /// </summary>

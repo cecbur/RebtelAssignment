@@ -1,13 +1,13 @@
 using NUnit.Framework;
 
-namespace LibraryApiIntegrationTests;
+namespace LibraryApiSystemTests;
 
 /// <summary>
-/// SetUpFixture for LibraryApiIntegrationTests namespace.
+/// SetUpFixture for LibraryApiSystemTests namespace.
 /// Delegates to the shared SqlServerTestFixture in TestData project to start the SQL Server container.
 /// </summary>
 [SetUpFixture]
-public class LibraryApiIntegrationTestsSetup
+public class LibraryApiSystemTestsSetup
 {
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
