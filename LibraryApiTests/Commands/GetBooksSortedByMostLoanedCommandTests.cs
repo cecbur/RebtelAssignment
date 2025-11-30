@@ -14,10 +14,12 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     private Mock<ILogger<AssignmentController>> _mockCommandLogger = null!;
     private GetBooksSortedByMostLoanedCommand _sut = null!;
     private IBusinessLogicFacade _businessLogicFacade = null!;
+    private TestDataBuilder _testDataBuilder = null!;
 
     [SetUp]
     public async Task SetUp()
     {
+        _testDataBuilder = new TestDataBuilder();
         await SetUpGrpcServer();
 
         _mockCommandLogger = new Mock<ILogger<AssignmentController>>();
@@ -38,13 +40,13 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int book1LoanCount = 10;
         const int book2LoanCount = 8;
 
-        var author1 = TestDataBuilder.CreateAuthor(1, "F. Scott", "Fitzgerald");
-        var author2 = TestDataBuilder.CreateAuthor(2, "George", "Orwell");
-        var book1 = TestDataBuilder.CreateBook(1, "The Great Gatsby", author1);
-        var book2 = TestDataBuilder.CreateBook(2, "1984", author2);
+        var author1 = _testDataBuilder.CreateAuthor(1, "F. Scott", "Fitzgerald");
+        var author2 = _testDataBuilder.CreateAuthor(2, "George", "Orwell");
+        var book1 = _testDataBuilder.CreateBook(1, "The Great Gatsby", author1);
+        var book2 = _testDataBuilder.CreateBook(2, "1984", author2);
 
-        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
-        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
+        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
+        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
         var loans = book1Loans.Concat(book2Loans).ToArray();
 
         MockLoanRepository
@@ -73,13 +75,13 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int book2LoanCount = 2;
         const int book3LoanCount = 1;
 
-        var book1 = TestDataBuilder.CreateBook(1, "Book A", TestDataBuilder.CreateAuthor(1, "Author", "A"));
-        var book2 = TestDataBuilder.CreateBook(2, "Book B", TestDataBuilder.CreateAuthor(2, "Author", "B"));
-        var book3 = TestDataBuilder.CreateBook(3, "Book C", TestDataBuilder.CreateAuthor(3, "Author", "C"));
+        var book1 = _testDataBuilder.CreateBook(1, "Book A", _testDataBuilder.CreateAuthor(1, "Author", "A"));
+        var book2 = _testDataBuilder.CreateBook(2, "Book B", _testDataBuilder.CreateAuthor(2, "Author", "B"));
+        var book3 = _testDataBuilder.CreateBook(3, "Book C", _testDataBuilder.CreateAuthor(3, "Author", "C"));
 
-        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
-        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
-        var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
+        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
+        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
+        var book3Loans = _testDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).ToArray();
 
         MockLoanRepository
@@ -109,15 +111,15 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         const int book3LoanCount = 2;
         const int book4LoanCount = 1;
 
-        var book1 = TestDataBuilder.CreateBook(1, "Book 1", TestDataBuilder.CreateAuthor(1, "Author", "1"));
-        var book2 = TestDataBuilder.CreateBook(2, "Book 2", TestDataBuilder.CreateAuthor(2, "Author", "2"));
-        var book3 = TestDataBuilder.CreateBook(3, "Book 3", TestDataBuilder.CreateAuthor(3, "Author", "3"));
-        var book4 = TestDataBuilder.CreateBook(4, "Book 4", TestDataBuilder.CreateAuthor(4, "Author", "4"));
+        var book1 = _testDataBuilder.CreateBook(1, "Book 1", _testDataBuilder.CreateAuthor(1, "Author", "1"));
+        var book2 = _testDataBuilder.CreateBook(2, "Book 2", _testDataBuilder.CreateAuthor(2, "Author", "2"));
+        var book3 = _testDataBuilder.CreateBook(3, "Book 3", _testDataBuilder.CreateAuthor(3, "Author", "3"));
+        var book4 = _testDataBuilder.CreateBook(4, "Book 4", _testDataBuilder.CreateAuthor(4, "Author", "4"));
 
-        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
-        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
-        var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
-        var book4Loans = TestDataBuilder.CreateLoansForBook(book4, startId: book3Loans.Max(l => l.Id)+1, count: book4LoanCount);
+        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: book1LoanCount);
+        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: book2LoanCount);
+        var book3Loans = _testDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: book3LoanCount);
+        var book4Loans = _testDataBuilder.CreateLoansForBook(book4, startId: book3Loans.Max(l => l.Id)+1, count: book4LoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).Concat(book4Loans).ToArray();
 
         MockLoanRepository
@@ -201,8 +203,8 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     {
         // Arrange
         const int zeroMaxBooks = 0;
-        var book = TestDataBuilder.CreateBook(1, "Book 1", TestDataBuilder.CreateAuthor(1, "Author", "1"));
-        var loans = TestDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
+        var book = _testDataBuilder.CreateBook(1, "Book 1", _testDataBuilder.CreateAuthor(1, "Author", "1"));
+        var loans = _testDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
@@ -224,8 +226,8 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     {
         // Arrange
         const int negativeMaxBooks = -1;
-        var book = TestDataBuilder.CreateBook(1, "Book 1", TestDataBuilder.CreateAuthor(1, "Author", "1"));
-        var loans = TestDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
+        var book = _testDataBuilder.CreateBook(1, "Book 1", _testDataBuilder.CreateAuthor(1, "Author", "1"));
+        var loans = _testDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
 
         MockLoanRepository
             .Setup(r => r.GetAllLoans())
@@ -246,13 +248,13 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     {
         // Arrange
         const int sameLoanCount = 5;
-        var book1 = TestDataBuilder.CreateBook(1, "Book A", TestDataBuilder.CreateAuthor(1, "Author", "1"));
-        var book2 = TestDataBuilder.CreateBook(2, "Book B", TestDataBuilder.CreateAuthor(2, "Author", "2"));
-        var book3 = TestDataBuilder.CreateBook(3, "Book C", TestDataBuilder.CreateAuthor(3, "Author", "3"));
+        var book1 = _testDataBuilder.CreateBook(1, "Book A", _testDataBuilder.CreateAuthor(1, "Author", "1"));
+        var book2 = _testDataBuilder.CreateBook(2, "Book B", _testDataBuilder.CreateAuthor(2, "Author", "2"));
+        var book3 = _testDataBuilder.CreateBook(3, "Book C", _testDataBuilder.CreateAuthor(3, "Author", "3"));
 
-        var book1Loans = TestDataBuilder.CreateLoansForBook(book1, startId: 1, count: sameLoanCount);
-        var book2Loans = TestDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: sameLoanCount);
-        var book3Loans = TestDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: sameLoanCount);
+        var book1Loans = _testDataBuilder.CreateLoansForBook(book1, startId: 1, count: sameLoanCount);
+        var book2Loans = _testDataBuilder.CreateLoansForBook(book2, startId: book1Loans.Max(l => l.Id)+1, count: sameLoanCount);
+        var book3Loans = _testDataBuilder.CreateLoansForBook(book3, startId: book2Loans.Max(l => l.Id)+1, count: sameLoanCount);
         var loans = book1Loans.Concat(book2Loans).Concat(book3Loans).ToArray();
 
         MockLoanRepository
