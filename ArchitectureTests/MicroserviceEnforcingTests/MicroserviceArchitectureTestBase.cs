@@ -14,17 +14,15 @@ public abstract class MicroserviceArchitectureTestBase
     protected const string IncludeAttribute = "Include";
     protected const string ArchitectureTestsProjectName = "ArchitectureTests.csproj";
 
-    private string? _solutionDirectory;
+    private string _solutionDirectory = "";
 
     [SetUp]
     public void SetUp()
     {
-        _solutionDirectory = TryGetSolutionDirectory();
-
-        if (_solutionDirectory == null)
-        {
+        var solutionDirectory = TryGetSolutionDirectory();
+        if (solutionDirectory == null)
             Assert.Ignore("Solution directory not found. This test requires access to the full solution structure with a .sln file.");
-        }
+        _solutionDirectory = solutionDirectory;
     }
 
     protected List<(string ProjectPath, string ReferenceLine)> CollectAllViolations(string[] allowedReferencingProjects)
@@ -196,19 +194,111 @@ public abstract class MicroserviceArchitectureTestBase
 
     private bool IsMicroserviceNamespaceImport(string line)
     {
-        var isExactMatch = line.StartsWith(GetMicroserviceNamespaceExact());
-        var isSubNamespace = line.StartsWith(GetMicroserviceNamespacePrefix());
-
-        var isViolation = isExactMatch || isSubNamespace;
-        return isViolation;
+        return line.StartsWith(GetMicroserviceNamespaceExact()) ||
+               line.StartsWith(GetMicroserviceNamespacePrefix());
     }
 
-    protected static string BuildErrorMessage(List<(string ProjectPath, string ReferenceLine)> violations, string architecturalViolationMessage)
+    protected string BuildErrorMessage(List<(string ProjectPath, string ReferenceLine)> violations)
     {
+        var allowedProjects = GetAllowedReferencingProjectsForDi();
         var violationsSummary = FormatViolations(violations);
-        var errorMessage = architecturalViolationMessage.Replace("{violations}", violationsSummary);
+        var errorMessage = GetArchitecturalViolationMessage(allowedProjects, violationsSummary);
 
         return errorMessage;
+    }
+
+    private string GetArchitecturalViolationMessage(string[] allowedProjects, string violationsSummary)
+    {
+        var microserviceName = GetMicroserviceName();
+        var grpcClientName = Path.GetFileNameWithoutExtension(GetMicroserviceGrpcClientName());
+        var setupMethodName = GetSetupMethodName();
+        var mapMethodName = GetMapMethodName();
+        var usageExample = GetUsageExample();
+        var additionalNotes = GetAdditionalSetupNotes();
+
+        var headerSection = BuildHeaderSection(microserviceName, violationsSummary);
+        var fixInstructions = BuildFixInstructions(microserviceName, grpcClientName, additionalNotes);
+        var setupSection = BuildSetupSection(grpcClientName, microserviceName, setupMethodName, mapMethodName);
+        var allowedReferencesSection = BuildAllowedReferencesSection(microserviceName, allowedProjects, grpcClientName, setupMethodName, mapMethodName);
+        var benefitsSection = BuildBenefitsSection(microserviceName);
+
+        return $@"{headerSection}
+
+{fixInstructions}
+
+{setupSection}
+
+{usageExample}
+
+{allowedReferencesSection}
+
+{benefitsSection}";
+    }
+
+    private static string BuildHeaderSection(string microserviceName, string violationsSummary)
+    {
+        return $@"ARCHITECTURAL VIOLATION: {microserviceName} is accessed incorrectly:
+
+{violationsSummary}
+
+{microserviceName} should ONLY be accessed through its gRPC client interface.";
+    }
+
+    private string BuildFixInstructions(string microserviceName, string grpcClientName, string additionalNotes)
+    {
+        var interfacePlural = UsePluralInterfaces() ? "s are" : " is";
+        var clientPlural = UsePluralInterfaces() ? "s" : "";
+
+        return $@"HOW TO FIX THIS:
+
+For unauthorized project references:
+1. Remove the direct ProjectReference to {microserviceName} from the violating project(s)
+2. Add a reference to {grpcClientName} instead:
+   <ProjectReference Include=""..\{grpcClientName}\{grpcClientName}.csproj"" />
+
+For direct usage:
+1. Do NOT import {microserviceName} namespace in source files{additionalNotes}
+2. Remove any 'using {microserviceName};' statements from controllers/services
+3. {GetInterfaceInstructions()}
+4. The interface{interfacePlural} automatically resolved to the gRPC client{clientPlural} via dependency injection";
+    }
+
+    private string BuildSetupSection(string grpcClientName, string microserviceName, string setupMethodName, string mapMethodName)
+    {
+        var endpointPlural = UsesPluralServices() ? "s" : "";
+
+        return $@"SETUP IN PROGRAM.CS:
+  using {grpcClientName}.Setup;
+
+  var grpcServerAddress = builder.Configuration[""GrpcServer:Address""] ?? ""http://localhost:5001"";
+
+  // Register the gRPC client (replaces Add{microserviceName}Services)
+  builder.Services.{setupMethodName}(grpcServerAddress);
+
+  // Map the gRPC service endpoint{endpointPlural}
+  app.{mapMethodName}();";
+    }
+
+    private static string BuildAllowedReferencesSection(string microserviceName, string[] allowedProjects, string grpcClientName, string setupMethodName, string mapMethodName)
+    {
+        return $@"ALLOWED DIRECT REFERENCES:
+Direct references to {microserviceName}.csproj are allowed for dependency injection. Allowed projects:
+  -" + string.Join(Environment.NewLine + "  -", allowedProjects) +
+                      $@"
+
+To allow a new project to reference {microserviceName} (e.g., for hosting gRPC server):
+  - Add the project to GetAllowedReferencingProjectsForDi() in {microserviceName}ArchitectureTests
+  - Use {grpcClientName}.Setup extension methods ({setupMethodName}, {mapMethodName})
+  - Do NOT import 'using {microserviceName};' in source files - use extension methods instead";
+    }
+
+    private static string BuildBenefitsSection(string microserviceName)
+    {
+        return $@"This architectural constraint ensures:
+  - Proper separation of concerns
+  - Scalability through microservices architecture
+  - Ability to deploy {microserviceName} independently
+  - Type-safe inter-service communication through gRPC";
     }
 
     private static string FormatViolations(List<(string ProjectPath, string ReferenceLine)> violations)
@@ -245,10 +335,7 @@ public abstract class MicroserviceArchitectureTestBase
 
     private static bool HasSolutionFile(string directory)
     {
-        var solutionFiles = Directory.GetFiles(directory, "*.sln");
-        var hasSolutionFile = solutionFiles.Any();
-
-        return hasSolutionFile;
+        return Directory.GetFiles(directory, "*.sln").Any();
     }
 
     // Abstract methods that derived classes must implement
@@ -258,6 +345,14 @@ public abstract class MicroserviceArchitectureTestBase
     protected abstract string GetMicroserviceNamespacePrefix();
     protected abstract string GetMicroserviceName();
     protected abstract string[] GetAllowedReferencingProjectsForDi();
-    protected abstract string GetArchitecturalViolationMessage(string[] allowedProjects);
     protected abstract string[] GetProjectsToExcludeFromScanning();
+
+    // Abstract methods for error message customization
+    protected abstract string GetSetupMethodName();
+    protected abstract string GetMapMethodName();
+    protected abstract string GetInterfaceInstructions();
+    protected abstract string GetUsageExample();
+    protected abstract string GetAdditionalSetupNotes();
+    protected abstract bool UsePluralInterfaces();
+    protected abstract bool UsesPluralServices();
 }

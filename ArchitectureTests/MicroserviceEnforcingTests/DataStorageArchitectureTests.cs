@@ -13,7 +13,7 @@ public class DataStorageArchitectureTests : MicroserviceArchitectureTestBase
         var allowedReferencingProjects = GetAllowedReferencingProjectsForDi();
         var violations = CollectAllViolations(allowedReferencingProjects);
 
-        var errorMessage = BuildErrorMessage(violations, GetArchitecturalViolationMessage(allowedReferencingProjects));
+        var errorMessage = BuildErrorMessage(violations);
         Assert.That(violations, Is.Empty, errorMessage);
     }
 
@@ -51,67 +51,29 @@ public class DataStorageArchitectureTests : MicroserviceArchitectureTestBase
         ];
     }
 
-    protected override string GetArchitecturalViolationMessage(string[] allowedProjects)
-    {
-        var message = $@"ARCHITECTURAL VIOLATION: DataStorage is accessed incorrectly:
+    protected override string GetSetupMethodName() => "AddDataStorageGrpcClient";
 
-{{violations}}
+    protected override string GetMapMethodName() => "MapDataStorageGrpcServices";
 
-DataStorage should ONLY be accessed through its gRPC client interface.
+    protected override string GetInterfaceInstructions() =>
+        "ONLY inject repository interfaces (ILoanRepository, IBorrowingPatternRepository, IBookRepository from DataStorageContracts)";
 
-HOW TO FIX THIS:
+    protected override bool UsePluralInterfaces() => true;
 
-For unauthorized project references:
-1. Remove the direct ProjectReference to DataStorage from the violating project(s)
-2. Add a reference to DataStorageGrpcClient instead:
-   <ProjectReference Include=""..\DataStorageGrpcClient\DataStorageGrpcClient.csproj"" />
+    protected override bool UsesPluralServices() => true;
 
-For direct usage:
-1. Do NOT import DataStorage namespace in source files (except for IDbConnectionFactory usage in Program.cs)
-2. Remove any 'using DataStorage;' statements from controllers/services
-3. ONLY inject repository interfaces (ILoanRepository, IBorrowingPatternRepository, IBookRepository from DataStorageContracts)
-4. The interfaces are automatically resolved to the gRPC clients via dependency injection
-
-SETUP IN PROGRAM.CS:
-  using DataStorageGrpcClient.Setup;
-
-  var grpcServerAddress = builder.Configuration[""GrpcServer:Address""] ?? ""http://localhost:5001"";
-
-  // Register the gRPC client (replaces AddDataStorageServices)
-  builder.Services.AddDataStorageGrpcClient(grpcServerAddress);
-
-  // Map the gRPC service endpoints
-  app.MapDataStorageGrpcServices();
-
-USAGE IN BUSINESS LOGIC OR CONTROLLERS:
+    protected override string GetUsageExample() => @"USAGE IN BUSINESS LOGIC OR CONTROLLERS:
   using DataStorageContracts; // Use contracts, NOT DataStorage
 
   public class MyService
-  {{
+  {
       private readonly ILoanRepository _loanRepository; // Use interface, NOT concrete class
 
       public MyService(ILoanRepository loanRepository)
-      {{
+      {
           _loanRepository = loanRepository;
-      }}
-  }}
+      }
+  }";
 
-ALLOWED DIRECT REFERENCES:
-Direct references to DataStorage.csproj are allowed for hosting the gRPC server. Allowed projects:
-  -" + string.Join(Environment.NewLine + "  -", allowedProjects) +
-                      $@"
-
-To allow a new project to reference DataStorage (e.g., for hosting gRPC server):
-  - Add the project to GetAllowedReferencingProjectsForDi() in DataStorageArchitectureTests
-  - Use DataStorageGrpcClient.Setup extension methods (AddDataStorageGrpcClient, MapDataStorageGrpcServices)
-  - Do NOT import 'using DataStorage;' in source files (except for IDbConnectionFactory in Program.cs)
-
-This architectural constraint ensures:
-  - Proper separation of concerns
-  - Scalability through microservices architecture
-  - Ability to deploy DataStorage independently
-  - Type-safe inter-service communication through gRPC";
-
-        return message;
-    }
+    protected override string GetAdditionalSetupNotes() => " (except for IDbConnectionFactory usage in Program.cs)";
 }

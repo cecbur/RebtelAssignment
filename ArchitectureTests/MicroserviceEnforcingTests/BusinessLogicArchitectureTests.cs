@@ -14,14 +14,15 @@ public class BusinessLogicArchitectureTests : MicroserviceArchitectureTestBase
         var allowedReferencingProjects = GetAllowedReferencingProjectsForDi();
         var violations = CollectAllViolations(allowedReferencingProjects);
 
-        var errorMessage = BuildErrorMessage(violations, GetArchitecturalViolationMessage(allowedReferencingProjects));
+        var errorMessage = BuildErrorMessage(violations);
         Assert.That(violations, Is.Empty, errorMessage);
     }
 
     /// <summary>
     /// Returns the list of projects allowed to have a ProjectReference to BusinessLogic.csproj.
     /// These projects are typically composition roots that sets up DI for both server and client.
-    /// They must use BusinessLogicGrpcClient.Setup extension methods and should not import the BusinessLogic namespace in source files.
+    /// They must use BusinessLogicGrpcClient.Setup extension methods and should not import the
+    /// BusinessLogic namespace in source files.
     /// </summary>
     /// <returns>Array of .csproj file names that are allowed to reference BusinessLogic</returns>
     protected override string[] GetAllowedReferencingProjectsForDi()
@@ -53,67 +54,29 @@ public class BusinessLogicArchitectureTests : MicroserviceArchitectureTestBase
         ];
     }
 
-    protected override string GetArchitecturalViolationMessage(string[] allowedProjects)
-    {
-        var message = $@"ARCHITECTURAL VIOLATION: BusinessLogic is accessed incorrectly:
+    protected override string GetSetupMethodName() => "AddBusinessLogicGrpcClient";
 
-{{violations}}
+    protected override string GetMapMethodName() => "MapBusinessLogicGrpcService";
 
-BusinessLogic should ONLY be accessed through its gRPC client interface.
+    protected override string GetInterfaceInstructions() =>
+        "ONLY inject IBusinessLogicFacade (the interface from BusinessLogicContracts)";
 
-HOW TO FIX THIS:
+    protected override bool UsePluralInterfaces() => false;
 
-For unauthorized project references:
-1. Remove the direct ProjectReference to BusinessLogic from the violating project(s)
-2. Add a reference to BusinessLogicGrpcClient instead:
-   <ProjectReference Include=""..\BusinessLogicGrpcClient\BusinessLogicGrpcClient.csproj"" />
+    protected override bool UsesPluralServices() => false;
 
-For direct usage:
-1. Do NOT import BusinessLogic namespace in any source files
-2. Remove any 'using BusinessLogic;' statements from controllers/services
-3. ONLY inject IBusinessLogicFacade (the interface from BusinessLogicContracts)
-4. The interface is automatically resolved to the gRPC client via dependency injection
-
-SETUP IN PROGRAM.CS:
-  using BusinessLogicGrpcClient.Setup;
-
-  var grpcServerAddress = builder.Configuration[""GrpcServer:Address""] ?? ""http://localhost:5001"";
-
-  // Register the gRPC client (replaces AddBusinessLogicServices)
-  builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
-
-  // Map the gRPC service endpoint
-  app.MapBusinessLogicGrpcService();
-
-USAGE IN CONTROLLERS:
+    protected override string GetUsageExample() => @"USAGE IN CONTROLLERS:
   using BusinessLogicContracts.Interfaces; // Use contracts, NOT BusinessLogic
 
   public class MyController : ControllerBase
-  {{
+  {
       private readonly IBusinessLogicFacade _businessLogic; // Use interface, NOT concrete class
 
       public MyController(IBusinessLogicFacade businessLogic)
-      {{
+      {
           _businessLogic = businessLogic;
-      }}
-  }}
+      }
+  }";
 
-ALLOWED DIRECT REFERENCES:
-Direct references to BusinessLogic.csproj are allowed for hosting the gRPC server. Allowed projects:
-  -" + string.Join(Environment.NewLine + "  -", allowedProjects) +
-                      $@"
-
-To allow a new project to reference BusinessLogic (e.g., for hosting gRPC server):
-  - Add the project to GetAllowedReferencingProjectsForDi() in BusinessLogicArchitectureTests
-  - Use BusinessLogicGrpcClient.Setup extension methods (AddBusinessLogicGrpcClient, MapBusinessLogicGrpcService)
-  - Do NOT import 'using BusinessLogic;' in any source files - use extension methods instead
-
-This architectural constraint ensures:
-  - Proper separation of concerns
-  - Scalability through microservices architecture
-  - Ability to deploy BusinessLogic independently
-  - Type-safe inter-service communication through gRPC";
-
-        return message;
-    }
+    protected override string GetAdditionalSetupNotes() => "";
 }
