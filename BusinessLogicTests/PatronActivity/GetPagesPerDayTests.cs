@@ -1,6 +1,6 @@
 using Moq;
 
-namespace BusinessLogic.Tests.PatronActivity;
+namespace BusinessLogicTests.PatronActivity;
 
 public class GetPagesPerDayTests : PatronActivityTestBase
 {

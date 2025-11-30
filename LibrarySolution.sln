@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessModels", "BusinessM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageContracts", "DataStorageContracts\DataStorageContracts.csproj", "{D395C2F0-9948-4C6B-AEBA-6FE85DE9BBB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogic.Tests", "BusinessLogic.Tests\BusinessLogic.Tests.csproj", "{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicTests", "BusinessLogicTests\BusinessLogicTests.csproj", "{81DAC5CD-5018-49F4-82B6-29079FBD4FEC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageGrpcClient", "DataStorageGrpcClient\DataStorageGrpcClient.csproj", "{43C73725-F51F-49DB-846D-9540D3D5763A}"
 EndProject

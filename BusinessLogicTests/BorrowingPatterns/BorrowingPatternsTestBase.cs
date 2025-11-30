@@ -3,7 +3,7 @@ using DataStorageContracts;
 using DataStorageContracts.Dto;
 using Moq;
 
-namespace BusinessLogic.Tests.BorrowingPatterns;
+namespace BusinessLogicTests.BorrowingPatterns;
 
 public abstract class BorrowingPatternsTestBase : CommonTestBase
 {

@@ -1,7 +1,7 @@
 using BusinessModels;
 using Moq;
 
-namespace BusinessLogic.Tests.BorrowingPatterns;
+namespace BusinessLogicTests.BorrowingPatterns;
 
 public class GetOtherBooksBorrowedTests : BorrowingPatternsTestBase
 {

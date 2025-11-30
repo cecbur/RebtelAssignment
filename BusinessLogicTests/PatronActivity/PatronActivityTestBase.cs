@@ -1,7 +1,7 @@
 using DataStorageContracts;
 using Moq;
 
-namespace BusinessLogic.Tests.PatronActivity;
+namespace BusinessLogicTests.PatronActivity;
 
 public abstract class PatronActivityTestBase : CommonTestBase
 {

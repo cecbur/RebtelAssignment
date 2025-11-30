@@ -1,6 +1,6 @@
 using BusinessModels;
 
-namespace BusinessLogic.Tests;
+namespace BusinessLogicTests;
 
 public abstract class CommonTestBase
 {

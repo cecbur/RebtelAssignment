@@ -1,7 +1,7 @@
 using BusinessModels;
 using Moq;
 
-namespace BusinessLogic.Tests.BookPatterns;
+namespace BusinessLogicTests.BookPatterns;
 
 public class GetBooksSortedByMostLoanedTests : BookPatternsTestBase
 {

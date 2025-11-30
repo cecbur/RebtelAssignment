@@ -1,7 +1,7 @@
 using DataStorageContracts;
 using Moq;
 
-namespace BusinessLogic.Tests.BookPatterns;
+namespace BusinessLogicTests.BookPatterns;
 
 public abstract class BookPatternsTestBase : CommonTestBase
 {

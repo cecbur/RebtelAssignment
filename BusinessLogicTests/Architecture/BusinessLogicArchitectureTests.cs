@@ -2,20 +2,21 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace BusinessLogic.Tests.Architecture;
+namespace BusinessLogicTests.Architecture;
 
-public class DataStorageArchitectureTests
+public class BusinessLogicArchitectureTests
 {
     private const string ProjectFilePattern = "*.csproj";
     private const string SourceFilePattern = "*.cs";
     private const string BinDirectory = "bin";
     private const string ObjDirectory = "obj";
-    private const string DataStorageNamespaceExact = "using DataStorage;";
-    private const string DataStorageNamespacePrefix = "using DataStorage.";
+    private const string BusinessLogicNamespaceExact = "using BusinessLogic;";
+    private const string BusinessLogicNamespacePrefix = "using BusinessLogic.";
     private const string ProjectReferenceElement = "ProjectReference";
     private const string IncludeAttribute = "Include";
-    private const string DataStorageProjectName = "DataStorage.csproj";
-    private const string DataStorageGrpcClientName = "DataStorageGrpcClient.csproj";
+    private const string BusinessLogicProjectName = "BusinessLogic.csproj";
+    private const string BusinessLogicTestsProjectName = "BusinessLogicTests.csproj";
+    private const string BusinessLogicGrpcClientName = "BusinessLogicGrpcClient.csproj";
 
     private string? _solutionDirectory;
 
@@ -31,28 +32,27 @@ public class DataStorageArchitectureTests
     }
 
     [Test]
-    public void DataStorage_ShouldOnlyBeAccessedThroughGrpcClient()
+    public void BusinessLogic_ShouldOnlyBeAccessedThroughGrpcClient()
     {
         var allowedReferencingProjects = GetAllowedReferencingProjectsForDi();
         var violations = CollectAllViolations(allowedReferencingProjects);
 
         var errorMessage = BuildErrorMessage(violations);
         Assert.That(violations, Is.Empty, errorMessage);
-
+        
     }
 
     /// <summary>
-    /// Returns the list of projects allowed to have a ProjectReference to DataStorage.csproj.
-    /// These projects are typically composition roots that set up DI for both server and client.
-    /// They must use DataStorageGrpcClient.Setup extension methods and should not import the DataStorage namespace in source files (except for IDbConnectionFactory usage).
+    /// Returns the list of projects allowed to have a ProjectReference to BusinessLogic.csproj.
+    /// These projects are typically composition roots that sets up DI for both server and client.
+    /// They must use BusinessLogicGrpcClient.Setup extension methods and should not import the BusinessLogic namespace in source files.
     /// </summary>
-    /// <returns>Array of .csproj file names that are allowed to reference DataStorage</returns>
+    /// <returns>Array of .csproj file names that are allowed to reference BusinessLogic</returns>
     private static string[] GetAllowedReferencingProjectsForDi()
     {
         return
         [
             "LibraryApi.csproj", // Composition root - sets up DI for both server and client
-            "BusinessLogic.csproj", // BusinessLogic references DataStorage for repository access
         ];
     }
 
@@ -84,8 +84,9 @@ public class DataStorageArchitectureTests
             .Where(f =>
             {
                 var filename = Path.GetFileName(f);
-                return filename != DataStorageProjectName &&
-                       filename != DataStorageGrpcClientName;
+                return filename != BusinessLogicProjectName && 
+                       filename != BusinessLogicTestsProjectName &&
+                       filename != BusinessLogicGrpcClientName;
             })
             .ToArray();
         return projectFiles;
@@ -103,30 +104,30 @@ public class DataStorageArchitectureTests
             return;
         }
 
-        var dataStorageReferences = GetDataStorageReferences(projectFile);
-        AddProjectReferenceViolations(projectFile, dataStorageReferences, violations);
+        var businessLogicReferences = GetBusinessLogicReferences(projectFile);
+        AddProjectReferenceViolations(projectFile, businessLogicReferences, violations);
     }
 
     private static bool ShouldSkipProject(string projectName, string[] allowedReferencingProjects)
     {
-        var isDataStorageProject = projectName == DataStorageProjectName;
+        var isBusinessLogicProject = projectName == BusinessLogicProjectName;
         var isAllowedProject = allowedReferencingProjects.Contains(projectName);
 
-        return isDataStorageProject || isAllowedProject;
+        return isBusinessLogicProject || isAllowedProject;
     }
 
-    private static List<XElement> GetDataStorageReferences(string projectFile)
+    private static List<XElement> GetBusinessLogicReferences(string projectFile)
     {
         try
         {
             var projectContent = File.ReadAllText(projectFile);
             var doc = XDocument.Parse(projectContent);
 
-            var dataStorageReferences = doc.Descendants(ProjectReferenceElement)
-                .Where(pr => pr.Attribute(IncludeAttribute)?.Value.Contains(DataStorageProjectName) == true)
+            var businessLogicReferences = doc.Descendants(ProjectReferenceElement)
+                .Where(pr => pr.Attribute(IncludeAttribute)?.Value.Contains(BusinessLogicProjectName) == true)
                 .ToList();
 
-            return dataStorageReferences;
+            return businessLogicReferences;
         }
         catch (XmlException ex)
         {
@@ -137,10 +138,10 @@ public class DataStorageArchitectureTests
 
     private static void AddProjectReferenceViolations(
         string projectFile,
-        List<XElement> dataStorageReferences,
+        List<XElement> businessLogicReferences,
         List<(string ProjectPath, string ReferenceLine)> violations)
     {
-        foreach (var reference in dataStorageReferences)
+        foreach (var reference in businessLogicReferences)
         {
             var referenceLine = reference.ToString();
             violations.Add((projectFile, referenceLine));
@@ -172,7 +173,7 @@ public class DataStorageArchitectureTests
 
         foreach (var sourceFile in sourceFiles)
         {
-            CheckFileForDataStorageImports(sourceFile, violations);
+            CheckFileForBusinessLogicImports(sourceFile, violations);
         }
     }
 
@@ -202,7 +203,7 @@ public class DataStorageArchitectureTests
         return sourceFiles;
     }
 
-    private static void CheckFileForDataStorageImports(
+    private static void CheckFileForBusinessLogicImports(
         string sourceFile,
         List<(string ProjectPath, string ReferenceLine)> violations)
     {
@@ -214,18 +215,18 @@ public class DataStorageArchitectureTests
             lineNumber++;
             var trimmedLine = line.Trim();
 
-            if (IsDataStorageNamespaceImport(trimmedLine))
+            if (IsBusinessLogicNamespaceImport(trimmedLine))
             {
-                var violationMessage = $"Line {lineNumber}: {trimmedLine} - Direct DataStorage namespace import not allowed";
+                var violationMessage = $"Line {lineNumber}: {trimmedLine} - Direct BusinessLogic namespace import not allowed";
                 violations.Add((sourceFile, violationMessage));
             }
         }
     }
 
-    private static bool IsDataStorageNamespaceImport(string line)
+    private static bool IsBusinessLogicNamespaceImport(string line)
     {
-        var isExactMatch = line.StartsWith(DataStorageNamespaceExact);
-        var isSubNamespace = line.StartsWith(DataStorageNamespacePrefix);
+        var isExactMatch = line.StartsWith(BusinessLogicNamespaceExact);
+        var isSubNamespace = line.StartsWith(BusinessLogicNamespacePrefix);
 
         var isViolation = isExactMatch || isSubNamespace;
         return isViolation;
@@ -249,63 +250,63 @@ public class DataStorageArchitectureTests
 
     private static string GetArchitecturalViolationMessage(string violationsSummary)
     {
-        var message = $@"ARCHITECTURAL VIOLATION: DataStorage is accessed incorrectly:
+        var message = $@"ARCHITECTURAL VIOLATION: BusinessLogic is accessed incorrectly:
 
 {violationsSummary}
 
-DataStorage should ONLY be accessed through its gRPC client interface.
+BusinessLogic should ONLY be accessed through its gRPC client interface.
 
 HOW TO FIX THIS:
 
 For unauthorized project references:
-1. Remove the direct ProjectReference to DataStorage from the violating project(s)
-2. Add a reference to DataStorageGrpcClient instead:
-   <ProjectReference Include=""..\DataStorageGrpcClient\DataStorageGrpcClient.csproj"" />
+1. Remove the direct ProjectReference to BusinessLogic from the violating project(s)
+2. Add a reference to BusinessLogicGrpcClient instead:
+   <ProjectReference Include=""..\BusinessLogicGrpcClient\BusinessLogicGrpcClient.csproj"" />
 
 For direct usage:
-1. Do NOT import DataStorage namespace in source files (except for IDbConnectionFactory usage in Program.cs)
-2. Remove any 'using DataStorage;' statements from controllers/services
-3. ONLY inject repository interfaces (ILoanRepository, IBorrowingPatternRepository, IBookRepository from DataStorageContracts)
-4. The interfaces are automatically resolved to the gRPC clients via dependency injection
+1. Do NOT import BusinessLogic namespace in any source files
+2. Remove any 'using BusinessLogic;' statements from controllers/services
+3. ONLY inject IBusinessLogicFacade (the interface from BusinessLogicContracts)
+4. The interface is automatically resolved to the gRPC client via dependency injection
 
 SETUP IN PROGRAM.CS:
-  using DataStorageGrpcClient.Setup;
+  using BusinessLogicGrpcClient.Setup;
 
   var grpcServerAddress = builder.Configuration[""GrpcServer:Address""] ?? ""http://localhost:5001"";
 
-  // Register the gRPC client (replaces AddDataStorageServices)
-  builder.Services.AddDataStorageGrpcClient(grpcServerAddress);
+  // Register the gRPC client (replaces AddBusinessLogicServices)
+  builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
 
-  // Map the gRPC service endpoints
-  app.MapDataStorageGrpcServices();
+  // Map the gRPC service endpoint
+  app.MapBusinessLogicGrpcService();
 
-USAGE IN BUSINESS LOGIC OR CONTROLLERS:
-  using DataStorageContracts; // Use contracts, NOT DataStorage
+USAGE IN CONTROLLERS:
+  using BusinessLogicContracts.Interfaces; // Use contracts, NOT BusinessLogic
 
-  public class MyService
+  public class MyController : ControllerBase
   {{
-      private readonly ILoanRepository _loanRepository; // Use interface, NOT concrete class
+      private readonly IBusinessLogicFacade _businessLogic; // Use interface, NOT concrete class
 
-      public MyService(ILoanRepository loanRepository)
+      public MyController(IBusinessLogicFacade businessLogic)
       {{
-          _loanRepository = loanRepository;
+          _businessLogic = businessLogic;
       }}
   }}
 
 ALLOWED DIRECT REFERENCES:
-Direct references to DataStorage.csproj are allowed for hosting the gRPC server. Allowed projects:
+Direct references to BusinessLogic.csproj are allowed for hosting the gRPC server. Allowed projects:
   -"+ string.Join(Environment.NewLine + "  -", GetAllowedReferencingProjectsForDi())+
                       $@"
 
-To allow a new project to reference DataStorage (e.g., for hosting gRPC server):
-  - Add the project to GetAllowedReferencingProjectsForDi() in DataStorageArchitectureTests
-  - Use DataStorageGrpcClient.Setup extension methods (AddDataStorageGrpcClient, MapDataStorageGrpcServices)
-  - Do NOT import 'using DataStorage;' in source files (except for IDbConnectionFactory in Program.cs)
+To allow a new project to reference BusinessLogic (e.g., for hosting gRPC server):
+  - Add the project to GetAllowedReferencingProjectsForDi() in BusinessLogicArchitectureTests
+  - Use BusinessLogicGrpcClient.Setup extension methods (AddBusinessLogicGrpcClient, MapBusinessLogicGrpcService)
+  - Do NOT import 'using BusinessLogic;' in any source files - use extension methods instead
 
 This architectural constraint ensures:
   - Proper separation of concerns
   - Scalability through microservices architecture
-  - Ability to deploy DataStorage independently
+  - Ability to deploy BusinessLogic independently
   - Type-safe inter-service communication through gRPC";
 
         return message;
