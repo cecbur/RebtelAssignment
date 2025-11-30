@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DataStorageContracts;
 using BusinessModels;
-using DataStorage.Exceptions;
+using DataStorageContracts.Exceptions;
 using LibraryApi.Converters;
 using LibraryApi.DTOs;
 

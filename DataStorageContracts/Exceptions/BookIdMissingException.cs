@@ -1,4 +1,4 @@
-namespace DataStorage.Exceptions;
+namespace DataStorageContracts.Exceptions;
 
 public class BookIdMissingException : Exception
 {

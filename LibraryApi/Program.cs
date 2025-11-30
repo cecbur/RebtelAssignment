@@ -1,8 +1,5 @@
-using BusinessLogicGrpcClient;
 using BusinessLogicGrpcClient.Setup;
-using DataStorage;
-using DataStorage.Services;
-using DataStorageGrpcClient;
+using DataStorageGrpcClient.Setup;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,16 +24,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? "Server=(localdb)\\mssqllocaldb;Database=Library;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
 // Register Dapper connection factory - Dependency Injection (SOLID: Dependency Inversion Principle)
-builder.Services.AddSingleton<IDbConnectionFactory>(sp => new SqlServerConnectionFactory(connectionString));
+builder.Services.AddSingleton<DataStorage.IDbConnectionFactory>(sp => new DataStorage.SqlServerConnectionFactory(connectionString));
 
 // Register gRPC server address
 var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://localhost:5001";
 
-// Register DataStorage services (server-side) and clients (via gRPC)
-builder.Services.AddDataStorageServices();
+// Register DataStorage and BusinessLogic gRPC clients
 builder.Services.AddDataStorageGrpcClient(grpcServerAddress);
-
-// Register BusinessLogic services (server-side) and clients (via gRPC)
 builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
 
 // Configure Swagger/OpenAPI for API documentation
@@ -96,9 +90,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Map gRPC services
-app.MapGrpcService<LoanGrpcService>();
-app.MapGrpcService<BorrowingPatternGrpcService>();
-app.MapGrpcService<BookGrpcService>();
+app.MapDataStorageGrpcServices();
 app.MapBusinessLogicGrpcService();
 
 // Log startup information
