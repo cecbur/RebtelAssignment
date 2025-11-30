@@ -20,8 +20,13 @@ public abstract class AssignmentControllerSystemTestBase
     public async Task OneTimeSetUp()
     {
         // Determine the correct path to LibraryApi project
-        var solutionDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".."));
-        var libraryApiProject = Path.Combine(solutionDir, "LibraryApi", "LibraryApi.csproj");
+        var solutionDir = TestHelpers.TryGetSolutionDirectory();
+        if (solutionDir == null)
+        {
+            Assert.Fail("Solution directory not found. Tests require access to the solution structure.");
+        }
+
+        var libraryApiProject = Path.Combine(solutionDir!, "LibraryApi", "LibraryApi.csproj");
 
         // Start the LibraryApi process (once for all tests in this class)
         _apiProcess = new Process
