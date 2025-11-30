@@ -104,7 +104,7 @@ public class GetBooksSortedByMostLoanedTests : AssignmentControllerSystemTestBas
         var response = await _client.GetAsync("/api/Assignment/most-loaned-books?maxBooks=2");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var bookLoans = await response.Content.ReadFromJsonAsync<BookLoansResponse[]>();
         Assert.That(bookLoans, Has.Length.EqualTo(2), "Should return only 2 books when maxBooks=2");
         Assert.That(bookLoans![0].LoanCount, Is.EqualTo(3), "First book should have 3 loans");
@@ -120,7 +120,7 @@ public class GetBooksSortedByMostLoanedTests : AssignmentControllerSystemTestBas
         var response = await _client.GetAsync("/api/Assignment/most-loaned-books");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var bookLoans = await response.Content.ReadFromJsonAsync<BookLoansResponse[]>();
         Assert.That(bookLoans, Is.Not.Null, "Response should not be null");
         Assert.That(bookLoans, Is.Empty, "Should return empty array when no books exist");

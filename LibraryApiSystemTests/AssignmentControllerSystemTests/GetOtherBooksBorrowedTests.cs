@@ -100,9 +100,9 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var associatedBooks = await response.Content.ReadFromJsonAsync<BookFrequencyResponse[]>();
-        Assert.That(associatedBooks, Is.Not.Null);
+        Assert.That(associatedBooks, Is.Not.Null, "Response body should not be null");
         Assert.That(associatedBooks, Is.Empty, "Should return empty array when no other books were borrowed by same patrons");
     }
 
@@ -131,10 +131,10 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var associatedBooks = await response.Content.ReadFromJsonAsync<BookFrequencyResponse[]>();
-        Assert.That(associatedBooks, Is.Not.Null);
-        Assert.That(associatedBooks, Has.Length.EqualTo(1));
+        Assert.That(associatedBooks, Is.Not.Null, "Response body should not be null");
+        Assert.That(associatedBooks, Has.Length.EqualTo(1), "Should return 1 associated book");
         Assert.That(associatedBooks![0].LoansOfThisBookPerLoansOfMainBook, Is.EqualTo(3.0).Within(0.01),
             "Ratio should be 3/1 = 3.0 (popular book borrowed 3 times, main book borrowed once)");
     }
@@ -177,9 +177,9 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var associatedBooks = await response.Content.ReadFromJsonAsync<BookFrequencyResponse[]>();
-        Assert.That(associatedBooks, Is.Not.Null);
+        Assert.That(associatedBooks, Is.Not.Null, "Response body should not be null");
         Assert.That(associatedBooks, Has.Length.EqualTo(1), "Should return only 1 book (other book, not main book itself)");
         Assert.That(associatedBooks![0].AssociatedBook.Id, Is.Not.EqualTo(mainBook.Id), "Main book should not appear in results");
         Assert.That(associatedBooks[0].AssociatedBook.Id, Is.EqualTo(otherBook.Id), "Should return the other book");
@@ -225,16 +225,16 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var associatedBooks = await response.Content.ReadFromJsonAsync<BookFrequencyResponse[]>();
-        Assert.That(associatedBooks, Is.Not.Null);
-        Assert.That(associatedBooks, Has.Length.EqualTo(2));
+        Assert.That(associatedBooks, Is.Not.Null, "Response body should not be null");
+        Assert.That(associatedBooks, Has.Length.EqualTo(2), "Should return 2 associated books");
 
         // Verify ordering by frequency ratio (descending)
-        Assert.That(associatedBooks![0].AssociatedBook.Title, Is.EqualTo(book2.Title));
-        Assert.That(associatedBooks[0].LoansOfThisBookPerLoansOfMainBook, Is.EqualTo(0.75).Within(0.01));
+        Assert.That(associatedBooks![0].AssociatedBook.Title, Is.EqualTo(book2.Title), "First book should be Book 2 (highest ratio)");
+        Assert.That(associatedBooks[0].LoansOfThisBookPerLoansOfMainBook, Is.EqualTo(0.75).Within(0.01), "Book 2 ratio should be 3/4 = 0.75");
 
-        Assert.That(associatedBooks[1].AssociatedBook.Title, Is.EqualTo(book3.Title));
-        Assert.That(associatedBooks[1].LoansOfThisBookPerLoansOfMainBook, Is.EqualTo(0.5).Within(0.01));
+        Assert.That(associatedBooks[1].AssociatedBook.Title, Is.EqualTo(book3.Title), "Second book should be Book 3");
+        Assert.That(associatedBooks[1].LoansOfThisBookPerLoansOfMainBook, Is.EqualTo(0.5).Within(0.01), "Book 3 ratio should be 2/4 = 0.5");
     }
 }

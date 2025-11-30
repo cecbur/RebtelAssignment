@@ -64,10 +64,10 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var paceResponse = await response.Content.ReadFromJsonAsync<LoanReadingPaceResponse>();
-        Assert.That(paceResponse, Is.Not.Null);
-        Assert.That(paceResponse!.LoanId, Is.EqualTo(loanId));
+        Assert.That(paceResponse, Is.Not.Null, "Response body should not be null");
+        Assert.That(paceResponse!.LoanId, Is.EqualTo(loanId), "LoanId should match");
         Assert.That(paceResponse.PagesPerDay, Is.Null, "PagesPerDay should be null for unreturned loan");
         Assert.That(paceResponse.Message, Is.Not.Null.And.Not.Empty, "Should include a message explaining why pace is null");
     }
@@ -92,9 +92,9 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var paceResponse = await response.Content.ReadFromJsonAsync<LoanReadingPaceResponse>();
-        Assert.That(paceResponse, Is.Not.Null);
+        Assert.That(paceResponse, Is.Not.Null, "Response body should not be null");
         Assert.That(paceResponse!.PagesPerDay, Is.Not.Null, "Should calculate pace even for same-day return");
         // For same-day returns, should treat as 1 day minimum
         Assert.That(paceResponse.PagesPerDay, Is.GreaterThan(0), "Pages per day should be positive");
@@ -120,9 +120,9 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var paceResponse = await response.Content.ReadFromJsonAsync<LoanReadingPaceResponse>();
-        Assert.That(paceResponse, Is.Not.Null);
+        Assert.That(paceResponse, Is.Not.Null, "Response body should not be null");
         Assert.That(paceResponse!.PagesPerDay, Is.EqualTo(20.0).Within(0.01), "Reading pace should be 1200 pages / 60 days = 20 pages/day");
     }
 
@@ -162,9 +162,9 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var paceResponse = await response.Content.ReadFromJsonAsync<LoanReadingPaceResponse>();
-        Assert.That(paceResponse, Is.Not.Null);
+        Assert.That(paceResponse, Is.Not.Null, "Response body should not be null");
         Assert.That(paceResponse!.PagesPerDay, Is.EqualTo(10.0).Within(0.01),
             "Reading pace should be based on actual return date: 200 pages / 20 days = 10 pages/day");
     }

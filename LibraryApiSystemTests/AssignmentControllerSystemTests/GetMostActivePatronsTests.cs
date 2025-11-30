@@ -111,7 +111,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={baseDate:yyyy-MM-dd}&endDate={baseDate.AddDays(60):yyyy-MM-dd}&maxPatrons=2");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var patrons = await response.Content.ReadFromJsonAsync<PatronLoanFrequencyResponse[]>();
         Assert.That(patrons, Has.Length.EqualTo(2), "Should return only 2 patrons when maxPatrons=2");
         Assert.That(patrons![0].LoanCount, Is.EqualTo(4), "First patron should have 4 loans");
@@ -149,7 +149,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={filterStartDate:yyyy-MM-dd}&endDate={filterEndDate:yyyy-MM-dd}&maxPatrons=10");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var patrons = await response.Content.ReadFromJsonAsync<PatronLoanFrequencyResponse[]>();
         Assert.That(patrons, Has.Length.EqualTo(1), "Should return 1 patron");
         Assert.That(patrons![0].LoanCount, Is.EqualTo(3), "Should count only the 3 loans within the timeframe");
@@ -175,7 +175,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={queryStartDate:yyyy-MM-dd}&endDate={queryEndDate:yyyy-MM-dd}&maxPatrons=10");
 
         // Assert
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
         var patrons = await response.Content.ReadFromJsonAsync<PatronLoanFrequencyResponse[]>();
         Assert.That(patrons, Is.Not.Null, "Response should not be null");
         Assert.That(patrons, Is.Empty, "Should return empty array when no loans in timeframe");
