@@ -1,4 +1,3 @@
-using DataStorage;
 using DataStorage.Repositories;
 using DataStorage.RepositoriesMultipleTables;
 
@@ -9,26 +8,14 @@ namespace DataStorageIntegrationTests;
 /// These tests use Testcontainers to spin up a SQL Server instance in Docker.
 /// Tests in this fixture share database state and must NOT run in parallel.
 /// </summary>
-[TestFixture]
-[NonParallelizable]
-public class BorrowingPatternRepositoryIntegrationTests
+public class BorrowingPatternRepositoryIntegrationTests : RepositoryIntegrationTestBase<BorrowingPatternRepository>
 {
-    private BorrowingPatternRepository _sut = null!;
     private BookRepository _bookRepository = null!;
-    private IDbConnectionFactory _connectionFactory = null!;
-    private TestDataGenerator _testData = null!;
 
-    [SetUp]
-    public async Task SetUp()
+    protected override BorrowingPatternRepository CreateRepository()
     {
-        // Clean the database before each test to ensure isolation
-        await SqlServerTestFixture.CleanDatabase();
-
-        // Create repositories with real database connection
-        _connectionFactory = new SqlServerConnectionFactory(SqlServerTestFixture.ConnectionString);
         _bookRepository = new BookRepository(_connectionFactory);
-        _sut = new BorrowingPatternRepository(_connectionFactory, _bookRepository);
-        _testData = new TestDataGenerator(SqlServerTestFixture.ConnectionString);
+        return new BorrowingPatternRepository(_connectionFactory, _bookRepository);
     }
 
     [Test]
