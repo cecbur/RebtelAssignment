@@ -33,6 +33,9 @@ var grpcServerAddress = builder.Configuration["GrpcServer:Address"] ?? "http://l
 builder.Services.AddDataStorageGrpcClient(grpcServerAddress);
 builder.Services.AddBusinessLogicGrpcClient(grpcServerAddress);
 
+// Register commands
+builder.Services.AddScoped<LibraryApi.Commands.AssignmentCommands.GetBooksSortedByMostLoanedCommand>();
+
 // Configure Swagger/OpenAPI for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

@@ -1,4 +1,6 @@
 using BusinessLogicContracts.Interfaces;
+using LibraryApi.Commands;
+using LibraryApi.Commands.AssignmentCommands;
 using Microsoft.AspNetCore.Mvc;
 using LibraryApi.Converters;
 using LibraryApi.DTOs;
@@ -15,13 +17,15 @@ public class AssignmentController : ControllerBase
 {
     private readonly IBusinessLogicFacade _businessLogicGrpcFacade;
     private readonly ILogger<AssignmentController> _logger;
+    private readonly GetBooksSortedByMostLoanedCommand _booksSortedByMostLoanedCommand;
 
     public AssignmentController(
         IBusinessLogicFacade businessLogicFacade,
-        ILogger<AssignmentController> logger)
+        ILogger<AssignmentController> logger, GetBooksSortedByMostLoanedCommand booksSortedByMostLoanedCommand)
     {
         _businessLogicGrpcFacade = businessLogicFacade ?? throw new ArgumentNullException(nameof(businessLogicFacade));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _booksSortedByMostLoanedCommand = booksSortedByMostLoanedCommand;
     }
 
     /// <summary>
@@ -37,22 +41,10 @@ public class AssignmentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<BookLoansResponse>>> GetBooksSortedByMostLoaned([FromQuery] int? maxBooks = null)
     {
-        try
-        {
-            _logger.LogInformation("Getting most loaned books sorted by loan count (max: {MaxBooks})", maxBooks ?? -1);
-
-            var bookLoans = await _businessLogicGrpcFacade.GetBooksSortedByMostLoaned(maxBooks);
-            var response = BookLoansResponseConverter.ToDto(bookLoans);
-
-            _logger.LogInformation("Retrieved {Count} books sorted by loan count", response.Length);
-
+        var (success,  response) = await _booksSortedByMostLoanedCommand.TryGetBooksSortedByMostLoaned(maxBooks);
+        if (success)
             return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting most loaned books");
-            return StatusCode(500, "An error occurred while retrieving book loan statistics");
-        }
+        return StatusCode(500, "An error occurred while retrieving book loan statistics");
     }
 
     /// <summary>
