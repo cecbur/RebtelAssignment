@@ -30,6 +30,7 @@ public class BusinessLogicArchitectureTests : MicroserviceArchitectureTestBase
         return
         [
             "LibraryApi.csproj", // Composition root - sets up DI for both server and client
+            "LibraryApiTests.csproj"
         ];
     }
 
