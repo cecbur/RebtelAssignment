@@ -2,7 +2,6 @@ using BusinessLogicContracts.Interfaces;
 using BusinessLogicGrpcClient;
 using BusinessModels;
 using LibraryApi.Commands.AssignmentCommands;
-using LibraryApi.Controllers;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -11,7 +10,7 @@ namespace LibraryApiTests.Commands;
 [TestFixture]
 public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFixtureBase
 {
-    private Mock<ILogger<AssignmentController>> _mockCommandLogger = null!;
+    private Mock<ILogger<GetBooksSortedByMostLoanedCommand>> _mockCommandLogger = null!;
     private GetBooksSortedByMostLoanedCommand _sut = null!;
     private IBusinessLogicFacade _businessLogicFacade = null!;
     private TestDataBuilder _testDataBuilder = null!;
@@ -22,7 +21,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
         _testDataBuilder = new TestDataBuilder();
         await SetUpGrpcServer();
 
-        _mockCommandLogger = new Mock<ILogger<AssignmentController>>();
+        _mockCommandLogger = new Mock<ILogger<GetBooksSortedByMostLoanedCommand>>();
         _businessLogicFacade = new BusinessLogicGrpcFacade(ServerAddress);
         _sut = new GetBooksSortedByMostLoanedCommand(_businessLogicFacade, _mockCommandLogger.Object);
     }
@@ -34,7 +33,23 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WithValidData_ReturnsSuccessAndBooks()
+    public void Constructor_WithNullBusinessLogicFacade_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+            _ = new GetBooksSortedByMostLoanedCommand(null!, _mockCommandLogger.Object));
+    }
+
+    [Test]
+    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() =>
+            _ = new GetBooksSortedByMostLoanedCommand(_businessLogicFacade, null!));
+    }
+
+    [Test]
+    public async Task GetBooksSortedByMostLoaned_WithValidData_ReturnsSuccessAndBooks()
     {
         // Arrange
         const int book1LoanCount = 10;
@@ -54,21 +69,21 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: 10);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert
-        Assert.That(success, Is.True);
-        Assert.That(response, Has.Length.EqualTo(2));
-        Assert.That(response[0].Book.Title, Is.EqualTo("The Great Gatsby"));
-        Assert.That(response[0].LoanCount, Is.EqualTo(book1LoanCount));
-        Assert.That(response[1].Book.Title, Is.EqualTo("1984"));
-        Assert.That(response[1].LoanCount, Is.EqualTo(book2LoanCount));
+        Assert.That(success, Is.True, "Operation should succeed with valid data");
+        Assert.That(response, Has.Length.EqualTo(2), "Should return exactly 2 books");
+        Assert.That(response[0].Book.Title, Is.EqualTo("The Great Gatsby"), "First book should be 'The Great Gatsby' (most loaned)");
+        Assert.That(response[0].LoanCount, Is.EqualTo(book1LoanCount), "First book should have 10 loans");
+        Assert.That(response[1].Book.Title, Is.EqualTo("1984"), "Second book should be '1984'");
+        Assert.That(response[1].LoanCount, Is.EqualTo(book2LoanCount), "Second book should have 8 loans");
 
         MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WithNullMaxBooks_ReturnsAllBooks()
+    public async Task GetBooksSortedByMostLoaned_WithNullMaxBooks_ReturnsAllBooks()
     {
         // Arrange
         const int book1LoanCount = 3;
@@ -89,20 +104,20 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: null);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: null);
 
         // Assert
-        Assert.That(success, Is.True);
-        Assert.That(response, Has.Length.EqualTo(3));
-        Assert.That(response[0].LoanCount, Is.EqualTo(book1LoanCount));
-        Assert.That(response[1].LoanCount, Is.EqualTo(book2LoanCount));
-        Assert.That(response[2].LoanCount, Is.EqualTo(book3LoanCount));
+        Assert.That(success, Is.True, "Operation should succeed with null maxBooks");
+        Assert.That(response, Has.Length.EqualTo(3), "Should return all 3 books when maxBooks is null");
+        Assert.That(response[0].LoanCount, Is.EqualTo(book1LoanCount), "First book should have 3 loans");
+        Assert.That(response[1].LoanCount, Is.EqualTo(book2LoanCount), "Second book should have 2 loans");
+        Assert.That(response[2].LoanCount, Is.EqualTo(book3LoanCount), "Third book should have 1 loan");
 
         MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WithMaxBooks_LimitsResults()
+    public async Task GetBooksSortedByMostLoaned_WithMaxBooks_LimitsResults()
     {
         // Arrange
         const int maxBooksToReturn = 2;
@@ -127,19 +142,19 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: maxBooksToReturn);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: maxBooksToReturn);
 
         // Assert
-        Assert.That(success, Is.True);
-        Assert.That(response, Has.Length.EqualTo(maxBooksToReturn));
-        Assert.That(response[0].LoanCount, Is.EqualTo(book1LoanCount));
-        Assert.That(response[1].LoanCount, Is.EqualTo(book2LoanCount));
+        Assert.That(success, Is.True, "Operation should succeed with maxBooks limit");
+        Assert.That(response, Has.Length.EqualTo(maxBooksToReturn), "Should return exactly 2 books when maxBooks=2");
+        Assert.That(response[0].LoanCount, Is.EqualTo(book1LoanCount), "First book should have 4 loans (highest)");
+        Assert.That(response[1].LoanCount, Is.EqualTo(book2LoanCount), "Second book should have 3 loans");
 
         MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WithEmptyResult_ReturnsSuccessAndEmptyArray()
+    public async Task GetBooksSortedByMostLoaned_WithEmptyResult_ReturnsSuccessAndEmptyArray()
     {
         // Arrange
         var emptyLoans = Array.Empty<Loan>();
@@ -149,17 +164,17 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(emptyLoans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: 10);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert
-        Assert.That(success, Is.True);
-        Assert.That(response, Is.Empty);
+        Assert.That(success, Is.True, "Operation should succeed even with no loans");
+        Assert.That(response, Is.Empty, "Should return empty array when there are no loans");
 
         MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WhenRepositoryThrowsException_ReturnsFalseAndEmptyArray()
+    public async Task GetBooksSortedByMostLoaned_WhenRepositoryThrowsException_ReturnsFalseAndEmptyArray()
     {
         // Arrange
         MockLoanRepository
@@ -167,17 +182,17 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: 10);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert
-        Assert.That(success, Is.False);
-        Assert.That(response, Is.Empty);
+        Assert.That(success, Is.False, "Operation should fail when repository throws exception");
+        Assert.That(response, Is.Empty, "Response should be empty when operation fails");
 
         MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WhenRepositoryThrowsException_LogsError()
+    public async Task GetBooksSortedByMostLoaned_WhenRepositoryThrowsException_LogsError()
     {
         // Arrange
         MockLoanRepository
@@ -185,7 +200,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // Act
-        await _sut.TryGetBooksSortedByMostLoaned(maxBooks: 10);
+        await _sut.GetBooksSortedByMostLoaned(maxBooks: 10);
 
         // Assert - Verify that an error was logged (without checking the exact message)
         _mockCommandLogger.Verify(
@@ -199,7 +214,7 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WithZeroMaxBooks_ReturnsEmptyArray()
+    public async Task GetBooksSortedByMostLoaned_WithZeroMaxBooks_ReturnsFailure()
     {
         // Arrange
         const int zeroMaxBooks = 0;
@@ -211,40 +226,35 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: zeroMaxBooks);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: zeroMaxBooks);
 
         // Assert
-        Assert.That(success, Is.True);
-        Assert.That(response, Is.Empty);
+        Assert.That(success, Is.False, "Operation should fail when maxBooks is 0");
+        Assert.That(response, Is.Empty, "Response should be empty when validation fails");
 
-        MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
+        // Verify repository was never called due to validation failure
+        MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Never);
     }
 
     [Test]
-    [Ignore("Validation not yet implemented")]
-    public async Task TryGetBooksSortedByMostLoaned_WithNegativeMaxBooks_ReturnsEmptyArray()
+    public async Task GetBooksSortedByMostLoaned_WithNegativeMaxBooks_ReturnsFailure()
     {
         // Arrange
         const int negativeMaxBooks = -1;
-        var book = _testDataBuilder.CreateBook(1, "Book 1", _testDataBuilder.CreateAuthor(1, "Author", "1"));
-        var loans = _testDataBuilder.CreateLoansForBook(book, startId: 1, count: 5);
-
-        MockLoanRepository
-            .Setup(r => r.GetAllLoans())
-            .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: negativeMaxBooks);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: negativeMaxBooks);
 
         // Assert
-        Assert.That(success, Is.False);
-        Assert.That(response, Is.Empty);
+        Assert.That(success, Is.False, "Operation should fail when maxBooks is negative");
+        Assert.That(response, Is.Empty, "Response should be empty when validation fails");
 
-        MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
+        // Verify repository was never called due to validation failure
+        MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Never);
     }
 
     [Test]
-    public async Task TryGetBooksSortedByMostLoaned_WithIdenticalLoanCounts_MaintainsStableOrder()
+    public async Task GetBooksSortedByMostLoaned_WithIdenticalLoanCounts_MaintainsStableOrder()
     {
         // Arrange
         const int sameLoanCount = 5;
@@ -262,33 +272,18 @@ public class GetBooksSortedByMostLoanedCommandTests : DataStorageMockGrpcTestFix
             .ReturnsAsync(loans);
 
         // Act
-        var (success, response) = await _sut.TryGetBooksSortedByMostLoaned(maxBooks: null);
+        var (success, response) = await _sut.GetBooksSortedByMostLoaned(maxBooks: null);
 
         // Assert
-        Assert.That(success, Is.True);
-        Assert.That(response, Has.Length.EqualTo(3));
+        Assert.That(success, Is.True, "Operation should succeed with identical loan counts");
+        Assert.That(response, Has.Length.EqualTo(3), "Should return all 3 books");
 
         // All books should have the same loan count
-        Assert.That(response[0].LoanCount, Is.EqualTo(sameLoanCount));
-        Assert.That(response[1].LoanCount, Is.EqualTo(sameLoanCount));
-        Assert.That(response[2].LoanCount, Is.EqualTo(sameLoanCount));
+        Assert.That(response[0].LoanCount, Is.EqualTo(sameLoanCount), "First book should have 5 loans");
+        Assert.That(response[1].LoanCount, Is.EqualTo(sameLoanCount), "Second book should have 5 loans");
+        Assert.That(response[2].LoanCount, Is.EqualTo(sameLoanCount), "Third book should have 5 loans");
 
         MockLoanRepository.Verify(r => r.GetAllLoans(), Times.Once);
     }
 
-    [Test]
-    public void Constructor_WithNullBusinessLogicFacade_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetBooksSortedByMostLoanedCommand(null!, _mockCommandLogger.Object));
-    }
-
-    [Test]
-    public void Constructor_WithNullLogger_ThrowsArgumentNullException()
-    {
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() =>
-            _ = new GetBooksSortedByMostLoanedCommand(_businessLogicFacade, null!));
-    }
 }

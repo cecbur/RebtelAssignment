@@ -41,7 +41,7 @@ public class AssignmentController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IEnumerable<BookLoansResponse>>> GetBooksSortedByMostLoaned([FromQuery] int? maxBooks = null)
     {
-        var (success,  response) = await _booksSortedByMostLoanedCommand.TryGetBooksSortedByMostLoaned(maxBooks);
+        var (success,  response) = await _booksSortedByMostLoanedCommand.GetBooksSortedByMostLoaned(maxBooks);
         if (success)
             return Ok(response);
         return StatusCode(500, "An error occurred while retrieving book loan statistics");
