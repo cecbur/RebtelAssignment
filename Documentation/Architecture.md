@@ -30,8 +30,6 @@ The application follows a **layered architecture** with clear separation of conc
 ├─────────────────────────────────────┤
 │  Commands (LibraryApi)              │  ← Request Orchestration
 ├─────────────────────────────────────┤
-│  Facade (BusinessLogic)             │  ← Unified Business Interface
-├─────────────────────────────────────┤
 │  Business Logic Services            │  ← Domain Logic
 │  (BookPatterns, BorrowingPatterns)  │
 ├─────────────────────────────────────┤
@@ -54,7 +52,8 @@ Controllers handle HTTP requests and responses. They define the API contract (ro
 ### Implementation Example
 ```csharp
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class AssignmentController : ControllerBase
 {
     private readonly GetOtherBooksBorrowedCommand _otherBooksBorrowedCommand;
@@ -80,6 +79,30 @@ public class AssignmentController : ControllerBase
 - Uses dependency injection to receive Command instances
 - Returns appropriate HTTP status codes (200, 500)
 - Delegates all logic to Commands
+
+### API Versioning
+The API uses **URL segment-based versioning** to allow for future evolution without breaking existing clients:
+
+- **Current version**: 1.0
+- **URL pattern**: `/api/v{version}/[controller]`
+- **Example**: `/api/v1/Assignment/most-loaned-books`
+
+**Configuration** (`Program.cs`):
+```csharp
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
+```
+
+**Benefits**:
+- **Explicit versioning**: Version is clearly visible in the URL
+- **Multiple versions**: Can run v1 and v2 simultaneously
+- **Backward compatibility**: Existing clients continue to work when new versions are added
+- **Swagger integration**: Each version gets its own documentation page
 
 ---
 
@@ -676,11 +699,11 @@ public class BorrowingPatternRepository(
 
 ## Complete Example Flow
 
-Let's trace a request through all layers for: **GET /api/assignment/other-books-borrowed/123**
+Let's trace a request through all layers for: **GET /api/v1/assignment/other-books-borrowed/123**
 
 ### Step 1: Controller Receives Request
 ```
-HTTP GET /api/assignment/other-books-borrowed/123
+HTTP GET /api/v1/assignment/other-books-borrowed/123
 ↓
 AssignmentController.GetOtherBooksBorrowed(bookId: 123)
 ```

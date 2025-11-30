@@ -20,6 +20,20 @@ builder.WebHost.ConfigureKestrel(options =>
 // Add services to the container
 builder.Services.AddControllers();
 
+// Add API versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new Asp.Versioning.UrlSegmentApiVersionReader();
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 // Add gRPC services
 builder.Services.AddGrpc();
 
@@ -47,16 +61,24 @@ builder.Services.AddScoped<LibraryApi.Commands.AssignmentCommands.GetOtherBooksB
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    // Generate a Swagger document for each discovered API version
+    var provider = builder.Services.BuildServiceProvider().GetRequiredService<Asp.Versioning.ApiExplorer.IApiVersionDescriptionProvider>();
+
+    foreach (var description in provider.ApiVersionDescriptions)
     {
-        Title = "Library API",
-        Version = "v1",
-        Description = "A well-structured .NET 8 API for library management following Clean Code and SOLID principles",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        options.SwaggerDoc(description.GroupName, new Microsoft.OpenApi.Models.OpenApiInfo
         {
-            Name = "Library API"
-        }
-    });
+            Title = "Library API",
+            Version = description.ApiVersion.ToString(),
+            Description = description.IsDeprecated
+                ? "A well-structured .NET 8 API for library management following Clean Code and SOLID principles (DEPRECATED)"
+                : "A well-structured .NET 8 API for library management following Clean Code and SOLID principles",
+            Contact = new Microsoft.OpenApi.Models.OpenApiContact
+            {
+                Name = "Library API"
+            }
+        });
+    }
 
     // Enable XML comments for better API documentation
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -86,7 +108,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Library API v1");
+        var provider = app.Services.GetRequiredService<Asp.Versioning.ApiExplorer.IApiVersionDescriptionProvider>();
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                $"Library API {description.GroupName.ToUpperInvariant()}");
+        }
         options.RoutePrefix = string.Empty; // Serve Swagger UI at root
     });
 }

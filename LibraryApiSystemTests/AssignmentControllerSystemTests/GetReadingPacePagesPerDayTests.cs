@@ -32,7 +32,7 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var loanId = loans[0].Id;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -61,7 +61,7 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var loanId = loans[0].Id;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -89,7 +89,7 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var loanId = loans[0].Id;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -117,7 +117,7 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var loanId = loans[0].Id;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -133,7 +133,7 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var nonExistentLoanId = 99999;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{nonExistentLoanId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/reading-pace-pages-per-day/{nonExistentLoanId}");
 
         // Assert
         // The endpoint should return 500 Internal Server Error for non-existent loan
@@ -159,7 +159,7 @@ public class GetReadingPacePagesPerDayTests : AssignmentControllerSystemTestBase
         var loanId = loans[0].Id;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/reading-pace-pages-per-day/{loanId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/reading-pace-pages-per-day/{loanId}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");

@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using LibraryApi.Commands.AssignmentCommands;
 using Microsoft.AspNetCore.Mvc;
 using LibraryApi.DTOs;
@@ -8,7 +9,8 @@ namespace LibraryApi.Controllers;
 /// API Controller for assignment-related endpoints
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Produces("application/json")]
 public class AssignmentController : ControllerBase
 {

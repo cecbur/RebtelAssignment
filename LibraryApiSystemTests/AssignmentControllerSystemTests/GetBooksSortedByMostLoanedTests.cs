@@ -55,7 +55,7 @@ public class GetBooksSortedByMostLoanedTests : AssignmentControllerSystemTestBas
         ]);
 
         // Act - Call the HTTP endpoint
-        var response = await _client.GetAsync("/api/Assignment/most-loaned-books");
+        var response = await _client.GetAsync("/api/v1/Assignment/most-loaned-books");
 
         // Assert - Verify HTTP response
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -101,7 +101,7 @@ public class GetBooksSortedByMostLoanedTests : AssignmentControllerSystemTestBas
         ]);
 
         // Act - Call endpoint with maxBooks=2
-        var response = await _client.GetAsync("/api/Assignment/most-loaned-books?maxBooks=2");
+        var response = await _client.GetAsync("/api/v1/Assignment/most-loaned-books?maxBooks=2");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -117,7 +117,7 @@ public class GetBooksSortedByMostLoanedTests : AssignmentControllerSystemTestBas
         // Arrange - Empty database (already cleaned in SetUp)
 
         // Act
-        var response = await _client.GetAsync("/api/Assignment/most-loaned-books");
+        var response = await _client.GetAsync("/api/v1/Assignment/most-loaned-books");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");

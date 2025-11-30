@@ -59,7 +59,7 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -97,7 +97,7 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -128,7 +128,7 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -146,7 +146,7 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         var nonExistentBookId = 99999;
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{nonExistentBookId}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/other-books-borrowed/{nonExistentBookId}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.InternalServerError),
@@ -174,7 +174,7 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -222,7 +222,7 @@ public class GetOtherBooksBorrowedTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/other-books-borrowed/{mainBook.Id}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/other-books-borrowed/{mainBook.Id}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");

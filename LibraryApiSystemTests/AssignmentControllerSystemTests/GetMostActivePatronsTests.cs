@@ -55,7 +55,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         var startDate = baseDate;
         var endDate = baseDate.AddDays(40);
         var maxPatrons = 10;
-        var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}&maxPatrons={maxPatrons}");
+        var response = await _client.GetAsync($"/api/v1/Assignment/most-active-patrons?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}&maxPatrons={maxPatrons}");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -108,7 +108,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act - Request only top 2 patrons
-        var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={baseDate:yyyy-MM-dd}&endDate={baseDate.AddDays(60):yyyy-MM-dd}&maxPatrons=2");
+        var response = await _client.GetAsync($"/api/v1/Assignment/most-active-patrons?startDate={baseDate:yyyy-MM-dd}&endDate={baseDate.AddDays(60):yyyy-MM-dd}&maxPatrons=2");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -146,7 +146,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         ]);
 
         // Act
-        var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={filterStartDate:yyyy-MM-dd}&endDate={filterEndDate:yyyy-MM-dd}&maxPatrons=10");
+        var response = await _client.GetAsync($"/api/v1/Assignment/most-active-patrons?startDate={filterStartDate:yyyy-MM-dd}&endDate={filterEndDate:yyyy-MM-dd}&maxPatrons=10");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");
@@ -172,7 +172,7 @@ public class GetMostActivePatronsTests : AssignmentControllerSystemTestBase
         // Act - Query a different timeframe
         var queryStartDate = new DateTime(2024, 1, 1);
         var queryEndDate = new DateTime(2024, 12, 31);
-        var response = await _client.GetAsync($"/api/Assignment/most-active-patrons?startDate={queryStartDate:yyyy-MM-dd}&endDate={queryEndDate:yyyy-MM-dd}&maxPatrons=10");
+        var response = await _client.GetAsync($"/api/v1/Assignment/most-active-patrons?startDate={queryStartDate:yyyy-MM-dd}&endDate={queryEndDate:yyyy-MM-dd}&maxPatrons=10");
 
         // Assert
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "HTTP response should be 200 OK");

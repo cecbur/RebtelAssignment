@@ -166,10 +166,12 @@ Swagger UI will load automatically at the root URL, providing an interactive API
 
 The Assignment Controller provides these endpoints:
 
-1. **GET /api/Assignment/most-loaned-books** - Get books sorted by loan count
-2. **GET /api/Assignment/most-active-patrons** - Get patrons sorted by activity
-3. **GET /api/Assignment/reading-pace-pages-per-day/{loanId}** - Get reading pace for a loan
-4. **GET /api/Assignment/other-books-borrowed/{bookId}** - Get borrowing pattern associations
+1. **GET /api/v1/Assignment/most-loaned-books** - Get books sorted by loan count
+2. **GET /api/v1/Assignment/most-active-patrons** - Get patrons sorted by activity
+3. **GET /api/v1/Assignment/reading-pace-pages-per-day/{loanId}** - Get reading pace for a loan
+4. **GET /api/v1/Assignment/other-books-borrowed/{bookId}** - Get borrowing pattern associations
+
+**Note:** The API uses URL-based versioning (`/api/v1/...`). The current version is 1.0. All endpoints include the version number in the URL for explicit version control and backward compatibility.
 
 ---
 
@@ -178,7 +180,7 @@ The Assignment Controller provides these endpoints:
 ### Using Swagger UI
 
 1. Navigate to https://localhost:7000
-2. Find an endpoint (e.g., `/api/Assignment/most-loaned-books`)
+2. Find an endpoint (e.g., `/api/v1/Assignment/most-loaned-books`)
 3. Click **"Try it out"**
 4. Adjust parameters if needed
 5. Click **"Execute"**
@@ -188,22 +190,22 @@ The Assignment Controller provides these endpoints:
 
 #### Get Most Loaned Books
 ```bash
-curl -X GET "https://localhost:7000/api/Assignment/most-loaned-books" -k
+curl -X GET "https://localhost:7000/api/v1/Assignment/most-loaned-books" -k
 ```
 
 #### Get Most Active Patrons (within a date range)
 ```bash
-curl -X GET "https://localhost:7000/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=10" -k
+curl -X GET "https://localhost:7000/api/v1/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=10" -k
 ```
 
 #### Get Reading Pace for a Loan
 ```bash
-curl -X GET "https://localhost:7000/api/Assignment/reading-pace-pages-per-day/1" -k
+curl -X GET "https://localhost:7000/api/v1/Assignment/reading-pace-pages-per-day/1" -k
 ```
 
 #### Get Borrowing Patterns
 ```bash
-curl -X GET "https://localhost:7000/api/Assignment/other-books-borrowed/1" -k
+curl -X GET "https://localhost:7000/api/v1/Assignment/other-books-borrowed/1" -k
 ```
 
 **Note:** The `-k` flag allows insecure HTTPS connections (self-signed certificate).

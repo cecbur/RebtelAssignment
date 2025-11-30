@@ -14,79 +14,79 @@
 ##########################
 
 ### 1. Get most loaned books sorted by loan count
-GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/most-loaned-books
 Accept: application/json
 
 ###
 
 ### Get most loaned books sorted by loan count (top 5)
-GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books?maxBooks=5
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/most-loaned-books?maxBooks=5
 Accept: application/json
 
 ###
 
 ### Get most loaned books sorted by loan count (top 10)
-GET {{LibraryApi_HostAddress}}/api/Assignment/most-loaned-books?maxBooks=10
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/most-loaned-books?maxBooks=10
 Accept: application/json
 
 ###
 
 ### 2. Get most active patrons (January 2024, top 10)
-GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-01-31&maxPatrons=10
 Accept: application/json
 
 ###
 
 ### Get most active patrons (Q1 2024, top 5)
-GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-03-31&maxPatrons=5
 Accept: application/json
 
 ###
 
 ### Get most active patrons (All of 2024, top 20)
-GET {{LibraryApi_HostAddress}}/api/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/most-active-patrons?startDate=2024-01-01&endDate=2024-12-31&maxPatrons=20
 Accept: application/json
 
 ###
 
 ### 3. Get reading pace (pages per day) for loan 1
-GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/1
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/reading-pace-pages-per-day/1
 Accept: application/json
 
 ###
 
 ### Get reading pace (pages per day) for loan 2
-GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/2
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/reading-pace-pages-per-day/2
 Accept: application/json
 
 ###
 
 ### Get reading pace (pages per day) for loan 3
-GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/3
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/reading-pace-pages-per-day/3
 Accept: application/json
 
 ###
 
 ### Get reading pace (pages per day) for non-existent loan
-GET {{LibraryApi_HostAddress}}/api/Assignment/reading-pace-pages-per-day/999
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/reading-pace-pages-per-day/999
 Accept: application/json
 
 ###
 
 ### 4. Get other books borrowed by individuals who borrowed book 1
-GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/1
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/other-books-borrowed/1
 Accept: application/json
 
 ###
 
 ### Get other books borrowed by individuals who borrowed book 2
-GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/2
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/other-books-borrowed/2
 Accept: application/json
 
 ###
 
 ### Get other books borrowed by individuals who borrowed book 4
-GET {{LibraryApi_HostAddress}}/api/Assignment/other-books-borrowed/4
+GET {{LibraryApi_HostAddress}}/api/v1/Assignment/other-books-borrowed/4
 Accept: application/json
 
 ###
